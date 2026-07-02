@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
-    <!-- PWA: meta tags para multiplataforma -->
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -15,9 +14,7 @@
     <meta name="format-detection" content="telephone=no">
     <meta name="description" content="Sistema de evaluación criterial para Tecnología 4º ESO (LOMLOE). Versión online con guardado en la nube.">
     <title>Evaluación Criterial TEC4 — Versión Online</title>
-    <!-- PWA: manifest -->
     <link rel="manifest" href="manifest.json">
-    <!-- PWA: iconos multiplataforma -->
     <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
     <link rel="apple-touch-icon" sizes="192x192" href="icons/icon-192x192.png">
     <link rel="icon" type="image/png" sizes="96x96" href="icons/favicon-96x96.png">
@@ -25,7 +22,6 @@
     <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512x512.png">
     <link rel="icon" type="image/svg+xml" href="icons/icon.svg">
     <link rel="shortcut icon" href="icons/favicon.ico">
-    <!-- CDNs -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -2456,6 +2452,56 @@
                 font-size: 0.85rem !important;
             }
         }
+
+        /* === MENÚ DE NAVEGACIÓN INFERIOR (móviles y tablets) === */
+        /* Clon de los botones de navegación superior de cada subapp,
+           fijado al pie, solo visible en pantallas ≤ 992px */
+        .subapp-bottom-nav {
+            display: none; /* oculto por defecto (desktop) */
+        }
+        @media (max-width: 992px) {
+            .subapp-bottom-nav {
+                display: flex;
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right:  0;
+                z-index: 1050;
+                justify-content: center;
+                gap: 6px;
+                padding: 8px 10px;
+                background: linear-gradient(180deg, rgba(248,249,250,0.96) 0%, rgba(255,255,255,0.99) 100%);
+                border-top: 1px solid #dee2e6;
+                box-shadow: 0 -2px 12px rgba(0,0,0,0.08);
+                backdrop-filter: blur(6px);
+                -webkit-backdrop-filter: blur(6px);
+            }
+            /* Los botones del clon ocupan el ancho disponible de forma equitativa */
+            .subapp-bottom-nav .btn {
+                flex: 1 1 0;
+                min-width: 0;
+                font-size: 0.78rem;
+                padding: 8px 4px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+            /* Evitar que el menú tape el contenido inferior de cada pantalla */
+            #appExamContainer.active,
+            #appTestContainer.active,
+            #appGenericContainer.active,
+            #appInstrumentosContainer.active,
+            #appPonderacionContainer.active,
+            #appRubricasContainer.active {
+                padding-bottom: 70px;
+            }
+        }
+        @media (max-width: 480px) {
+            .subapp-bottom-nav .btn {
+                font-size: 0.72rem;
+                padding: 7px 2px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -3842,13 +3888,18 @@ function readJSONFile(file, cb) {
     reader.readAsText(file);
 }
 
-/** Guarda datos en localStorage y muestra confirmación. */
-function localSave(key, getData) {
+/** Guarda datos en localStorage. Si silent=true, no muestra alertas (para autosave). */
+function localSave(key, getData, silent) {
     if (!safeLSSet(key, JSON.stringify(getData()))) {
-        return alert('⚠️ No se pudo guardar localmente: el almacenamiento del navegador no está disponible en este entorno (vista previa sandbox). Usa la opción "Exportar JSON" para guardar el archivo manualmente.');
+        if (!silent) alert('⚠️ No se pudo guardar localmente: el almacenamiento del navegador no está disponible en este entorno (vista previa sandbox). Usa la opción "Exportar JSON" para guardar el archivo manualmente.');
+        return false;
     }
-    alert('✅ Guardado localmente.');
+    if (!silent) alert('✅ Guardado localmente.');
+    return true;
 }
+
+/** Guarda datos en localStorage de forma silenciosa (para autosave). */
+function localSaveSilent(key, getData) { return localSave(key, getData, true); }
 
 /** Carga datos de localStorage y llama a onData(parsed); muestra alerta si no hay datos o hay error. */
 function localLoad(key, onData) {
@@ -4175,12 +4226,16 @@ function normalizeExamScores() {
     normalizeScores(examState, examState.questions.length);
     examState.scores.forEach((row, sIdx) => row && row.forEach((score, qIdx) => {
         const max = examState.questions[qIdx]?.maxScore || 10;
-        examState.scores[sIdx][qIdx] = score > max ? max : score < 0 ? 0 : score;
+        const n = Number(score);
+        examState.scores[sIdx][qIdx] = isNaN(n) ? 0 : (n > max ? max : n < 0 ? 0 : n);
     }));
 }
 function normalizeGenericScores() {
     normalizeScores(genericState, genericState.globalCriteria.length);
-    genericState.scores.forEach(row => row && row.forEach((s,i,a) => { a[i] = s>10?10:s<0?0:s; }));
+    genericState.scores.forEach(row => row && row.forEach((s,i,a) => {
+        const n = Number(s);
+        a[i] = isNaN(n) ? 0 : (n>10?10:n<0?0:n);
+    }));
 }
 
 // =============================================================================
@@ -4252,6 +4307,7 @@ function renderSimpleGradeTable(state, tableId, tbodyId, descFn, app) {
             let val = parseGradeInput(this.value); val = Math.min(Math.max(val,0),10); this.value = formatGradeDisplay(val);
             if (!state.scores[sIdx]) state.scores[sIdx] = [];
             state.scores[sIdx][cIdx] = val;
+            autoSaveScores(app);
         });
     });
     // Copy row: first criterion → rest for same student
@@ -4273,6 +4329,7 @@ function renderSimpleGradeTable(state, tableId, tbodyId, descFn, app) {
             firstInput.value = formatGradeDisplay(clampedVal);
             firstInput.classList.remove('input-max-exceeded');
             removeMaxWarning(firstInput);
+            autoSaveScores(app);
         });
     });
     // Copy column: first student → rest for same criterion
@@ -4294,6 +4351,7 @@ function renderSimpleGradeTable(state, tableId, tbodyId, descFn, app) {
             firstInput.value = formatGradeDisplay(clampedVal);
             firstInput.classList.remove('input-max-exceeded');
             removeMaxWarning(firstInput);
+            autoSaveScores(app);
         });
     });
 }
@@ -4484,6 +4542,9 @@ function importAppConfig(file, app) {
             sortStudents(genericState,'scores'); renderGlobalBadges('generic'); renderGenericStudentTags();
             updateGenericConfigWarning();
         }
+        saveAppToLocal(app, true);
+        // Persistir también *_scores_backup (fix 15-A-5: evitar scores stale tras import config)
+        autoSaveScores(app);
         alert('✅ Configuración importada.');
     });
 }
@@ -4512,27 +4573,56 @@ function importAppScores(file, app) {
         if (app === 'exam') {
             if (!data.examName||!Array.isArray(data.students)||!Array.isArray(data.questions)||!Array.isArray(data.scores)) throw new Error('Formato inválido');
             if ((data.students.length!==examState.students.length||data.questions.length!==examState.questions.length) && !confirm('Los datos no coinciden. ¿Continuar?')) return;
-            examState.scores = data.scores; normalizeExamScores(); renderExamGradeTable();
+            // Match by name (fix 15-A-4): asignar scores por identidad, no por posición
+            const newScores = examState.students.map(() => new Array(examState.questions.length).fill(0));
+            data.students.forEach((name, idx) => {
+                const sIdx = examState.students.findIndex(s => s.fullName === name);
+                if (sIdx !== -1 && Array.isArray(data.scores[idx])) {
+                    newScores[sIdx] = [...data.scores[idx]];
+                }
+            });
+            examState.scores = newScores;
+            normalizeExamScores(); renderExamGradeTable();
             showMessage('examGradeMessage','<i class="bi bi-check-circle"></i> Calificaciones importadas.');
+            autoSaveApp('exam'); autoSaveScores('exam');
         } else if (app === 'test') {
             if (!data.examName||!Array.isArray(data.students)||!Array.isArray(data.studentScores)||!data.totalQuestions) throw new Error('Formato inválido');
             if (data.students.length!==testState.students.length && !confirm('El número de alumnos no coincide. ¿Continuar?')) return;
-            testState.studentScores = data.studentScores.map(ss=>({ correct:ss.correct||0, wrong:ss.wrong||0, unanswered: Math.max(0, testState.totalQuestions-(ss.correct||0)-(ss.wrong||0)) }));
+            if (data.totalQuestions !== testState.totalQuestions && !confirm('El número total de preguntas no coincide. ¿Continuar?')) return;
+            // Match by name (fix 15-A-4)
+            const newStudentScores = testState.students.map(() => ({correct:0,wrong:0,unanswered:testState.totalQuestions}));
+            data.students.forEach((name, idx) => {
+                const sIdx = testState.students.findIndex(s => s.fullName === name);
+                if (sIdx !== -1 && data.studentScores[idx]) {
+                    const ss = data.studentScores[idx];
+                    const c = Math.min(Number(ss.correct)||0, testState.totalQuestions);
+                    const w = Math.min(Number(ss.wrong)||0, testState.totalQuestions - c);
+                    newStudentScores[sIdx] = { correct: c, wrong: w, unanswered: Math.max(0, testState.totalQuestions - c - w) };
+                }
+            });
+            testState.studentScores = newStudentScores;
             renderTestGradeTable(); showMessage('testGradeMessage','<i class="bi bi-check-circle"></i> Calificaciones importadas.');
+            autoSaveApp('test'); autoSaveScores('test');
         } else {
             if (!data.examName||!Array.isArray(data.students)||!Array.isArray(data.scores)||!Array.isArray(data.criteria)) throw new Error('Formato inválido');
             if (data.students.length!==genericState.students.length&&!confirm('Número de alumnos no coincide. ¿Continuar?')) return;
             if (data.criteria.length!==genericState.globalCriteria.length&&!confirm('Número de criterios no coincide. ¿Continuar?')) return;
             const nC = genericState.globalCriteria.length;
-            genericState.scores = data.scores.map(row => {
-                if (!row) return new Array(nC).fill(0);
-                if (row.length < nC) return [...row, ...new Array(nC-row.length).fill(0)];
-                return row.slice(0, nC);
+            // Match by name (fix 15-A-4)
+            const newScores = genericState.students.map(() => new Array(nC).fill(0));
+            data.students.forEach((name, idx) => {
+                const sIdx = genericState.students.findIndex(s => s.fullName === name);
+                if (sIdx !== -1 && Array.isArray(data.scores[idx])) {
+                    const row = data.scores[idx];
+                    const normalized = row.slice(0, nC);
+                    while (normalized.length < nC) normalized.push(0);
+                    newScores[sIdx] = normalized;
+                }
             });
-            while (genericState.scores.length < genericState.students.length) genericState.scores.push(new Array(nC).fill(0));
-            genericState.scores = genericState.scores.slice(0, genericState.students.length);
+            genericState.scores = newScores;
             normalizeGenericScores(); renderGenericGradeTable();
             showMessage('genericGradeMessage','<i class="bi bi-check-circle"></i> Calificaciones importadas.');
+            autoSaveApp('generic'); autoSaveScores('generic');
         }
     });
 }
@@ -4550,33 +4640,88 @@ function saveScoresLocal(app) {
     showMessage(cfgs.msgId, '<i class="bi bi-check-circle"></i> Calificaciones guardadas localmente.');
 }
 
-/** Guarda toda la configuración de una app en localStorage. */
-function saveAppToLocal(app) {
+/** Guarda toda la configuración de una app en localStorage. Si silent=true, no muestra alertas (para autosave). */
+function saveAppToLocal(app, silent) {
     const keys = { exam:'tec4_exam_app', test:'tec4_test_app', generic:'tec4_generic_app' };
     if (!safeLSSet(keys[app], JSON.stringify(appStates[app]))) {
-        return alert('⚠️ No se pudo guardar: almacenamiento no disponible en este entorno.');
+        if (!silent) alert('⚠️ No se pudo guardar: almacenamiento no disponible en este entorno.');
+        return false;
     }
-    alert('✅ Configuración guardada.');
+    if (!silent) alert('✅ Configuración guardada.');
+    return true;
 }
 
-/** Carga toda la configuración de una app desde localStorage y refresca la UI. */
-function loadAppFromLocal(app) {
+/** Autosave silencioso de configuración (exam/test/generic). */
+function autoSaveApp(app) {
+    if (app === 'exam' || app === 'test' || app === 'generic') saveAppToLocal(app, true);
+    else if (app === 'instrumentos') inst_saveConfigLocalSilent();
+    else if (app === 'ponderacion') pond_saveConfigLocalSilent();
+    // rubric ya llama rubric_saveLocal() en cada handler
+}
+/** Autosave silencioso de calificaciones (exam/test/generic).
+ *  También actualiza tec4_*_app (que contiene scores) para que loadAppFromLocal
+ *  recupere las últimas calificaciones, no solo las de *_scores_backup. */
+function autoSaveScores(app) {
+    if (app === 'exam' || app === 'test' || app === 'generic') {
+        const cfgs = {
+            exam:    { key:'exam_scores_backup',    getData:()=>({ students:examState.students.map(s=>s.fullName), questions:examState.questions.map(q=>({id:q.id,maxScore:q.maxScore})), scores:examState.scores }) },
+            test:    { key:'test_scores_backup',    getData:()=>({ students:testState.students.map(s=>s.fullName), totalQuestions:testState.totalQuestions, studentScores:testState.studentScores.map(ss=>({correct:ss.correct,wrong:ss.wrong,unanswered:ss.unanswered})) }) },
+            generic: { key:'generic_scores_backup', getData:()=>({ students:genericState.students.map(s=>s.fullName), criteria:genericState.globalCriteria, scores:genericState.scores }) }
+        }[app];
+        if (cfgs) localSaveSilent(cfgs.key, cfgs.getData);
+        // Actualizar también tec4_*_app (que incluye scores) para que loadAppFromLocal
+        // recupere las calificaciones más recientes, no un snapshot stale
+        saveAppToLocal(app, true);
+    } else if (app === 'instrumentos') {
+        localSaveSilent('inst_eval_backup', ()=>({students:instrumentState.students.map(s=>s.fullName),instruments:instrumentState.instruments.map(i=>({name:i.name,weight:i.weight,description:i.description||''})),evalScores:instrumentState.evalScores,evalWeights:instrumentState.evalWeights,matrix:instrumentState.matrix,criteriaDescriptions:{...(instrumentState.criteriaDescriptions||{})}}));
+    }
+}
+
+/** Carga toda la configuración de una app desde localStorage y refresca la UI. Si silent=true, no muestra alert. */
+function loadAppFromLocal(app, silent) {
     const keys = { exam:'tec4_exam_app', test:'tec4_test_app', generic:'tec4_generic_app' };
-    localLoad(keys[app], saved => {
+    const saved = safeLSGet(keys[app]);
+    if (!saved) { if (!silent) alert('No hay datos guardados.'); return; }
+    let data;
+    try { data = JSON.parse(saved); } catch(e) { if (!silent) alert('Error al cargar: ' + e.message); return; }
+    try {
         if (app === 'exam') {
-            Object.assign(examState, saved);
-            examState.students = examState.students.map(s=>({...s, id:s.id||uuid()}));
+            Object.assign(examState, data);
+            examState.students = (Array.isArray(examState.students) ? examState.students : []).map(s=>({...s, id:s.id||uuid()}));
             if (!examState.criteriaDescriptions) examState.criteriaDescriptions = {};
+            // Validar arrays críticos (fix 15-A-2)
+            if (!Array.isArray(examState.questions) || examState.questions.length === 0) examState.questions = [{id:1,maxScore:10,criteriaCodes:[],name:'',description:''}];
+            examState.questions = examState.questions.map(q => ({
+                id: q.id || 1, maxScore: (typeof q.maxScore === 'number' && q.maxScore > 0) ? q.maxScore : 10,
+                criteriaCodes: Array.isArray(q.criteriaCodes) ? q.criteriaCodes : [],
+                name: q.name || '', description: q.description || ''
+            }));
+            if (!Array.isArray(examState.scores)) examState.scores = [];
+            if (!Array.isArray(examState.globalCriteria)) examState.globalCriteria = [];
             normalizeExamScores(); renderGlobalBadges('exam'); renderExamQuestionsTable(); renderExamStudentTags();
             document.getElementById('examNameInput').value = examState.examName;
             document.getElementById('examCourseInput').value = examState.course;
             document.getElementById('examInputNumQuestions').value = examState.questions.length;
             validateExamCriteria(); updateExamConfigWarning();
         } else if (app === 'test') {
-            Object.assign(testState, saved);
-            testState.students = testState.students.map(s=>({...s, id:s.id||uuid()}));
+            Object.assign(testState, data);
+            testState.students = (Array.isArray(testState.students) ? testState.students : []).map(s=>({...s, id:s.id||uuid()}));
             if (!testState.criteriaDescriptions) testState.criteriaDescriptions = {};
-            if (!testState.studentScores) testState.studentScores = testState.students.map(()=>({correct:0,wrong:0,unanswered:testState.totalQuestions}));
+            // Validar numéricos (fix 15-A-3)
+            if (typeof testState.totalQuestions !== 'number' || testState.totalQuestions < 1) testState.totalQuestions = 20;
+            if (typeof testState.penaltyFactor !== 'number' || isNaN(testState.penaltyFactor)) testState.penaltyFactor = 0;
+            if (!Array.isArray(testState.studentScores)) testState.studentScores = [];
+            if (!Array.isArray(testState.globalCriteria)) testState.globalCriteria = [];
+            // Asegurar longitud coincidente con students
+            while (testState.studentScores.length < testState.students.length) testState.studentScores.push({correct:0,wrong:0,unanswered:testState.totalQuestions});
+            testState.studentScores = testState.studentScores.slice(0, testState.students.length);
+            // Clamp progresivo: correct <= totalQuestions, wrong <= totalQuestions - correct, unanswered >= 0
+            testState.studentScores = testState.studentScores.map(ss => {
+                if (!ss || typeof ss !== 'object') return {correct:0,wrong:0,unanswered:testState.totalQuestions};
+                const c = Math.min(Number(ss.correct)||0, testState.totalQuestions);
+                const w = Math.min(Number(ss.wrong)||0, testState.totalQuestions - c);
+                return { correct: c, wrong: w, unanswered: Math.max(0, testState.totalQuestions - c - w) };
+            });
             sortStudents(testState,'studentScores'); renderGlobalBadges('test'); renderTestStudentTags();
             document.getElementById('testExamTitleInput').value = testState.examName;
             document.getElementById('testCourseInput').value = testState.course;
@@ -4585,16 +4730,22 @@ function loadAppFromLocal(app) {
             document.querySelectorAll('.penalty-option').forEach(o=>o.classList.toggle('selected',o.querySelector('input')?.checked));
             updateTestConfigWarning();
         } else {
-            Object.assign(genericState, saved);
-            genericState.students = genericState.students.map(s=>({...s, id:s.id||uuid()}));
+            Object.assign(genericState, data);
+            genericState.students = (Array.isArray(genericState.students) ? genericState.students : []).map(s=>({...s, id:s.id||uuid()}));
             if (!genericState.criteriaDescriptions) genericState.criteriaDescriptions = {};
+            // Validar arrays (fix 15-A-2)
+            if (!Array.isArray(genericState.globalCriteria)) genericState.globalCriteria = [];
+            if (!Array.isArray(genericState.scores)) genericState.scores = [];
             normalizeGenericScores(); renderGlobalBadges('generic'); renderGenericStudentTags();
             document.getElementById('genericExamNameInput').value = genericState.examName;
             document.getElementById('genericCourseInput').value = genericState.course;
             updateGenericConfigWarning();
         }
-        alert('✅ Configuración cargada.');
-    });
+        if (!silent) alert('✅ Configuración cargada.');
+    } catch(e) {
+        console.warn('Error cargando app ' + app + ':', e);
+        if (!silent) alert('Error al cargar: ' + e.message);
+    }
 }
 
 /** Reinicia el estado completo de una app (exam / test / generic). */
@@ -4632,6 +4783,9 @@ function resetAppState(app) {
     renderGlobalBadges(app);
     cfgs.extra();
     safeLSRemove(cfgs.lsKey);
+    // Limpiar también el backup de calificaciones (fix 15-A-9: evitar scores stale asignados a wrong students)
+    const scoresBackupKey = { exam:'exam_scores_backup', test:'test_scores_backup', generic:'generic_scores_backup' }[app];
+    if (scoresBackupKey) safeLSRemove(scoresBackupKey);
     if (app==='exam') { validateExamCriteria(); updateExamConfigWarning(); }
     if (app==='test') updateTestConfigWarning();
     if (app==='generic') updateGenericConfigWarning();
@@ -4798,6 +4952,7 @@ function renderExamQuestionsTable() {
             if (examState.questions[i]) examState.questions[i][this.dataset.field] = this.value;
             // si cambia el nombre, refrescar tabla de calificación si está visible
             if (this.dataset.field === 'name' && document.getElementById('examScreenGrade').classList.contains('active')) renderExamGradeTable();
+            autoSaveApp('exam');
         });
     });
     tbody.querySelectorAll('.max-score-input').forEach(inp => {
@@ -4808,7 +4963,9 @@ function renderExamQuestionsTable() {
             val = Math.max(val, 0.1);
             if (examState.questions[i]) examState.questions[i].maxScore = val;
             this.value = formatGradeDisplay(val);
+            normalizeExamScores();
             renderExamScoreTotals();
+            autoSaveApp('exam'); autoSaveScores('exam');
         });
     });
     tbody.querySelectorAll('.assign-criteria-btn').forEach(btn => btn.addEventListener('click', function() {
@@ -4824,6 +4981,7 @@ function renderExamQuestionsTable() {
         examState.scores.forEach(row => row.splice(i+1, 0, 0));
         reorderExamQuestionIds(); normalizeExamScores(); renderExamQuestionsTable();
         document.getElementById('examInputNumQuestions').value = examState.questions.length; validateExamCriteria();
+        autoSaveApp('exam'); autoSaveScores('exam');
     }));
     tbody.querySelectorAll('.delete-question-btn').forEach(btn => btn.addEventListener('click', function() {
         const i = parseInt(this.dataset.index);
@@ -4831,6 +4989,7 @@ function renderExamQuestionsTable() {
         examState.questions.splice(i,1); examState.scores.forEach(row => row.splice(i,1));
         reorderExamQuestionIds(); normalizeExamScores(); renderExamQuestionsTable();
         document.getElementById('examInputNumQuestions').value = examState.questions.length; validateExamCriteria();
+        autoSaveApp('exam'); autoSaveScores('exam');
     }));
     renderExamScoreTotals();
 }
@@ -4860,7 +5019,7 @@ function populateExamQuestionCriteria(question) {
         var modalEl = document.getElementById('examQuestionCriteriaModal');
         modalEl.addEventListener('hidden.bs.modal', function handler() {
             modalEl.removeEventListener('hidden.bs.modal', handler);
-            renderExamQuestionsTable(); validateExamCriteria(); updateExamConfigWarning();
+            renderExamQuestionsTable(); validateExamCriteria(); updateExamConfigWarning(); saveAppToLocal('exam', true);
         });
         var bsModal = bootstrap.Modal.getInstance(modalEl);
         if (bsModal) bsModal.hide();
@@ -4907,6 +5066,7 @@ function renderExamGradeTable() {
             val = Math.min(Math.max(val,0),max); this.value = formatGradeDisplay(val);
             if (!examState.scores[sIdx]) examState.scores[sIdx]=[];
             examState.scores[sIdx][qIdx]=val;
+            autoSaveScores('exam');
         });
     });
     // Copy row: first question → rest for same student (exam)
@@ -4932,6 +5092,7 @@ function renderExamGradeTable() {
             removeMaxWarning(firstInput);
             if (!examState.scores[sIdx]) examState.scores[sIdx]=[];
             examState.scores[sIdx][0] = clamped0;
+            autoSaveScores('exam');
         });
     });
     // Copy column: first student → rest for same question (exam)
@@ -4956,6 +5117,7 @@ function renderExamGradeTable() {
             removeMaxWarning(firstInput);
             if (!examState.scores[0]) examState.scores[0]=[];
             examState.scores[0][qIdx] = clampedVal;
+            autoSaveScores('exam');
         });
     });
 }
@@ -4964,6 +5126,7 @@ function renderExamStudentTags() {
     renderStudentTags(examState, 'examStudentTags', 'examStudentCountBadge', () => {
         sortStudents(examState,'scores'); normalizeExamScores(); renderExamStudentTags();
         if (currentApp==='exam' && document.getElementById('examScreenGrade').classList.contains('active')) renderExamGradeTable();
+        autoSaveApp('exam'); autoSaveScores('exam');
     });
 }
 
@@ -5035,6 +5198,7 @@ function attachTestGradeEvents() {
         testState.studentScores[sIdx].unanswered = testState.totalQuestions - newC - parseInt(selW.value);
         document.getElementById(`test_unanswered_${sIdx}`).textContent = testState.studentScores[sIdx].unanswered;
         updateRow(sIdx);
+        autoSaveScores('test');
     }));
     document.querySelectorAll('.test-wrong-select').forEach(sel => sel.addEventListener('change', function() {
         const sIdx = parseInt(this.dataset.student); const newW = parseInt(this.value);
@@ -5042,15 +5206,17 @@ function attachTestGradeEvents() {
         testState.studentScores[sIdx].unanswered = testState.totalQuestions - testState.studentScores[sIdx].correct - newW;
         document.getElementById(`test_unanswered_${sIdx}`).textContent = testState.studentScores[sIdx].unanswered;
         updateRow(sIdx);
+        autoSaveScores('test');
     }));
 }
 
 function renderTestStudentTags() {
     renderStudentTags(testState, 'testStudentTags', 'testStudentCountBadge', () => {
         sortStudents(testState, 'studentScores');
-        testState.studentScores = testState.studentScores.map(ss => ({...ss, unanswered: testState.totalQuestions-(ss.correct||0)-(ss.wrong||0)}));
+        testState.studentScores = testState.studentScores.map(ss => ({...ss, unanswered: Math.max(0, testState.totalQuestions-(ss.correct||0)-(ss.wrong||0))}));
         renderTestStudentTags();
         if (currentApp==='test' && document.getElementById('testScreenGrade').classList.contains('active')) renderTestGradeTable();
+        autoSaveApp('test'); autoSaveScores('test');
     });
 }
 
@@ -5106,6 +5272,7 @@ function renderGenericStudentTags() {
     renderStudentTags(genericState,'genericStudentTags','genericStudentCountBadge',() => {
         sortStudents(genericState,'scores'); normalizeGenericScores(); renderGenericStudentTags();
         if (currentApp==='generic' && document.getElementById('genericScreenGrade').classList.contains('active')) renderGenericGradeTable();
+        autoSaveApp('generic'); autoSaveScores('generic');
     });
 }
 
@@ -5115,7 +5282,7 @@ function renderGenericStudentTags() {
 function inst_distributeWeightsEqual() {
     const n = instrumentState.instruments.length;
     if (n === 0) return;
-    if (n === 1) { instrumentState.instruments[0].weight = 100; return; }
+    if (n === 1) { instrumentState.instruments[0].weight = 100; instrumentState.evalWeights = [100]; return; }
     const base = Math.floor(100 / n * 100) / 100;
     for (let i = 0; i < n - 1; i++) instrumentState.instruments[i].weight = base;
     instrumentState.instruments[n - 1].weight = Math.round((100 - base * (n - 1)) * 100) / 100;
@@ -5130,11 +5297,38 @@ function inst_recalcLastWeight() {
     instrumentState.evalWeights = instrumentState.instruments.map(i => i.weight);
 }
 
-const inst_maxWeightForEditable = () => 100 - (instrumentState.instruments.length - 1) * 1;
+/** Máximo peso permitido para un instrumento editable (no el último).
+ *  Calcula dinámicamente: 100 - suma de pesos de los OTROS instrumentos editables
+ *  (garantizando que cada uno conserve al menos 1%). */
+const inst_maxWeightForEditable = () => {
+    const n = instrumentState.instruments.length;
+    if (n <= 1) return 100;
+    // Suma de pesos de todos los editables excepto el actual sería (n-2)*1 mínimo,
+    // pero para un cálculo correcto usamos la suma real de los otros editables.
+    // Como esta función se usa como `max` en el clamp del input del editable actual,
+    // devolvemos 100 - (n-2)*1 (mínimo de los otros editables) - peso actual del último.
+    // Simplificación segura: 100 - (n-1)*1 (cada editable reserva al menos 1%).
+    return 100 - (n - 1) * 1;
+};
 
 function inst_syncPesosBadge() {
-    const badge = document.getElementById('inst_evalPesosBadge'); if (badge) badge.textContent = '100%';
-    const totalSpan = document.getElementById('inst_totalPesos'); if (totalSpan) totalSpan.textContent = '100.0';
+    // Calcular suma real de pesos (no asumir 100%)
+    const sum = instrumentState.instruments.reduce((a, i) => a + (Number(i.weight) || 0), 0);
+    const badge = document.getElementById('inst_evalPesosBadge');
+    if (badge) {
+        badge.textContent = sum.toFixed(0) + '%';
+        const ok = Math.abs(sum - 100) < 0.51;
+        badge.className = ok ? 'badge bg-success ms-2' : 'badge bg-danger ms-2';
+    }
+    const totalSpan = document.getElementById('inst_totalPesos');
+    if (totalSpan) totalSpan.textContent = sum.toFixed(1);
+    // Mostrar/ocultar aviso si no suma 100%
+    const warn = document.getElementById('inst_pesosWarning');
+    if (warn) {
+        const ok = Math.abs(sum - 100) < 0.51;
+        warn.style.display = ok ? 'none' : 'block';
+        if (!ok) warn.textContent = `⚠ Los pesos suman ${sum.toFixed(1)}%, deberían sumar 100%.`;
+    }
 }
 
 /** Tags de alumnos para Instrumentos: usa renderStudentTags con instrumentState. */
@@ -5144,6 +5338,8 @@ function renderInstrumentosStudentTags() {
         renderInstrumentosStudentTags();
         inst_updateConfigButtonState();
         if (document.getElementById('inst_eval').classList.contains('active')) inst_renderEvaluation();
+        // Autosave (fix 14-B-2)
+        inst_saveConfigLocalSilent(); inst_saveEvalLocalSilent();
     });
     inst_updateConfigButtonState();
 }
@@ -5152,10 +5348,10 @@ function inst_canGoToRelacion() {
     return instrumentState.actividad.trim()!=='' && instrumentState.clase.trim()!=='' && instrumentState.students.length>0 && instrumentState.instruments.length>0;
 }
 function inst_updateConfigButtonState() {
-    const irBtn = document.getElementById('inst_irRelacionBtn'), warn = document.getElementById('inst_pesosWarning');
+    const irBtn = document.getElementById('inst_irRelacionBtn');
     const cfgWarn = document.getElementById('inst_configWarning');
     if (!irBtn) return;
-    if (warn) warn.style.display = 'none';
+    // NO ocultar inst_pesosWarning aquí — lo gestiona inst_syncPesosBadge según suma real
     const canGo = inst_canGoToRelacion();
     irBtn.disabled = !canGo;
     if (cfgWarn) {
@@ -5247,8 +5443,10 @@ function inst_renderMatrix() {
             cell.dataset.instr=i; cell.dataset.crit=origIdx;
             cell.addEventListener('click',function(){
                 this.classList.toggle('selected');
-                instrumentState.matrix[parseInt(this.dataset.instr)][parseInt(this.dataset.crit)]=this.classList.contains('selected');
-                inst_renderMatrix(); inst_updateIrEvalButton();
+                const rIdx = parseInt(this.dataset.instr, 10), cIdx = parseInt(this.dataset.crit, 10);
+                if (!instrumentState.matrix[rIdx]) instrumentState.matrix[rIdx] = new Array(instrumentCriteria.length).fill(false);
+                instrumentState.matrix[rIdx][cIdx] = this.classList.contains('selected');
+                inst_renderMatrix(); inst_updateIrEvalButton(); inst_saveMatrixLocalSilent();
             });
             td.appendChild(cell); tr.appendChild(td);
         }
@@ -5276,7 +5474,7 @@ function inst_updateIrEvalButton() {
         warn.innerHTML = `<i class="bi bi-exclamation-triangle-fill me-2"></i>`
             + `Cada instrumento debe tener al menos un criterio asignado. Falta asignar criterios a ${plural}:`
             + '<ul style="margin:4px 0 0;padding-left:1.4em;list-style:none;">'
-            + uncovered.map(({ name }) => `<li>— <strong>${name}</strong></li>`).join('')
+            + uncovered.map(({ name }) => `<li>— <strong>${escapeHtml(name)}</strong></li>`).join('')
             + '</ul>';
         warn.style.display = 'block';
         btn.disabled = true;
@@ -5318,7 +5516,14 @@ function inst_updateAllCriteria() {
 }
 
 function inst_renderEvaluation() {
-    if(!instrumentState.students.length||!instrumentState.instruments.length) return;
+    if(!instrumentState.students.length||!instrumentState.instruments.length) {
+        // Limpiar DOM antes de salir para evitar contenido rancio
+        const _thead = document.getElementById('inst_evalThead'); const _tbody = document.getElementById('inst_evalTbody'); const _wdiv = document.getElementById('inst_evalWeightsContainer');
+        if (_thead) _thead.innerHTML = '';
+        if (_tbody) _tbody.innerHTML = '';
+        if (_wdiv) _wdiv.innerHTML = '';
+        return;
+    }
     const usedCriteria=inst_getUsedCriteria();
     const n=instrumentState.instruments.length;
     const maxEditable=inst_maxWeightForEditable();
@@ -5365,6 +5570,7 @@ function inst_renderEvaluation() {
                 let val=Math.min(10,Math.max(0,parseGradeInput(this.value))); this.value=formatGradeDisplay(val);
                 if(!instrumentState.evalScores[s]) instrumentState.evalScores[s]=new Array();
                 instrumentState.evalScores[s][iI]=val; inst_updateCriteriaRow(s,showGrade);
+                inst_saveEvalLocalSilent();
             });
             td.appendChild(inp); tr.appendChild(td);
         });
@@ -5388,7 +5594,10 @@ function inst_renderEvaluation() {
         inst_recalcLastWeight();
         const lastEval=document.querySelector(`.inst-eval-weight-input[data-i="${nI-1}"]`); if(lastEval) lastEval.value=instrumentState.evalWeights[nI-1].toFixed(2);
         const lastCfg=document.querySelector(`#inst_instrumentsBody input[data-idx="${nI-1}"][data-field="weight"]`); if(lastCfg) lastCfg.value=instrumentState.instruments[nI-1].weight.toFixed(2);
+        // Bug 12-B-7: también sync el input de Configuración del instrumento actual
+        const curCfg=document.querySelector(`#inst_instrumentsBody input[data-idx="${i}"][data-field="weight"]`); if(curCfg) curCfg.value=instrumentState.instruments[i].weight.toFixed(2);
         inst_syncPesosBadge(); inst_updateAllCriteria();
+        inst_saveConfigLocalSilent(); inst_saveEvalLocalSilent();
     }));
     inst_updateAllCriteria();
     // Copy row: first instrument → rest for same student (inst)
@@ -5413,6 +5622,7 @@ function inst_renderEvaluation() {
             if (!instrumentState.evalScores[sIdx]) instrumentState.evalScores[sIdx]=[];
             instrumentState.evalScores[sIdx][0] = clampedVal;
             inst_updateAllCriteria();
+            inst_saveEvalLocalSilent();
         });
     });
     // Copy column: first student → rest for same instrument (inst)
@@ -5437,6 +5647,7 @@ function inst_renderEvaluation() {
             if (!instrumentState.evalScores[0]) instrumentState.evalScores[0]=[];
             instrumentState.evalScores[0][iIdx] = clampedVal;
             inst_updateAllCriteria();
+            inst_saveEvalLocalSilent();
         });
     });
 }
@@ -5504,21 +5715,68 @@ function inst_exportConfig() {
     );
 }
 function inst_applyConfig(data) {
+    // Capturar matrix y evalScores existentes antes de resetear (fix 15-B-1)
+    const oldMatrix = instrumentState.matrix;
+    const oldEvalScores = instrumentState.evalScores;
+    const oldInstrumentsCount = instrumentState.instruments.length;
+    const oldStudentsCount = instrumentState.students.length;
+
     Object.assign(instrumentState,{actividad:data.actividad||'',clase:data.clase||'',students:(data.students||[]).map(n=>({id:uuid(),fullName:n})),instruments:(data.instruments||[]).map(i=>({name:i.name,weight:parseFloat(i.weight)||0,description:i.description||''})),criteriaDescriptions:data.criteriaDescriptions||{}});
+    // Restaurar instrumentCriteria si viene en el config (fix 14-D-4)
+    if (Array.isArray(data.criteria) && data.criteria.length > 0) {
+        instrumentCriteria = [...data.criteria];
+    }
     inst_recalcLastWeight();
     instrumentState.matrix=instrumentState.instruments.map(()=>new Array(instrumentCriteria.length).fill(false));
     instrumentState.evalScores=instrumentState.students.map(()=>new Array(instrumentState.instruments.length).fill(0));
     instrumentState.evalWeights=instrumentState.instruments.map(i=>i.weight);
+
+    // Preservar matrix y evalScores si las dimensiones coinciden (fix 15-B-1)
+    const newInstrumentsCount = instrumentState.instruments.length;
+    const newStudentsCount = instrumentState.students.length;
+    const newCriteriaCount = instrumentCriteria.length;
+    if (oldInstrumentsCount === newInstrumentsCount && oldStudentsCount === newStudentsCount) {
+        // Preservar matrix (validar columnas)
+        if (Array.isArray(oldMatrix) && oldMatrix.length === newInstrumentsCount) {
+            instrumentState.matrix = oldMatrix.map((row, i) => {
+                const r = Array.isArray(row) ? row.slice(0, newCriteriaCount) : [];
+                while (r.length < newCriteriaCount) r.push(false);
+                return r.map(v => v === undefined ? false : !!v);
+            });
+        }
+        // Preservar evalScores (validar columnas)
+        if (Array.isArray(oldEvalScores) && oldEvalScores.length === newStudentsCount) {
+            instrumentState.evalScores = oldEvalScores.map(row => {
+                const r = Array.isArray(row) ? row.slice(0, newInstrumentsCount) : [];
+                while (r.length < newInstrumentsCount) r.push(0);
+                return r;
+            });
+        }
+    }
+
     inst_renderInstrumentsTable(); renderInstrumentosStudentTags(); inst_updateConfigButtonState();
     document.getElementById('inst_actividadInput').value=instrumentState.actividad;
     document.getElementById('inst_claseInput').value=instrumentState.clase;
     document.getElementById('inst_numInstrumentos').value=instrumentState.instruments.length;
+    // Re-renderizar pantallas activas para evitar UI rancia tras importar
+    if (document.getElementById('inst_relacion')?.classList.contains('active')) inst_renderMatrix();
+    if (document.getElementById('inst_eval')?.classList.contains('active')) inst_renderEvaluation();
 }
-function inst_importConfig(file) { readJSONFile(file, data => { inst_applyConfig(data); alert('✅ Configuración importada.'); }); }
+function inst_importConfig(file) { readJSONFile(file, data => { inst_applyConfig(data); inst_saveConfigLocalSilent(); inst_saveMatrixLocalSilent(); inst_saveEvalLocalSilent(); alert('✅ Configuración importada.'); }); }
 
 // --- Guardar / cargar config local ---
-function inst_saveConfigLocal() { localSave('inst_config_backup', ()=>({actividad:instrumentState.actividad,clase:instrumentState.clase,students:instrumentState.students.map(s=>s.fullName),instruments:instrumentState.instruments.map(i=>({name:i.name,weight:i.weight,description:i.description||''})),criteriaDescriptions:{...(instrumentState.criteriaDescriptions||{})}})); }
-function inst_loadConfigLocal() { localLoad('inst_config_backup', data=>{ inst_applyConfig(data); alert('✅ Configuración cargada.'); }); }
+function inst_saveConfigLocal() { localSave('inst_config_backup', ()=>({actividad:instrumentState.actividad,clase:instrumentState.clase,students:instrumentState.students.map(s=>s.fullName),instruments:instrumentState.instruments.map(i=>({name:i.name,weight:i.weight,description:i.description||''})),criteria:[...instrumentCriteria],criteriaDescriptions:{...(instrumentState.criteriaDescriptions||{})}})); }
+function inst_saveConfigLocalSilent() { localSaveSilent('inst_config_backup', ()=>({actividad:instrumentState.actividad,clase:instrumentState.clase,students:instrumentState.students.map(s=>s.fullName),instruments:instrumentState.instruments.map(i=>({name:i.name,weight:i.weight,description:i.description||''})),criteria:[...instrumentCriteria],criteriaDescriptions:{...(instrumentState.criteriaDescriptions||{})}})); }
+function inst_loadConfigLocal() { localLoad('inst_config_backup', data=>{ inst_applyConfig(data); inst_saveMatrixLocalSilent(); inst_saveEvalLocalSilent(); alert('✅ Configuración cargada.'); }); }
+/** Carga silenciosa de config (auto-load en window.onload) */
+function inst_loadConfigLocalSilent() {
+    const saved = safeLSGet('inst_config_backup');
+    if (!saved) return;
+    try {
+        const data = JSON.parse(saved);
+        inst_applyConfig(data);
+    } catch(e) { console.warn('Error cargando config de instrumentos:', e); }
+}
 
 // --- Exportar / importar / guardar / cargar matriz ---
 function inst_exportMatrix() {
@@ -5528,11 +5786,48 @@ function inst_importMatrix(file) {
     readJSONFile(file, data => {
         if (!data.matrix || !Array.isArray(data.matrix)) return alert('El archivo no contiene una matriz válida.');
         if(data.matrix.length!==instrumentState.instruments.length) return alert('El número de instrumentos no coincide.');
-        instrumentState.matrix=data.matrix; inst_renderMatrix(); inst_updateIrEvalButton(); alert('✅ Matriz importada.');
+        // Normalizar dimensiones de cada fila
+        instrumentState.matrix = data.matrix.map(row => {
+            const r = Array.isArray(row) ? row.slice(0, instrumentCriteria.length) : [];
+            while (r.length < instrumentCriteria.length) r.push(false);
+            return r.map(v => v === undefined ? false : !!v);
+        });
+        inst_renderMatrix(); inst_updateIrEvalButton(); inst_saveMatrixLocalSilent(); inst_saveEvalLocalSilent(); alert('✅ Matriz importada.');
     });
 }
 function inst_saveMatrixLocal() { localSave('inst_matrix_backup', ()=>({matrix:instrumentState.matrix})); }
-function inst_loadMatrixLocal() { localLoad('inst_matrix_backup', data=>{ if(!data.matrix||!Array.isArray(data.matrix)){alert('Matriz no válida.');return;} instrumentState.matrix=data.matrix; inst_renderMatrix(); inst_updateIrEvalButton(); alert('✅ Matriz cargada.'); }); }
+function inst_saveMatrixLocalSilent() { localSaveSilent('inst_matrix_backup', ()=>({matrix:instrumentState.matrix})); }
+function inst_loadMatrixLocal() { localLoad('inst_matrix_backup', data=>{
+    if(!data.matrix||!Array.isArray(data.matrix)){alert('Matriz no válida.');return;}
+    // Normalizar dimensiones: nº de filas = nº de instrumentos; nº de columnas = nº de criterios
+    const nI = instrumentState.instruments.length;
+    const nC = instrumentCriteria.length;
+    instrumentState.matrix = [];
+    for (let i = 0; i < nI; i++) {
+        const row = Array.isArray(data.matrix[i]) ? data.matrix[i].slice(0, nC) : [];
+        while (row.length < nC) row.push(false);
+        instrumentState.matrix.push(row.map(v => v === undefined ? false : !!v));
+    }
+    inst_renderMatrix(); inst_updateIrEvalButton(); inst_saveEvalLocalSilent(); alert('✅ Matriz cargada.');
+}); }
+/** Carga silenciosa de matriz (auto-load en window.onload) */
+function inst_loadMatrixLocalSilent() {
+    const saved = safeLSGet('inst_matrix_backup');
+    if (!saved) return;
+    try {
+        const data = JSON.parse(saved);
+        if (!data.matrix || !Array.isArray(data.matrix)) return;
+        const nI = instrumentState.instruments.length;
+        const nC = instrumentCriteria.length;
+        instrumentState.matrix = [];
+        for (let i = 0; i < nI; i++) {
+            const row = Array.isArray(data.matrix[i]) ? data.matrix[i].slice(0, nC) : [];
+            while (row.length < nC) row.push(false);
+            instrumentState.matrix.push(row.map(v => v === undefined ? false : !!v));
+        }
+        inst_renderMatrix(); inst_updateIrEvalButton();
+    } catch(e) { console.warn('Error cargando matriz de instrumentos:', e); }
+}
 
 // Guardar la matriz de relación Instrumentos/Criterios en la nube (Firebase)
 function inst_saveMatrixCloud() {
@@ -5627,18 +5922,32 @@ function inst_loadMatrixCloud() {
     if (Array.isArray(cfg.criteria) && cfg.criteria.length > 0) {
         instrumentCriteria = [...cfg.criteria];
     }
-    // Aplicar matriz
-    instrumentState.matrix = cfg.matrix.map(row => (Array.isArray(row) ? row : []).map(v => v === undefined ? false : !!v));
+    // Aplicar matriz con normalización de dimensiones (fix 15-B-4d)
+    const nI_load = instrumentState.instruments.length;
+    const nC_load = instrumentCriteria.length;
+    instrumentState.matrix = [];
+    for (let i = 0; i < nI_load; i++) {
+        const row = Array.isArray(cfg.matrix[i]) ? cfg.matrix[i].slice(0, nC_load) : [];
+        while (row.length < nC_load) row.push(false);
+        instrumentState.matrix.push(row.map(v => v === undefined ? false : !!v));
+    }
+    // Resize evalScores al nuevo número de instrumentos (fix 15-B-4a)
+    inst_normalizeEvalScores();
+    // Recalcular pesos para que sumen 100% (fix 15-B-4b)
+    inst_recalcLastWeight();
     // Aplicar descripciones de criterios
     if (cfg.criteriaDescriptions) {
         instrumentState.criteriaDescriptions = fb_unsanitizeCriteriaKeys(cfg.criteriaDescriptions);
     }
-    // Re-renderizar
+    // Re-renderizar (incluye Evaluación si está activa — fix 15-B-4c)
     inst_renderInstrumentsTable();
     inst_renderMatrix();
     inst_updateIrEvalButton();
     renderInstrumentosStudentTags();
     inst_updateConfigButtonState();
+    if (document.getElementById('inst_eval')?.classList.contains('active')) inst_renderEvaluation();
+    // Persistir tras cargar de la nube
+    inst_saveConfigLocalSilent(); inst_saveMatrixLocalSilent(); inst_saveEvalLocalSilent();
     alert(`✅ Matriz "${chosen.name}" cargada correctamente.`);
 }
 
@@ -5657,22 +5966,94 @@ function inst_importEvalJson(file) {
         instrumentState.evalScores=data.evalScores; instrumentState.evalWeights=data.evalWeights||instrumentState.instruments.map(i=>i.weight); instrumentState.matrix=data.matrix||instrumentState.matrix;
         if (data.criteriaDescriptions) instrumentState.criteriaDescriptions = data.criteriaDescriptions;
         data.instruments.forEach((inst,i)=>{ if(instrumentState.instruments[i]){ instrumentState.instruments[i].weight=inst.weight; if(inst.description!==undefined) instrumentState.instruments[i].description=inst.description; } });
-        inst_recalcLastWeight(); inst_renderInstrumentsTable(); inst_renderMatrix(); inst_renderEvaluation(); inst_updateConfigButtonState();
+        inst_recalcLastWeight();
+        // Normalizar evalScores y matrix (fix 15-B-3)
+        inst_normalizeEvalScores();
+        inst_renderInstrumentsTable(); inst_renderMatrix(); inst_renderEvaluation(); inst_updateConfigButtonState();
+        inst_saveConfigLocalSilent(); inst_saveMatrixLocalSilent(); inst_saveEvalLocalSilent();
         alert('✅ Calificaciones importadas.');
     });
 }
 function inst_saveEvalLocal() {
     localSave('inst_eval_backup', ()=>({students:instrumentState.students.map(s=>s.fullName),instruments:instrumentState.instruments.map(i=>({name:i.name,weight:i.weight,description:i.description||''})),evalScores:instrumentState.evalScores,evalWeights:instrumentState.evalWeights,matrix:instrumentState.matrix,criteriaDescriptions:{...(instrumentState.criteriaDescriptions||{})}}));
 }
+function inst_saveEvalLocalSilent() {
+    localSaveSilent('inst_eval_backup', ()=>({students:instrumentState.students.map(s=>s.fullName),instruments:instrumentState.instruments.map(i=>({name:i.name,weight:i.weight,description:i.description||''})),evalScores:instrumentState.evalScores,evalWeights:instrumentState.evalWeights,matrix:instrumentState.matrix,criteriaDescriptions:{...(instrumentState.criteriaDescriptions||{})}}));
+}
+/** Normaliza evalScores: asegura que cada fila tenga longitud = instruments.length y aplica clamping numérico */
+function inst_normalizeEvalScores() {
+    const nI = instrumentState.instruments.length;
+    const nS = instrumentState.students.length;
+    if (!Array.isArray(instrumentState.evalScores)) instrumentState.evalScores = [];
+    // Ajustar número de filas
+    while (instrumentState.evalScores.length < nS) instrumentState.evalScores.push(new Array(nI).fill(0));
+    instrumentState.evalScores = instrumentState.evalScores.slice(0, nS);
+    // Normalizar cada fila
+    instrumentState.evalScores = instrumentState.evalScores.map(row => {
+        if (!Array.isArray(row)) row = [];
+        const r = row.slice(0, nI).map(v => {
+            const n = Number(v);
+            return isNaN(n) ? 0 : (n > 10 ? 10 : n < 0 ? 0 : n);
+        });
+        while (r.length < nI) r.push(0);
+        return r;
+    });
+}
+
 function inst_loadEvalLocal() {
     localLoad('inst_eval_backup', data=>{
         if((data.students.length!==instrumentState.students.length||data.instruments.length!==instrumentState.instruments.length)&&!confirm('Dimensiones no coinciden. ¿Cargar de todos modos?')) return;
-        instrumentState.evalScores=data.evalScores; instrumentState.evalWeights=data.evalWeights; instrumentState.matrix=data.matrix;
+        instrumentState.evalScores=data.evalScores; instrumentState.evalWeights=data.evalWeights;
+        // Normalizar matrix al cargar (igual que inst_loadMatrixLocal)
+        const nI = instrumentState.instruments.length;
+        const nC = instrumentCriteria.length;
+        if (Array.isArray(data.matrix)) {
+            instrumentState.matrix = [];
+            for (let i = 0; i < nI; i++) {
+                const row = Array.isArray(data.matrix[i]) ? data.matrix[i].slice(0, nC) : [];
+                while (row.length < nC) row.push(false);
+                instrumentState.matrix.push(row.map(v => v === undefined ? false : !!v));
+            }
+        }
         if (data.criteriaDescriptions) instrumentState.criteriaDescriptions = data.criteriaDescriptions;
         data.instruments.forEach((inst,i)=>{if(instrumentState.instruments[i]){ instrumentState.instruments[i].weight=inst.weight; if(inst.description!==undefined) instrumentState.instruments[i].description=inst.description; }});
-        inst_recalcLastWeight(); inst_renderInstrumentsTable(); inst_renderMatrix(); inst_renderEvaluation(); inst_updateConfigButtonState();
+        inst_recalcLastWeight();
+        // Normalizar evalScores (fix 15-B-2)
+        inst_normalizeEvalScores();
+        inst_renderInstrumentsTable(); inst_renderMatrix(); inst_renderEvaluation(); inst_updateConfigButtonState();
+        inst_saveConfigLocalSilent(); inst_saveMatrixLocalSilent();
         alert('✅ Calificaciones cargadas.');
     });
+}
+/** Carga silenciosa de eval (auto-load en window.onload) */
+function inst_loadEvalLocalSilent() {
+    const saved = safeLSGet('inst_eval_backup');
+    if (!saved) return;
+    try {
+        const data = JSON.parse(saved);
+        if (!data || !Array.isArray(data.students) || !Array.isArray(data.instruments)) return;
+        // Solo aplicar si las dimensiones coinciden
+        if (data.students.length !== instrumentState.students.length || data.instruments.length !== instrumentState.instruments.length) return;
+        instrumentState.evalScores = data.evalScores || [];
+        instrumentState.evalWeights = data.evalWeights || instrumentState.instruments.map(i=>i.weight);
+        // Normalizar matrix
+        const nI = instrumentState.instruments.length;
+        const nC = instrumentCriteria.length;
+        if (Array.isArray(data.matrix)) {
+            instrumentState.matrix = [];
+            for (let i = 0; i < nI; i++) {
+                const row = Array.isArray(data.matrix[i]) ? data.matrix[i].slice(0, nC) : [];
+                while (row.length < nC) row.push(false);
+                instrumentState.matrix.push(row.map(v => v === undefined ? false : !!v));
+            }
+        }
+        if (data.criteriaDescriptions) instrumentState.criteriaDescriptions = data.criteriaDescriptions;
+        data.instruments.forEach((inst,i)=>{if(instrumentState.instruments[i]){ instrumentState.instruments[i].weight=inst.weight; if(inst.description!==undefined) instrumentState.instruments[i].description=inst.description; }});
+        inst_recalcLastWeight();
+        // Normalizar evalScores (fix 15-B-2)
+        inst_normalizeEvalScores();
+        inst_renderInstrumentsTable(); inst_renderMatrix(); inst_renderEvaluation(); inst_updateConfigButtonState();
+    } catch(e) { console.warn('Error cargando eval de instrumentos:', e); }
 }
 
 function openInstrDescModal(idx) {
@@ -5698,6 +6079,10 @@ function resetInstrumentosState() {
     inst_renderInstrumentsTable(); renderInstrumentosStudentTags(); inst_updateConfigButtonState();
     if (document.getElementById('inst_relacion').classList.contains('active')) inst_renderMatrix();
     if (document.getElementById('inst_eval').classList.contains('active')) inst_renderEvaluation();
+    // Limpiar también los backups locales
+    safeLSRemove('inst_config_backup');
+    safeLSRemove('inst_matrix_backup');
+    safeLSRemove('inst_eval_backup');
     alert('✅ Datos de instrumentos reiniciados.');
 }
 
@@ -5774,14 +6159,14 @@ function pond_renderImportCards() {
                 </div>
                 <div style="flex-shrink:0; padding-bottom:2px;">
                     ${act.loaded
-                        ? `<span class="badge bg-success pond-loaded-badge"><i class="bi bi-check-circle-fill"></i> ${(act.fileName||'Cargado').substring(0,30)}</span>`
+                        ? `<span class="badge bg-success pond-loaded-badge"><i class="bi bi-check-circle-fill"></i> ${escapeHtml((act.fileName||'Cargado').substring(0,30))}</span>`
                         : `<span class="badge bg-secondary pond-loaded-badge"><i class="bi bi-x-circle"></i> Sin datos</span>`}
                 </div>
             </div>
             ${act.loaded && criteriaList.length
                 ? `<div class="pond-act-info text-success">
                     <i class="bi bi-people-fill"></i> <strong>${act.resultados.length}</strong> alumnos &nbsp;·&nbsp;
-                    <i class="bi bi-patch-check"></i> Criterios: <span class="text-muted">${criteriaList.join(' ')}</span>
+                    <i class="bi bi-patch-check"></i> Criterios: <span class="text-muted">${escapeHtml(criteriaList.join(' '))}</span>
                    </div>`
                 : (act.loaded ? `<div class="pond-act-info text-warning"><i class="bi bi-exclamation-triangle"></i> El archivo no contiene criterios TEC reconocibles.</div>` : '')
             }
@@ -5793,6 +6178,7 @@ function pond_renderImportCards() {
     container.querySelectorAll('.pond-act-nombre').forEach(inp => {
         inp.addEventListener('change', function() {
             ponderacionState.actividades[parseInt(this.dataset.idx)].nombre = this.value.trim() || `Actividad ${parseInt(this.dataset.idx)+1}`;
+            pond_saveImportLocalSilent();
         });
     });
     // Events: peso (editable only)
@@ -5809,6 +6195,7 @@ function pond_renderImportCards() {
             if (lastInp) lastInp.value = ponderacionState.actividades[lastIdx].peso;
             pond_updateWeightBadge();
             pond_updateGoResultsBtn();
+            pond_saveImportLocalSilent();
         });
     });
     // Events: file
@@ -5825,8 +6212,14 @@ function pond_renderImportCards() {
 
 function pond_loadFile(idx, file) {
     readJSONFile(file, data => {
+        if (!data || typeof data !== 'object' || Array.isArray(data)) {
+            // Si es array, usarlo directamente como resultados
+            if (Array.isArray(data)) {
+                // ok, data es el array de resultados
+            } else { alert('Formato no válido: se esperaba un objeto o array JSON.'); return; }
+        }
         let resultados = Array.isArray(data) ? data : (data.resultados || []);
-        if (!resultados.length) { alert('El archivo no contiene datos en el campo "resultados". Asegúrate de exportar el JSON desde la pantalla de Resultados.'); return; }
+        if (!Array.isArray(resultados) || !resultados.length) { alert('El archivo no contiene datos en el campo "resultados". Asegúrate de exportar el JSON desde la pantalla de Resultados.'); return; }
         if (!resultados[0]?.Alumno) { alert('El archivo no tiene columna "Alumno". Exporta desde la pantalla Resultados (no Calificaciones).'); return; }
         const hasCriteria = Object.keys(resultados[0]).some(k => /^TEC\.\d+\.\d+\.\d+\.$/.test(k));
         if (!hasCriteria) { alert('El archivo no contiene criterios TEC. Comprueba que sea un archivo de Resultados de esta aplicación.'); return; }
@@ -5842,6 +6235,8 @@ function pond_loadFile(idx, file) {
         // Sync nombre input
         const nombreInp = document.querySelector(`.pond-act-nombre[data-idx="${idx}"]`);
         if (nombreInp) nombreInp.value = act.nombre;
+        // Persistir tras importar (evita pérdida al refrescar)
+        pond_saveImportLocalSilent();
     });
 }
 
@@ -5884,8 +6279,8 @@ function pond_computeResults() {
     // Students map (key=lowercase trimmed name → display name)
     const studentsMap = new Map();
     acts.forEach(a => a.resultados.forEach(r => {
-        const key = (r.Alumno||'').trim().toLowerCase();
-        if (key && !studentsMap.has(key)) studentsMap.set(key, (r.Alumno||'').trim());
+        const key = String(r.Alumno||'').trim().toLowerCase();
+        if (key && !studentsMap.has(key)) studentsMap.set(key, String(r.Alumno||'').trim());
     }));
 
     // Collect and sort criteria
@@ -5907,10 +6302,15 @@ function pond_computeResults() {
 
         // Per-activity grade for breakdown column (computed from criteria if Calificación missing)
         acts.forEach((act, ai) => {
-            const r = act.resultados.find(r => (r.Alumno||'').trim().toLowerCase() === key);
+            const r = act.resultados.find(r => String(r.Alumno||'').trim().toLowerCase() === key);
             if (!r) { row[`__ACT__${ai}`] = null; row[`__ACT_HAS_DATA__${ai}`] = false; return; }
             // Try Calificación field first, then compute from criteria
             let grade = r['Calificación'] ?? null;
+            if (grade !== null && grade !== undefined) {
+                // Asegurar que grade es número
+                grade = parseFloat(grade);
+                if (isNaN(grade)) grade = null;
+            }
             if (grade === null || grade === undefined) {
                 const actCrit = pond_getActivityCriteria(act);
                 const vals = actCrit.map(c => parseFloat(r[c])).filter(v => !isNaN(v));
@@ -5924,18 +6324,20 @@ function pond_computeResults() {
         criteria.forEach(crit => {
             let wSum = 0, wUsed = 0;
             acts.forEach(act => {
-                const r = act.resultados.find(r => (r.Alumno||'').trim().toLowerCase() === key);
+                const r = act.resultados.find(r => String(r.Alumno||'').trim().toLowerCase() === key);
                 if (!r) return;
                 const val = r[crit];
                 if (val === null || val === undefined) return;
-                wSum += act.peso * parseFloat(val);
+                const numVal = parseFloat(val);
+                if (isNaN(numVal)) return;
+                wSum += act.peso * numVal;
                 wUsed += act.peso;
             });
             row[crit] = wUsed > 0 ? parseFloat((wSum / wUsed).toFixed(2)) : null;
         });
 
         // Overall grade = mean of criteria scores
-        const critVals = criteria.map(c => row[c]).filter(v => v !== null && v !== undefined);
+        const critVals = criteria.map(c => row[c]).filter(v => v !== null && v !== undefined && !isNaN(v));
         row['Calificación'] = critVals.length > 0
             ? parseFloat((critVals.reduce((a,b)=>a+b,0)/critVals.length).toFixed(2))
             : null;
@@ -5950,7 +6352,7 @@ function showPondBreakdown(studentKey, actIdx) {
     const acts = ponderacionState.actividades.filter(a => a.loaded && a.resultados?.length);
     if (!acts[actIdx]) return;
     const act = acts[actIdx];
-    const result = act.resultados.find(r => (r.Alumno||'').trim().toLowerCase() === studentKey);
+    const result = act.resultados.find(r => String(r.Alumno||'').trim().toLowerCase() === studentKey);
     const studentName = result ? result.Alumno : studentKey;
     const modalBody = document.getElementById('pondBreakdownModalBody');
     if (!modalBody) return;
@@ -5980,10 +6382,10 @@ function showPondBreakdown(studentKey, actIdx) {
             const v = result[c];
             const fbg = criteriaFamilyBg(c, 'pond');
             if (v === null || v === undefined) {
-                html += `<tr><td${fbg ? ` style="background-color:${fbg};"`:''}>${c}</td><td class="text-muted">—</td></tr>`;
+                html += `<tr><td${fbg ? ` style="background-color:${fbg};"`:''}>${escapeHtml(c)}</td><td class="text-muted">—</td></tr>`;
             } else {
                 const numV = parseFloat(v);
-                html += `<tr><td${fbg ? ` style="background-color:${fbg};"`:''}>${c}</td><td style="background:${gradeColor(numV)};font-weight:600;">${numV.toFixed(2)}</td></tr>`;
+                html += `<tr><td${fbg ? ` style="background-color:${fbg};"`:''}>${escapeHtml(c)}</td><td style="background:${gradeColor(numV)};font-weight:600;">${numV.toFixed(2)}</td></tr>`;
             }
         });
         html += '</tbody></table></div>';
@@ -6039,7 +6441,7 @@ function pond_renderResults() {
     criteria.forEach(c => {
         const fbg = criteriaFamilyBg(c, 'pond');
         const bgStyle = fbg ? ` style="background-color:${fbg};"` : '';
-        hHtml += `<th${bgStyle}>${c}</th>`;
+        hHtml += `<th${bgStyle}>${escapeHtml(c)}</th>`;
     });
     if (showGrade) hHtml += '<th><strong>Calificación</strong></th>';
     hHtml += '</tr>';
@@ -6113,7 +6515,7 @@ function pond_exportResults(fmt) {
         const wsData = [
             [`Ponderación: ${ponderacionState.nombre}`],
             [`Curso: ${ponderacionState.curso}`],
-            [`Actividades: ${acts.map(a=>`${escapeHtml(a.nombre)} (${a.peso}%)`).join(' | ')}`],
+            [`Actividades: ${acts.map(a=>`${a.nombre} (${a.peso}%)`).join(' | ')}`],
             [],
             headers,
             ...rows.map(row => headers.map(h => {
@@ -6160,20 +6562,28 @@ function pond_exportConfig() {
 }
 function pond_importConfig(file) {
     readJSONFile(file, data => {
+        if (!data || typeof data !== 'object' || Array.isArray(data)) { alert('Formato no válido: se esperaba un objeto JSON.'); return; }
         if (data.nombre !== undefined) ponderacionState.nombre = data.nombre;
         if (data.curso  !== undefined) ponderacionState.curso  = data.curso;
         if (data.numActividades !== undefined) { const nA = parseInt(data.numActividades); if (!isNaN(nA) && nA >= 2 && nA <= 10) ponderacionState.numActividades = nA; }
+        pond_initActividades(ponderacionState.numActividades);
         const ni = document.getElementById('pond_nombreInput');
         const ci = document.getElementById('pond_cursoInput');
         const na = document.getElementById('pond_numActividadesInput');
         if (ni) ni.value = ponderacionState.nombre;
         if (ci) ci.value = ponderacionState.curso;
         if (na) na.value = ponderacionState.numActividades;
+        // Persistir a ambos backups (fix 15-C-1)
+        pond_saveConfigLocalSilent();
+        pond_saveImportLocalSilent();
         alert('\u2705 Configuraci\u00f3n importada.');
     });
 }
 function pond_saveConfigLocal() {
     localSave('pond_config_backup', () => ({ nombre: ponderacionState.nombre, curso: ponderacionState.curso, numActividades: ponderacionState.numActividades }));
+}
+function pond_saveConfigLocalSilent() {
+    localSaveSilent('pond_config_backup', () => ({ nombre: ponderacionState.nombre, curso: ponderacionState.curso, numActividades: ponderacionState.numActividades }));
 }
 function pond_loadConfigLocal() {
     localLoad('pond_config_backup', data => {
@@ -6188,6 +6598,51 @@ function pond_loadConfigLocal() {
         if (na) na.value = ponderacionState.numActividades;
         alert('\u2705 Configuraci\u00f3n cargada.');
     });
+}
+/** Carga silenciosa de config (sin alert): para auto-load en window.onload */
+function pond_loadConfigLocalSilent() {
+    const saved = safeLSGet('pond_config_backup');
+    if (!saved) return;
+    try {
+        const data = JSON.parse(saved);
+        if (data.nombre !== undefined) ponderacionState.nombre = data.nombre;
+        if (data.curso  !== undefined) ponderacionState.curso  = data.curso;
+        if (data.numActividades !== undefined) { const nA = parseInt(data.numActividades); if (!isNaN(nA) && nA >= 2 && nA <= 10) ponderacionState.numActividades = nA; }
+        pond_initActividades(ponderacionState.numActividades);
+        const ni = document.getElementById('pond_nombreInput');
+        const ci = document.getElementById('pond_cursoInput');
+        const na = document.getElementById('pond_numActividadesInput');
+        if (ni) ni.value = ponderacionState.nombre;
+        if (ci) ci.value = ponderacionState.curso;
+        if (na) na.value = ponderacionState.numActividades;
+        updateActivityBadge('ponderacion');
+    } catch(e) { console.warn('Error cargando config de ponderación:', e); }
+}
+/** Carga silenciosa de import (sin alert): para auto-load en window.onload */
+function pond_loadImportLocalSilent() {
+    const saved = safeLSGet('pond_import_backup');
+    if (!saved) return;
+    try {
+        const data = JSON.parse(saved);
+        if (!data.actividades || !Array.isArray(data.actividades)) return;
+        if (data.nombre !== undefined) ponderacionState.nombre = data.nombre;
+        if (data.curso  !== undefined) ponderacionState.curso  = data.curso;
+        if (data.numActividades !== undefined) { const nA = parseInt(data.numActividades); if (!isNaN(nA) && nA >= 2 && nA <= 10) ponderacionState.numActividades = nA; }
+        ponderacionState.actividades = data.actividades.map((a, i) => ({
+            nombre: a.nombre || `Actividad ${i+1}`, peso: parseFloat(a.peso) || 0,
+            loaded: a.loaded || (Array.isArray(a.resultados) && a.resultados.length > 0),
+            fileName: a.fileName || '', resultados: Array.isArray(a.resultados) ? a.resultados : []
+        }));
+        pond_recalcLastWeight();
+        // Sincronizar DOM inputs con el estado cargado (fix 14-C-1)
+        const ni = document.getElementById('pond_nombreInput');
+        const ci = document.getElementById('pond_cursoInput');
+        const na = document.getElementById('pond_numActividadesInput');
+        if (ni) ni.value = ponderacionState.nombre;
+        if (ci) ci.value = ponderacionState.curso;
+        if (na) na.value = ponderacionState.numActividades;
+        updateActivityBadge('ponderacion');
+    } catch(e) { console.warn('Error cargando import de ponderación:', e); }
 }
 function pond_resetAll() {
     if (!confirm('\u00bfReiniciar todos los datos de ponderaci\u00f3n?')) return;
@@ -6222,6 +6677,7 @@ function pond_exportImport() {
 }
 function pond_importImport(file) {
     readJSONFile(file, data => {
+        if (!data || typeof data !== 'object' || Array.isArray(data)) { alert('Formato no válido: se esperaba un objeto JSON.'); return; }
         if (!data.actividades || !Array.isArray(data.actividades)) { alert('Formato no v\u00e1lido: falta campo "actividades".'); return; }
         if (data.nombre !== undefined) ponderacionState.nombre = data.nombre;
         if (data.curso  !== undefined) ponderacionState.curso  = data.curso;
@@ -6233,9 +6689,18 @@ function pond_importImport(file) {
         }));
         pond_recalcLastWeight();
         pond_renderImportCards();
+        // Sincronizar inputs de la pantalla Config con el estado cargado
+        const ni = document.getElementById('pond_nombreInput');
+        const ci = document.getElementById('pond_cursoInput');
+        const na = document.getElementById('pond_numActividadesInput');
+        if (ni) ni.value = ponderacionState.nombre;
+        if (ci) ci.value = ponderacionState.curso;
+        if (na) na.value = ponderacionState.numActividades;
         const lc = ponderacionState.actividades.filter(a => a.loaded).length;
         showMessage('pond_importMgmtMessage', `<i class="bi bi-check-circle text-success"></i> Importado: ${lc} de ${ponderacionState.actividades.length} actividades con datos.`);
         pond_updateGoResultsBtn();
+        // Persistir tras importar (evita pérdida al refrescar)
+        pond_saveImportLocalSilent();
     });
 }
 function pond_saveImportLocal() {
@@ -6245,6 +6710,12 @@ function pond_saveImportLocal() {
         actividades: ponderacionState.actividades.map(a => ({ nombre: a.nombre, peso: a.peso, loaded: a.loaded, fileName: a.fileName, resultados: a.resultados || [] }))
     }));
     showMessage('pond_importMgmtMessage', `<i class="bi bi-check-circle text-success"></i> Guardado localmente (${lc} de ${ponderacionState.actividades.length} con datos).`);
+}
+function pond_saveImportLocalSilent() {
+    localSaveSilent('pond_import_backup', () => ({
+        nombre: ponderacionState.nombre, curso: ponderacionState.curso, numActividades: ponderacionState.numActividades,
+        actividades: ponderacionState.actividades.map(a => ({ nombre: a.nombre, peso: a.peso, loaded: a.loaded, fileName: a.fileName, resultados: a.resultados || [] }))
+    }));
 }
 function pond_loadImportLocal() {
     localLoad('pond_import_backup', data => {
@@ -6259,6 +6730,13 @@ function pond_loadImportLocal() {
         }));
         pond_recalcLastWeight();
         pond_renderImportCards();
+        // Sincronizar inputs de la pantalla Config con el estado cargado
+        const ni = document.getElementById('pond_nombreInput');
+        const ci = document.getElementById('pond_cursoInput');
+        const na = document.getElementById('pond_numActividadesInput');
+        if (ni) ni.value = ponderacionState.nombre;
+        if (ci) ci.value = ponderacionState.curso;
+        if (na) na.value = ponderacionState.numActividades;
         const lc = ponderacionState.actividades.filter(a => a.loaded).length;
         showMessage('pond_importMgmtMessage', `<i class="bi bi-check-circle text-success"></i> Cargado: ${lc} de ${ponderacionState.actividades.length} actividades con datos.`);
         pond_updateGoResultsBtn();
@@ -6448,24 +6926,31 @@ const rubricState = {
 // Sincroniza las estructuras teacher/coevaluation con la lista de alumnos y aspectos
 function rubric_syncStructures() {
     const names = rubricState.students.map(s => s.fullName);
-    // Teacher
+    const aspectsSet = new Set(rubricState.aspects);
+    const validValueSet = new Set(rubricState.values);
+    // Teacher — prunar aspectos y valores que ya no existen
     const newTeacher = {};
     names.forEach(n => {
-        newTeacher[n] = rubricState.teacher[n] || {};
+        const oldEntry = (rubricState.teacher[n] && typeof rubricState.teacher[n] === 'object') ? rubricState.teacher[n] : {};
+        newTeacher[n] = {};
         rubricState.aspects.forEach(a => {
-            if (!newTeacher[n][a]) newTeacher[n][a] = 'NE';
+            const v = oldEntry[a];
+            // Conservar el valor solo si sigue siendo válido; si no, 'NE'
+            newTeacher[n][a] = (v && validValueSet.has(v)) ? v : 'NE';
         });
     });
     rubricState.teacher = newTeacher;
-    // Coevaluación
+    // Coevaluación — prunar igual
     const newCoeval = {};
     names.forEach(evaluator => {
         newCoeval[evaluator] = {};
         names.forEach(evaluated => {
             if (evaluator === evaluated) return;
-            newCoeval[evaluator][evaluated] = (rubricState.coevaluation[evaluator] && rubricState.coevaluation[evaluator][evaluated]) || {};
+            const oldEntry = (rubricState.coevaluation[evaluator] && rubricState.coevaluation[evaluator][evaluated] && typeof rubricState.coevaluation[evaluator][evaluated] === 'object') ? rubricState.coevaluation[evaluator][evaluated] : {};
+            newCoeval[evaluator][evaluated] = {};
             rubricState.aspects.forEach(a => {
-                if (!newCoeval[evaluator][evaluated][a]) newCoeval[evaluator][evaluated][a] = 'NE';
+                const v = oldEntry[a];
+                newCoeval[evaluator][evaluated][a] = (v && validValueSet.has(v)) ? v : 'NE';
             });
         });
     });
@@ -6484,13 +6969,13 @@ function rubric_scaleScore(score) {
         const minV = Math.min(...nums);
         const maxV = Math.max(...nums);
         const s = parseFloat(score);
-        if (isNaN(s)) return 0;
+        if (isNaN(s)) return null;
         if (maxV === minV) return 10;
         return ((s - minV) / (maxV - minV)) * 10;
     }
     // Valores cualitativos: por posición
     const idx = validValues.indexOf(score);
-    if (idx === -1) return 0;
+    if (idx === -1) return null;
     if (validValues.length === 1) return 10;
     return (idx / (validValues.length - 1)) * 10;
 }
@@ -6666,6 +7151,8 @@ function rubric_renderValues() {
             tag.querySelector('.rm-btn').addEventListener('click', () => {
                 if (!confirm(`¿Eliminar el nivel "${val}"?`)) return;
                 rubricState.values.splice(idx, 1);
+                // Prunar teacher/coevaluation de valores eliminados
+                rubric_syncStructures();
                 rubric_renderValues();
                 rubric_saveLocal();
             });
@@ -6915,7 +7402,7 @@ function rubric_renderResults() {
     // Construir encabezado dinámico: Estudiante | Nota Profesor | Coevaluación | Nota Final | <criterios...>
     if (thead) {
         thead.innerHTML = '<th>Estudiante</th><th>Nota Profesor</th><th>Nota Coevaluación</th><th>Nota Final</th>'
-            + rubricState.globalCriteria.map(c => `<th title="${escapeHtml(getAppCriterionDesc(c, 'rubric'))}">${c}.</th>`).join('');
+            + rubricState.globalCriteria.map(c => `<th title="${escapeHtml(getAppCriterionDesc(c, 'rubric'))}">${escapeHtml(c)}.</th>`).join('');
     }
     if (badge) badge.textContent = rubricState.evalName + (rubricState.groupName ? ' · ' + rubricState.groupName : '');
     if (!rubricState.results) return;
@@ -6980,10 +7467,10 @@ function rubric_serialize() {
     };
 }
 function rubric_loadFromObj(data) {
-    if (!data || typeof data !== 'object') throw new Error('Datos inválidos');
+    if (!data || typeof data !== 'object' || Array.isArray(data)) throw new Error('Datos inválidos');
     rubricState.evalName     = data.evalName || '';
     rubricState.groupName    = data.groupName || '';
-    rubricState.students     = (data.students || []).map(s => ({id: s.id || uuid(), fullName: s.fullName}));
+    rubricState.students     = (Array.isArray(data.students) ? data.students : []).map(s => ({id: s.id || uuid(), fullName: s.fullName}));
     rubricState.aspects      = Array.isArray(data.aspects) ? [...data.aspects] : [];
     rubricState.values       = Array.isArray(data.values) ? [...data.values] : ['NE'];
     if (!rubricState.values.includes('NE')) rubricState.values.unshift('NE');
@@ -7025,6 +7512,15 @@ function rubric_refreshAllUI() {
     rubric_renderAspects();
     rubric_renderValues();
     renderGlobalBadges('rubric');
+    // Re-renderizar pantallas activas (fix 15-C-2: stale UI tras load/import/apply)
+    if (document.getElementById('rubricScreenEval')?.classList.contains('active')) {
+        if (typeof rubric_renderBulkBar === 'function') rubric_renderBulkBar();
+        if (typeof rubric_renderTeacherTable === 'function') rubric_renderTeacherTable();
+        if (typeof rubric_renderCoevaluation === 'function') rubric_renderCoevaluation();
+    }
+    if (document.getElementById('rubricScreenResults')?.classList.contains('active')) {
+        if (typeof rubric_renderResults === 'function') rubric_renderResults();
+    }
 }
 
 // === Exportar / Importar ===
@@ -7044,9 +7540,10 @@ function rubric_exportConfig() {
 function rubric_importConfig(file) {
     readJSONFile(file, data => {
         try {
+            if (!data || typeof data !== 'object' || Array.isArray(data)) { alert('Formato no válido: se esperaba un objeto JSON.'); return; }
             rubricState.evalName     = data.evalName || '';
             rubricState.groupName    = data.groupName || '';
-            rubricState.students     = (data.students || []).map(s => ({id: uuid(), fullName: s.fullName}));
+            rubricState.students     = (Array.isArray(data.students) ? data.students : []).map(s => ({id: uuid(), fullName: s.fullName}));
             rubricState.aspects      = Array.isArray(data.aspects) ? [...data.aspects] : [];
             rubricState.values       = Array.isArray(data.values) ? [...data.values] : ['NE'];
             if (!rubricState.values.includes('NE')) rubricState.values.unshift('NE');
@@ -7380,6 +7877,8 @@ function generic_applyPredefinedTask() {
     renderGlobalBadges('generic');
     renderGenericStudentTags();
     updateGenericConfigWarning();
+    autoSaveApp('generic');
+    autoSaveScores('generic');
     const modalEl = document.getElementById('genericPredefinedTasksModal');
     bootstrap.Modal.getOrCreateInstance(modalEl).hide();
     alert(`✅ Se han cargado ${criteria.length} criterios de "${_predefSelectedTask}".\n\nAhora puedes añadir o editar criterios desde "Seleccionar criterios TEC.4.X.Y."`);
@@ -7790,6 +8289,11 @@ function fb_loadCurrentUserProfile(user) {
         const userRef = fbDb.ref(`${FB_USERS_PATH}/${user.uid}`);
         // Lectura inicial con .once()
         userRef.once('value').then(snap => {
+            // Race-condition guard: si el usuario ha cerrado sesión mientras se cargaba el perfil, abortar
+            if (!fbAuth.currentUser || fbAuth.currentUser.uid !== user.uid) {
+                resolve(null);
+                return;
+            }
             const data = snap.val();
             if (data) {
                 fbCurrentUser = {
@@ -7824,12 +8328,19 @@ function fb_loadCurrentUserProfile(user) {
                     if (typeof fb_renderUsers === 'function') fb_renderUsers();
                 }
             };
+            // Cancelar listener anterior ANTES de crear uno nuevo (fix 15-D-1: race-condition en sign-out+sign-in con mismo uid)
+            if (fbCurrentUserProfileUnsub) { try { fbCurrentUserProfileUnsub(); } catch(e){} fbCurrentUserProfileUnsub = null; }
             userRef.on('value', profileCb);
             // Guardar función de desuscripción correcta (ref.off, no el callback directo)
             fbCurrentUserProfileUnsub = () => { try { userRef.off('value', profileCb); } catch(e){} };
             resolve(fbCurrentUser);
         }).catch(err => {
             console.warn('No se pudo cargar el perfil de usuario:', err);
+            // Race-condition guard: si el usuario cerró sesión mientras se cargaba, abortar
+            if (!fbAuth.currentUser || fbAuth.currentUser.uid !== user.uid) {
+                resolve(null);
+                return;
+            }
             fbCurrentUser = {
                 uid: user.uid,
                 email: user.email,
@@ -7847,7 +8358,9 @@ function fb_loadCurrentUserProfile(user) {
 // Callback de cambio de auth
 function fb_onAuthStateChanged(user) {
     if (user) {
-        fb_loadCurrentUserProfile(user).then(() => {
+        fb_loadCurrentUserProfile(user).then((profile) => {
+            // Si el usuario cerró sesión mientras se cargaba el perfil, no subscribir
+            if (!profile) return;
             fb_subscribeActivities();
             // Suscribirse a la lista de usuarios
             fb_subscribeUsers();
@@ -8019,7 +8532,7 @@ function fb_clearLocalData() {
         instrumentCriteria = ALL_CRITERIA_CODES;
     } catch(e) { console.warn('Error reseteando estados en memoria:', e); }
 
-    // Borrar localStorage de las apps
+    // Borrar localStorage de las apps (config + autosave backups)
     try {
         safeLSRemove('tec4_exam_app');
         safeLSRemove('tec4_test_app');
@@ -8027,6 +8540,15 @@ function fb_clearLocalData() {
         safeLSRemove(RUBRIC_STORAGE_KEY);
         safeLSRemove('pond_config_backup');
         safeLSRemove('pond_import_backup');
+        // Autosave backups introducidos en ronda 12 (impedir fuga de datos entre usuarios)
+        safeLSRemove('exam_scores_backup');
+        safeLSRemove('test_scores_backup');
+        safeLSRemove('generic_scores_backup');
+        safeLSRemove('inst_config_backup');
+        safeLSRemove('inst_eval_backup');
+        safeLSRemove('inst_matrix_backup');
+        // Tareas predefinidas personalizadas del catálogo generic (fix 14-D-9)
+        safeLSRemove('predefinedTasks_tec4_v13');
     } catch(e) { console.warn('Error borrando localStorage:', e); }
 
     // Re-renderizar las apps para que reflejen el estado vacío
@@ -8219,12 +8741,15 @@ function fb_updateCloudUI() {
     document.getElementById('fbAccountPanelEmail').textContent = '@' + (fbCurrentUser.username || fb_emailToUsername(fbCurrentUser.email) || 'usuario');
     const roleBadge = document.getElementById('fbAccountPanelRole');
     if (roleBadge) {
-        roleBadge.className = 'fb-auth-role-badge admin';
-        roleBadge.innerHTML = '<i class="bi bi-shield-fill"></i> Administrador';
+        const isAdmin = fbCurrentUser.role === 'admin';
+        roleBadge.className = 'fb-auth-role-badge ' + (isAdmin ? 'admin' : 'user');
+        roleBadge.innerHTML = isAdmin
+            ? '<i class="bi bi-shield-fill"></i> Administrador'
+            : '<i class="bi bi-shield"></i> Usuario';
     }
-    // Mostrar/ocultar botón de gestión de usuarios (todos son admin)
+    // Mostrar/ocultar botón de gestión de usuarios (solo admin)
     const manageUsersBtn = document.getElementById('fbAccountManageUsersBtn');
-    if (manageUsersBtn) manageUsersBtn.style.display = '';
+    if (manageUsersBtn) manageUsersBtn.style.display = (fbCurrentUser.role === 'admin') ? '' : 'none';
     // Botón de guardar: siempre habilitado (todos son admin)
     const saveBtn = document.getElementById('fbCloudSaveBtn');
     if (saveBtn) {
@@ -8425,8 +8950,9 @@ function fb_renderActivities() {
                 `;
                 childCard.querySelector('.load-btn').addEventListener('click', () => {
                     try {
-                        fb_applyScores(a.app, s.data);
-                        alert(`✅ Calificaciones "${s.name}" cargadas correctamente.`);
+                        const ok = fb_applyScores(a.app, s.data);
+                        if (ok) alert(`✅ Calificaciones "${s.name}" cargadas correctamente.`);
+                        else alert('Operación cancelada: no se han aplicado las calificaciones.');
                     } catch(e) { alert('Error al cargar calificaciones: ' + e.message); }
                 });
                 childCard.querySelector('.rename-btn').addEventListener('click', () => fb_openRenameModal(s));
@@ -8560,6 +9086,11 @@ function fb_adminDeleteUser(u) {
 // Usa una instancia secundaria de Firebase para NO cerrar la sesión del admin actual.
 let _fbSecondaryApp = null;
 function fb_adminCreateUser() {
+    // Solo los administradores pueden crear usuarios
+    if (!fbCurrentUser || fbCurrentUser.role !== 'admin') {
+        alert('⚠️ Solo los administradores pueden crear usuarios.');
+        return;
+    }
     const displayName = (document.getElementById('fbCreateDisplayName')?.value || '').trim();
     const username = (document.getElementById('fbCreateUsername')?.value || '').trim();
     const password = document.getElementById('fbCreatePassword')?.value || '';
@@ -8765,17 +9296,32 @@ function fb_importGroupStudentsToApp(app, groupName) {
             const newId = 'stu_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
             state.students.push({ id: newId, fullName: s.fullName });
         } else {
-            state.students.push({ fullName: s.fullName });
+            state.students.push({ id: uuid(), fullName: s.fullName });
+        }
+        // Inicializar scores paralelos para cada alumno importado
+        if (app === 'exam') {
+            state.scores.push(new Array(examState.questions.length).fill(0));
+        } else if (app === 'test') {
+            state.studentScores.push({ correct: 0, wrong: 0, unanswered: testState.totalQuestions });
+        } else if (app === 'generic') {
+            state.scores.push(new Array(genericState.globalCriteria.length).fill(0));
+        } else if (app === 'instrumentos') {
+            state.evalScores.push(new Array(instrumentState.instruments.length).fill(0));
         }
         added++;
     });
     if (added === 0) return false;
-    state.students.sort((a, b) => (a.fullName || '').localeCompare(b.fullName || '', 'es', { sensitivity: 'base' }));
+    // Reordenar manteniendo paralelismo entre students y scores
+    if (app === 'exam') sortStudents(examState, 'scores');
+    else if (app === 'test') sortStudents(testState, 'studentScores');
+    else if (app === 'generic') sortStudents(genericState, 'scores');
+    else if (app === 'instrumentos') sortStudents(instrumentState, 'evalScores');
+    else if (app === 'rubricas') state.students.sort((a, b) => (a.fullName || '').localeCompare(b.fullName || '', 'es', { sensitivity: 'base' }));
     try {
-        if (app === 'exam') { normalizeExamScores(); renderExamStudentTags(); updateExamConfigWarning(); }
-        else if (app === 'test') { renderTestStudentTags(); updateTestConfigWarning(); }
-        else if (app === 'generic') { normalizeGenericScores(); renderGenericStudentTags(); updateGenericConfigWarning(); }
-        else if (app === 'instrumentos') { renderInstrumentosStudentTags(); inst_updateConfigButtonState(); }
+        if (app === 'exam') { normalizeExamScores(); renderExamStudentTags(); updateExamConfigWarning(); autoSaveApp('exam'); autoSaveScores('exam'); }
+        else if (app === 'test') { renderTestStudentTags(); updateTestConfigWarning(); autoSaveApp('test'); autoSaveScores('test'); }
+        else if (app === 'generic') { normalizeGenericScores(); renderGenericStudentTags(); updateGenericConfigWarning(); autoSaveApp('generic'); autoSaveScores('generic'); }
+        else if (app === 'instrumentos') { renderInstrumentosStudentTags(); inst_updateConfigButtonState(); inst_saveConfigLocalSilent(); inst_saveEvalLocalSilent(); }
         else if (app === 'rubricas') { rubric_syncStructures(); rubric_renderStudentTags(); rubric_updateHeader(); rubric_saveLocal(); }
     } catch(e) { console.warn('Error re-renderizando tras importar alumnos del grupo:', e); }
     return true;
@@ -8855,6 +9401,13 @@ function fb_deleteCourse(course) {
 function fb_createGroup(groupName, level) {
     if (!fbCurrentCourseId) { alert('Selecciona un curso primero.'); return; }
     if (!groupName || !groupName.trim()) { alert('El nombre del grupo no puede estar vacío.'); return; }
+    // Validar duplicados (case-insensitive)
+    const course = fbAllCourses.find(c => c.id === fbCurrentCourseId);
+    const existing = course && course.groups ? Object.values(course.groups) : [];
+    if (existing.some(g => g && g.name && g.name.toLowerCase() === groupName.trim().toLowerCase())) {
+        alert(`Ya existe un grupo llamado "${groupName.trim()}" en este curso. Elige otro nombre.`);
+        return;
+    }
     const ref = fbDb.ref(`${FB_COURSES_PATH}/${fbCurrentCourseId}/groups`).push();
     ref.set({
         name: groupName.trim(),
@@ -8917,17 +9470,27 @@ function fb_importStudentsToGroupFromFile(courseId, groupId, file) {
     const ext = (file.name || '').split('.').pop().toLowerCase();
     const reader = new FileReader();
     reader.onload = function(e) {
-        let names = [];
+        let rawNames = [];
         if (ext === 'json') {
-            try { names = JSON.parse(e.target.result); } catch { alert('JSON inválido.'); return; }
-            if (!Array.isArray(names)) names = Object.values(names);
+            try { rawNames = JSON.parse(e.target.result); } catch { alert('JSON inválido.'); return; }
+            // Soporte para múltiples formatos: array de strings, array de objetos {fullName},
+            // objeto con clave 'alumnos' o 'students' (array de strings o de objetos)
+            if (rawNames && typeof rawNames === 'object' && !Array.isArray(rawNames)) {
+                rawNames = rawNames.alumnos || rawNames.students || rawNames.lista || Object.values(rawNames);
+            }
+            if (!Array.isArray(rawNames)) { alert('Formato JSON no reconocido: se esperaba array u objeto con "alumnos"/"students".'); return; }
         } else if (['xlsx','xls'].includes(ext)) {
             try {
                 const wb = XLSX.read(e.target.result, {type:'binary'});
                 const data = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], {header:1});
-                names = data.slice(1).map(r => r[0]).filter(v => v && typeof v === 'string');
+                rawNames = data.slice(1).map(r => r[0]).filter(v => v !== undefined && v !== null && v !== '');
             } catch { alert('Error al leer el Excel.'); return; }
         } else { alert('Formato no soportado. Use .xlsx, .xls o .json'); return; }
+        // Normalizar cada entrada a string (acepta objetos con fullName)
+        const names = rawNames.map(n => {
+            if (n && typeof n === 'object' && n.fullName) return String(n.fullName);
+            return (n === undefined || n === null) ? '' : String(n);
+        });
         const existing = Array.isArray(group.students) ? group.students.slice() : [];
         let added = 0, skipped = 0;
         names.forEach(name => {
@@ -9000,6 +9563,25 @@ function fb_saveCurrentStudentsAsGroup() {
     const courseLabel = fbAllCourses.find(c => c.id === fbCurrentCourseId)?.label || '';
     const groupName = prompt(`Nombre para el grupo (guardará ${state.students.length} alumnos en el curso ${courseLabel}):`);
     if (!groupName || !groupName.trim()) return;
+    // Validar duplicados
+    const course = fbAllCourses.find(c => c.id === fbCurrentCourseId);
+    const existing = course && course.groups ? Object.values(course.groups) : [];
+    if (existing.some(g => g && g.name && g.name.toLowerCase() === groupName.trim().toLowerCase())) {
+        if (!confirm(`Ya existe un grupo llamado "${groupName.trim()}" en este curso.\n\n¿Sobrescribir sus alumnos con los ${state.students.length} actuales?`)) return;
+        // Encontrar el grupo existente y actualizar sus alumnos
+        const existingGroup = Object.entries(course.groups).find(([_, g]) => g && g.name && g.name.toLowerCase() === groupName.trim().toLowerCase());
+        if (existingGroup) {
+            const [existingGid, _] = existingGroup;
+            fbDb.ref(`${FB_COURSES_PATH}/${fbCurrentCourseId}/groups/${existingGid}/students`).set(state.students.map(s => ({ fullName: s.fullName || '' })))
+                .then(() => {
+                    alert(`✅ ${state.students.length} alumnos guardados en el grupo existente "${groupName.trim()}" del curso ${courseLabel}.`);
+                    const groupsModal = document.getElementById('fbGroupsModal');
+                    if (groupsModal && groupsModal.classList.contains('show')) fb_renderGroupsModalBody();
+                })
+                .catch(err => alert('Error al guardar alumnos: ' + err.message));
+            return;
+        }
+    }
     const level = prompt('Nivel educativo (opcional, ej: 2º ESO):', '') || '';
     const groupRef = fbDb.ref(`${FB_COURSES_PATH}/${fbCurrentCourseId}/groups`).push();
     groupRef.set({
@@ -9030,22 +9612,19 @@ function fb_importActivitiesFromCourse(fromCourseId) {
         return;
     }
     if (!fbCurrentUser || !fbCurrentUser.uid) { alert('No hay sesión activa.'); return; }
-    // Buscar actividades del curso origen que pertenezcan al usuario actual
-    let userActivities = fbAllActivities.filter(a =>
-        (a.createdBy === fbCurrentUser.uid) &&
-        (a.courseId === fromCourseId)
-    );
-    // Si no hay campo courseId en los registros (heredados), filtrar por fecha
-    if (userActivities.length === 0) {
-        const start = new Date(fromCourse.yearStart, 8, 1).getTime(); // 1 sep
-        const end = new Date(fromCourse.yearEnd, 7, 31, 23, 59, 59).getTime(); // 31 ago
-        userActivities = fbAllActivities.filter(a => {
-            if (a.createdBy !== (fbCurrentUser && fbCurrentUser.uid)) return false;
-            if (a.courseId) return false;
-            const t = a.createdAt || a.updatedAt || 0;
-            return t >= start && t <= end;
-        });
-    }
+    // Buscar actividades del curso origen que pertenezcan al usuario actual.
+    // Combinar: (a) actividades con courseId === fromCourseId, Y (b) actividades legacy
+    // sin courseId cuya fecha cae dentro del rango del curso origen.
+    const start = new Date(fromCourse.yearStart, 8, 1).getTime(); // 1 sep
+    const end = new Date(fromCourse.yearEnd, 7, 31, 23, 59, 59).getTime(); // 31 ago
+    const userActivities = fbAllActivities.filter(a => {
+        if (a.createdBy !== fbCurrentUser.uid) return false;
+        if (a.courseId === fromCourseId) return true;
+        if (a.courseId) return false; // pertenece a otro curso
+        // Legacy: sin courseId, filtrar por fecha
+        const t = a.createdAt || a.updatedAt || 0;
+        return t >= start && t <= end;
+    });
     if (userActivities.length === 0) {
         alert(`No tienes actividades en el curso ${fromCourse.label} para importar.`);
         return;
@@ -9280,11 +9859,20 @@ function fb_importGroupsFromCourse(importAll, withStudents) {
         return;
     }
     if (!confirm(`¿Importar ${groupIdsToImport.length} grupo(s) del curso ${fromCourse.label} al curso ${toCourse.label}?\n\n${withStudents ? 'Se incluirán los alumnos.' : 'No se incluirán los alumnos (solo estructura).'}`)) return;
-    // Crear copias de los grupos en el curso destino
+    // Crear copias de los grupos en el curso destino, evitando duplicados
     const groupsRef = fbDb.ref(`${FB_COURSES_PATH}/${fbCurrentCourseId}/groups`);
+    const existingGroupNames = toCourse.groups ? Object.values(toCourse.groups).map(g => (g && g.name || '').toLowerCase()) : [];
+    let importedCount = 0, skippedDuplicates = 0;
     const promises = groupIdsToImport.map(gid => {
         const g = fromCourse.groups[gid];
         if (!g) return Promise.resolve();
+        // Verificar duplicado (case-insensitive)
+        const gNameLower = (g.name || 'Sin nombre').toLowerCase();
+        if (existingGroupNames.includes(gNameLower)) {
+            skippedDuplicates++;
+            return Promise.resolve();
+        }
+        existingGroupNames.push(gNameLower); // evitar duplicados entre los que se importan
         const newGroup = {
             name: g.name || 'Sin nombre',
             level: g.level || '',
@@ -9292,10 +9880,11 @@ function fb_importGroupsFromCourse(importAll, withStudents) {
             createdAt: Date.now(),
             importedFrom: fromCourse.label
         };
+        importedCount++;
         return groupsRef.push().set(newGroup);
     });
     Promise.all(promises)
-        .then(() => alert(`✅ ${groupIdsToImport.length} grupo(s) importado(s) al curso ${toCourse.label}.`))
+        .then(() => alert(`✅ ${importedCount} grupo(s) importado(s) al curso ${toCourse.label}.${skippedDuplicates > 0 ? ` ${skippedDuplicates} grupo(s) omitido(s) por duplicado.` : ''}`))
         .catch(err => alert('Error al importar grupos: ' + err.message));
 }
 
@@ -9456,6 +10045,7 @@ function fb_saveCurrentActivity() {
         app: app,
         appLabel: FB_APP_LABELS[app] || app,
         data: data,
+        courseId: fbCurrentCourseId || null,
         createdAt: now,
         updatedAt: now,
         createdBy: fbCurrentUser.uid,
@@ -9571,6 +10161,8 @@ function fb_serializeAppState(app) {
                     instruments: instrumentState.instruments.map(i => ({
                         id: i.id || '', name: i.name || '', description: i.description || '', weight: typeof i.weight === 'number' ? i.weight : 0
                     })),
+                    // Persistir también la lista de criteria (si fue modificada por inst_loadMatrixCloud)
+                    criteria: [...instrumentCriteria],
                     // Limpiar la matriz de undefined (Firebase no acepta undefined)
                     matrix: (Array.isArray(instrumentState.matrix) ? instrumentState.matrix : []).map(row =>
                         (Array.isArray(row) ? row : []).map(v => v === undefined ? false : v)
@@ -9616,8 +10208,15 @@ function fb_loadActivity(activity) {
         if (linkedScores.length === 1) {
             msg += `:\n  • "${linkedScores[0].name}" (actualizada ${linkedScores[0].updatedAt ? new Date(linkedScores[0].updatedAt).toLocaleDateString('es-ES') : '—'})\n`;
             msg += `\n¿Deseas cargar también las calificaciones?`;
-            loadScoresToo = confirm(msg);
-            if (loadScoresToo) chosenScores = linkedScores[0];
+            const scoresConfirm = confirm(msg);
+            if (scoresConfirm) {
+                loadScoresToo = true;
+                chosenScores = linkedScores[0];
+            } else {
+                // Usuario no quiere calificaciones; ¿quiere cargar solo la config?
+                const configOnlyMsg = `¿Cargar solo la configuración "${activity.name}" en la app "${FB_APP_LABELS[app] || app}"?\n\nEsto reemplazará la configuración actual de esa app (alumnos, criterios, etc.).`;
+                if (!confirm(configOnlyMsg)) return; // Cancelado
+            }
         } else {
             // Múltiples sets: listar y dejar elegir
             msg += `:\n`;
@@ -9653,8 +10252,12 @@ function fb_loadActivity(activity) {
     // 2. Si se solicitó, aplicar también las calificaciones
     if (loadScoresToo && chosenScores) {
         try {
-            fb_applyScores(app, chosenScores.data);
-            alert(`✅ Configuración "${activity.name}" + calificaciones "${chosenScores.name}" cargadas en ${FB_APP_LABELS[app] || app}.\n\nPuedes ir a esa app para continuar el trabajo.`);
+            const ok = fb_applyScores(app, chosenScores.data);
+            if (ok) {
+                alert(`✅ Configuración "${activity.name}" + calificaciones "${chosenScores.name}" cargadas en ${FB_APP_LABELS[app] || app}.\n\nPuedes ir a esa app para continuar el trabajo.`);
+            } else {
+                alert(`✅ Configuración "${activity.name}" cargada en ${FB_APP_LABELS[app] || app}.\n\n(Las calificaciones no se aplicaron: cancelado por el usuario o número de alumnos no coincidente.)`);
+            }
         } catch(e) {
             alert(`⚠️ Configuración cargada, pero error al cargar calificaciones: ${e.message}\n\nPuedes cargar las calificaciones manualmente desde la pantalla de Calificación.`);
         }
@@ -9689,6 +10292,9 @@ function fb_applyAppState(app, data) {
             document.getElementById('examCourseInput').value = examState.course;
             updateExamConfigWarning();
             updateActivityBadge('exam');
+            saveAppToLocal('exam', true);
+            // Persistir también *_scores_backup (coherente con instrumentos que guarda 3 backups)
+            localSaveSilent('exam_scores_backup', ()=>({ students:examState.students.map(s=>s.fullName), questions:examState.questions.map(q=>({id:q.id,maxScore:q.maxScore})), scores:examState.scores }));
             break;
         case 'test':
             if (!Array.isArray(cfg.globalCriteria)) throw new Error('Formato inválido');
@@ -9707,6 +10313,9 @@ function fb_applyAppState(app, data) {
             renderTestStudentTags();
             updateTestConfigWarning();
             updateActivityBadge('test');
+            saveAppToLocal('test', true);
+            // Persistir también *_scores_backup
+            localSaveSilent('test_scores_backup', ()=>({ students:testState.students.map(s=>s.fullName), totalQuestions:testState.totalQuestions, studentScores:testState.studentScores.map(ss=>({correct:ss.correct,wrong:ss.wrong,unanswered:ss.unanswered})) }));
             break;
         case 'generic':
             if (!Array.isArray(cfg.globalCriteria)) throw new Error('Formato inválido');
@@ -9725,6 +10334,9 @@ function fb_applyAppState(app, data) {
             document.getElementById('genericCourseInput').value = genericState.course;
             updateGenericConfigWarning();
             updateActivityBadge('generic');
+            saveAppToLocal('generic', true);
+            // Persistir también *_scores_backup
+            localSaveSilent('generic_scores_backup', ()=>({ students:genericState.students.map(s=>s.fullName), criteria:genericState.globalCriteria, scores:genericState.scores }));
             break;
         case 'instrumentos':
             Object.assign(instrumentState, {
@@ -9734,9 +10346,21 @@ function fb_applyAppState(app, data) {
                 instruments: (cfg.instruments || []).map(i => ({
                     id: i.id || uuid(), name: i.name || '', description: i.description || '', weight: i.weight || 0
                 })),
-                matrix: Array.isArray(cfg.matrix) ? cfg.matrix : [],
                 criteriaDescriptions: fb_unsanitizeCriteriaKeys(cfg.criteriaDescriptions)
             });
+            // Restaurar instrumentCriteria si viene en el config (fix 14-D-4)
+            if (Array.isArray(cfg.criteria) && cfg.criteria.length > 0) {
+                instrumentCriteria = [...cfg.criteria];
+            }
+            // Normalizar matrix a dimensiones actuales (filas=instruments, columnas=instrumentCriteria)
+            const nI_cfg = instrumentState.instruments.length;
+            const nC_cfg = instrumentCriteria.length;
+            instrumentState.matrix = [];
+            for (let i = 0; i < nI_cfg; i++) {
+                const row = Array.isArray(cfg.matrix) && Array.isArray(cfg.matrix[i]) ? cfg.matrix[i].slice(0, nC_cfg) : [];
+                while (row.length < nC_cfg) row.push(false);
+                instrumentState.matrix.push(row.map(v => v === undefined ? false : !!v));
+            }
             instrumentState.evalScores = instrumentState.students.map(() => new Array(instrumentState.instruments.length).fill(0));
             instrumentState.evalWeights = instrumentState.instruments.map(i => i.weight);
             inst_renderInstrumentsTable();
@@ -9744,6 +10368,11 @@ function fb_applyAppState(app, data) {
             document.getElementById('inst_actividadInput').value = instrumentState.actividad;
             document.getElementById('inst_claseInput').value = instrumentState.clase;
             updateActivityBadge('instrumentos');
+            inst_updateConfigButtonState();
+            // Re-renderizar pantallas activas (Relación/Evaluación) para evitar UI rancia
+            if (document.getElementById('inst_relacion')?.classList.contains('active')) inst_renderMatrix();
+            if (document.getElementById('inst_eval')?.classList.contains('active')) inst_renderEvaluation();
+            inst_saveConfigLocalSilent(); inst_saveMatrixLocalSilent(); inst_saveEvalLocalSilent();
             break;
         case 'rubricas':
             Object.assign(rubricState, {
@@ -9802,9 +10431,22 @@ function fb_confirmRename() {
 function fb_deleteActivity(activity) {
     if (!fbCurrentUser) { alert('Debes iniciar sesión.'); return Promise.reject(new Error('No autorizado')); }
     if (!fb_canEditActivity(activity)) { alert('⚠️ Solo puedes eliminar tus propias actividades (o ser administrador).'); return Promise.reject(new Error('No autorizado')); }
-    if (!confirm(`¿Eliminar la actividad "${activity.name}"?\n\nEsta acción no se puede deshacer.`)) return Promise.resolve(false);
-    return fbDb.ref(`${FB_ACTIVITIES_PATH}/${activity.id}`).remove()
-        .then(() => { alert('✅ Actividad eliminada de la nube.'); return true; })
+    // Calificaciones vinculadas (para cascade delete si es config)
+    const configId = activity.kind === 'config' ? fb_getConfigFingerprintForRecord(activity) : null;
+    const linkedScores = configId ? fbAllActivities.filter(s => s.kind === 'scores' && s.app === activity.app && s.configId === configId && s.id !== activity.id) : [];
+    const confirmMsg = linkedScores.length > 0
+        ? `¿Eliminar la actividad "${activity.name}"?\n\nEsta configuración tiene ${linkedScores.length} set(s) de calificaciones vinculada(s) que TAMBIÉN se eliminarán.\n\nEsta acción no se puede deshacer.`
+        : `¿Eliminar la actividad "${activity.name}"?\n\nEsta acción no se puede deshacer.`;
+    if (!confirm(confirmMsg)) return Promise.resolve(false);
+    // Eliminar la actividad principal
+    const mainRemove = fbDb.ref(`${FB_ACTIVITIES_PATH}/${activity.id}`).remove();
+    // Cascade: eliminar también los scores vinculados
+    const cascadeRemoves = linkedScores.map(s => fbDb.ref(`${FB_ACTIVITIES_PATH}/${s.id}`).remove());
+    return Promise.all([mainRemove, ...cascadeRemoves])
+        .then(() => {
+            alert(`✅ Actividad eliminada de la nube.${linkedScores.length > 0 ? ` ${linkedScores.length} set(s) de calificaciones vinculada(s) también eliminados.` : ''}`);
+            return true;
+        })
         .catch(err => { alert('Error: ' + err.message); throw err; });
 }
 
@@ -9850,6 +10492,7 @@ function fb_saveFromApp(app) {
         app: app,
         appLabel: FB_APP_LABELS[app] || app,
         data: data,
+        courseId: fbCurrentCourseId || null,
         createdAt: now,
         updatedAt: now,
         createdBy: fbCurrentUser.uid,
@@ -9972,10 +10615,14 @@ function fb_renderAppLoadList() {
             `;
             card.querySelector('.load-btn').addEventListener('click', () => {
                 try {
-                    fb_applyScores(appKey, a.data);
-                    const modalEl = document.getElementById('fbAppLoadModal');
-                    bootstrap.Modal.getOrCreateInstance(modalEl).hide();
-                    alert(`✅ Calificaciones "${a.name}" cargadas correctamente.`);
+                    const ok = fb_applyScores(appKey, a.data);
+                    if (ok) {
+                        const modalEl = document.getElementById('fbAppLoadModal');
+                        bootstrap.Modal.getOrCreateInstance(modalEl).hide();
+                        alert(`✅ Calificaciones "${a.name}" cargadas correctamente.`);
+                    } else {
+                        alert('Operación cancelada: no se han aplicado las calificaciones.');
+                    }
                 } catch(e) { alert('Error al cargar calificaciones: ' + e.message); }
             });
             card.querySelector('.rename-btn').addEventListener('click', () => {
@@ -10121,10 +10768,14 @@ function fb_renderAppLoadList() {
                 `;
                 childCard.querySelector('.load-btn').addEventListener('click', () => {
                     try {
-                        fb_applyScores(a.app, s.data);
-                        const modalEl = document.getElementById('fbAppLoadModal');
-                        bootstrap.Modal.getOrCreateInstance(modalEl).hide();
-                        alert(`✅ Calificaciones "${s.name}" cargadas correctamente.`);
+                        const ok = fb_applyScores(a.app, s.data);
+                        if (ok) {
+                            const modalEl = document.getElementById('fbAppLoadModal');
+                            bootstrap.Modal.getOrCreateInstance(modalEl).hide();
+                            alert(`✅ Calificaciones "${s.name}" cargadas correctamente.`);
+                        } else {
+                            alert('Operación cancelada: no se han aplicado las calificaciones.');
+                        }
                     } catch(e) { alert('Error al cargar calificaciones: ' + e.message); }
                 });
                 childCard.querySelector('.rename-btn').addEventListener('click', () => {
@@ -10259,7 +10910,7 @@ function fb_serializeScores(app) {
     }
 }
 
-// Aplica calificaciones cargadas desde la nube a la app indicada
+// Aplica calificaciones cargadas desde la nube a la app indicada. Devuelve false si el usuario cancela.
 function fb_applyScores(app, data) {
     const sc = data.scores || data;
     switch (app) {
@@ -10267,7 +10918,7 @@ function fb_applyScores(app, data) {
             // Verificar que los alumnos coinciden
             if (!Array.isArray(sc.students) || !Array.isArray(sc.scores)) throw new Error('Formato inválido de calificaciones');
             if (sc.students.length !== examState.students.length) {
-                if (!confirm(`El número de alumnos no coincide (${sc.students.length} en la nube vs ${examState.students.length} actual). ¿Aplicar de todas formas?`)) return;
+                if (!confirm(`El número de alumnos no coincide (${sc.students.length} en la nube vs ${examState.students.length} actual). ¿Aplicar de todas formas?`)) return false;
             }
             // Mapear por nombre
             sc.students.forEach((name, idx) => {
@@ -10278,24 +10929,29 @@ function fb_applyScores(app, data) {
             });
             normalizeExamScores();
             renderExamGradeTable();
+            saveScoresLocal('exam'); saveAppToLocal('exam', true);
             break;
         case 'test':
             if (!Array.isArray(sc.students) || !Array.isArray(sc.studentScores)) throw new Error('Formato inválido de calificaciones');
             if (sc.students.length !== testState.students.length) {
-                if (!confirm(`El número de alumnos no coincide (${sc.students.length} en la nube vs ${testState.students.length} actual). ¿Aplicar de todas formas?`)) return;
+                if (!confirm(`El número de alumnos no coincide (${sc.students.length} en la nube vs ${testState.students.length} actual). ¿Aplicar de todas formas?`)) return false;
             }
             sc.students.forEach((name, idx) => {
                 const sIdx = testState.students.findIndex(s => s.fullName === name);
                 if (sIdx !== -1 && sc.studentScores[idx]) {
-                    testState.studentScores[sIdx] = { correct: sc.studentScores[idx].correct || 0, wrong: sc.studentScores[idx].wrong || 0, unanswered: sc.studentScores[idx].unanswered || 0 };
+                    // Recomputar unanswered según el totalQuestions ACTUAL, no el del cloud
+                    const c = Math.min(Number(sc.studentScores[idx].correct)||0, testState.totalQuestions);
+                    const w = Math.min(Number(sc.studentScores[idx].wrong)||0, testState.totalQuestions - c);
+                    testState.studentScores[sIdx] = { correct: c, wrong: w, unanswered: Math.max(0, testState.totalQuestions - c - w) };
                 }
             });
             renderTestGradeTable();
+            saveScoresLocal('test'); saveAppToLocal('test', true);
             break;
         case 'generic':
             if (!Array.isArray(sc.students) || !Array.isArray(sc.scores)) throw new Error('Formato inválido de calificaciones');
             if (sc.students.length !== genericState.students.length) {
-                if (!confirm(`El número de alumnos no coincide (${sc.students.length} en la nube vs ${genericState.students.length} actual). ¿Aplicar de todas formas?`)) return;
+                if (!confirm(`El número de alumnos no coincide (${sc.students.length} en la nube vs ${genericState.students.length} actual). ¿Aplicar de todas formas?`)) return false;
             }
             sc.students.forEach((name, idx) => {
                 const sIdx = genericState.students.findIndex(s => s.fullName === name);
@@ -10305,26 +10961,42 @@ function fb_applyScores(app, data) {
             });
             normalizeGenericScores();
             renderGenericGradeTable();
+            saveScoresLocal('generic'); saveAppToLocal('generic', true);
             break;
         case 'instrumentos':
             if (!Array.isArray(sc.students) || !Array.isArray(sc.evalScores)) throw new Error('Formato inválido de calificaciones');
             if (sc.students.length !== instrumentState.students.length) {
-                if (!confirm(`El número de alumnos no coincide (${sc.students.length} en la nube vs ${instrumentState.students.length} actual). ¿Aplicar de todas formas?`)) return;
+                if (!confirm(`El número de alumnos no coincide (${sc.students.length} en la nube vs ${instrumentState.students.length} actual). ¿Aplicar de todas formas?`)) return false;
             }
             sc.students.forEach((name, idx) => {
                 const sIdx = instrumentState.students.findIndex(s => s.fullName === name);
                 if (sIdx !== -1 && Array.isArray(sc.evalScores[idx])) {
-                    instrumentState.evalScores[sIdx] = [...sc.evalScores[idx]];
+                    // Normalizar longitud de la fila a instrumentState.instruments.length
+                    const row = sc.evalScores[idx].slice(0, instrumentState.instruments.length);
+                    while (row.length < instrumentState.instruments.length) row.push(0);
+                    instrumentState.evalScores[sIdx] = row;
                 }
             });
-            if (Array.isArray(sc.matrix)) instrumentState.matrix = sc.matrix;
+            // Normalizar matrix a dimensiones actuales si viene en el registro
+            if (Array.isArray(sc.matrix)) {
+                const nI = instrumentState.instruments.length;
+                const nC = instrumentCriteria.length;
+                const newMatrix = [];
+                for (let i = 0; i < nI; i++) {
+                    const row = Array.isArray(sc.matrix[i]) ? sc.matrix[i].slice(0, nC) : [];
+                    while (row.length < nC) row.push(false);
+                    newMatrix.push(row.map(v => v === undefined ? false : !!v));
+                }
+                instrumentState.matrix = newMatrix;
+            }
             if (document.getElementById('inst_relacion')?.classList.contains('active')) inst_renderMatrix();
             if (document.getElementById('inst_eval')?.classList.contains('active')) inst_renderEvaluation();
+            inst_saveEvalLocalSilent(); inst_saveMatrixLocalSilent();
             break;
         case 'rubricas':
             if (!Array.isArray(sc.students)) throw new Error('Formato inválido de calificaciones');
             if (sc.students.length !== rubricState.students.length) {
-                if (!confirm(`El número de alumnos no coincide (${sc.students.length} en la nube vs ${rubricState.students.length} actual). ¿Aplicar de todas formas?`)) return;
+                if (!confirm(`El número de alumnos no coincide (${sc.students.length} en la nube vs ${rubricState.students.length} actual). ¿Aplicar de todas formas?`)) return false;
             }
             rubricState.teacher = sc.teacher || {};
             rubricState.coevaluation = sc.coevaluation || {};
@@ -10337,6 +11009,7 @@ function fb_applyScores(app, data) {
         default:
             throw new Error('App no soportada: ' + app);
     }
+    return true;
 }
 
 // Guardar calificaciones de la app indicada en la nube
@@ -10443,6 +11116,7 @@ function _fb_doSaveScores(app, configId, configName, configRef) {
         configId: configId,
         configRef: configRef || null,
         configName: configName,
+        courseId: fbCurrentCourseId || null,
         createdAt: now,
         updatedAt: now,
         createdBy: fbCurrentUser.uid,
@@ -10511,6 +11185,14 @@ function fb_setup() {
 // INICIALIZACIÓN
 // =============================================================================
 window.onload = function() {
+    // Intro overlay: ocultar tras 5s o al hacer click (al inicio para que nunca se bloquee)
+    const intro = document.getElementById('intro-overlay');
+    if (intro) {
+        const hideIntro = () => { if(!intro.classList.contains('fade-out')){ intro.classList.add('fade-out'); setTimeout(()=>{ if(intro.parentNode) intro.style.display='none'; },1000); } };
+        setTimeout(hideIntro, 5000);
+        document.addEventListener('click', hideIntro, {once:true});
+    }
+
     [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]')).map(el => new bootstrap.Tooltip(el));
 
     document.getElementById('examCourseInput').value    = examState.course;
@@ -10575,6 +11257,7 @@ window.onload = function() {
         renderExamGradeTable();
         validateExamCriteria();
         updateExamConfigWarning();
+        autoSaveApp('exam');
     });
 
     // Modal compartido de criterios
@@ -10599,6 +11282,8 @@ window.onload = function() {
             if (app==='test') updateTestConfigWarning();
             if (app==='generic') updateGenericConfigWarning();
             if (app==='rubric') rubric_saveLocal();
+            // Autosave silencioso para apps no-rubric
+            if (app==='exam' || app==='test' || app==='generic') { autoSaveApp(app); autoSaveScores(app); }
         });
         var bsModal = bootstrap.Modal.getInstance(modalEl);
         if (bsModal) bsModal.hide();
@@ -10640,30 +11325,30 @@ window.onload = function() {
         if(!validateExamCriteria()){ alert('Criterios no asignados correctamente.'); return; }
         showAppScreen('exam','results');
     });
-    document.getElementById('examNameInput').addEventListener('input', e=>{ examState.examName=e.target.value; updateExamConfigWarning(); updateActivityBadge('exam'); });
-    document.getElementById('examCourseInput').addEventListener('input', e=>{ examState.course=e.target.value; updateExamConfigWarning(); updateActivityBadge('exam'); });
+    document.getElementById('examNameInput').addEventListener('input', e=>{ examState.examName=e.target.value; updateExamConfigWarning(); updateActivityBadge('exam'); autoSaveApp('exam'); });
+    document.getElementById('examCourseInput').addEventListener('input', e=>{ examState.course=e.target.value; updateExamConfigWarning(); updateActivityBadge('exam'); autoSaveApp('exam'); });
     document.getElementById('examCourseInput').addEventListener('change', e=>{ if (fb_importGroupStudentsToApp('exam', e.target.value)) { alert('✅ Alumnos del grupo "' + e.target.value + '" importados a la actividad.'); } });
     document.getElementById('examBtnSetQuestions').addEventListener('click', function() {
         const num=parseInt(document.getElementById('examInputNumQuestions').value)||1;
         examState.questions=Array.from({length:num},(_,i)=>({id:i+1,maxScore:10,criteriaCodes:[],name:'',description:''}));
-        normalizeExamScores(); renderExamQuestionsTable(); validateExamCriteria(); updateExamConfigWarning();
+        normalizeExamScores(); renderExamQuestionsTable(); validateExamCriteria(); updateExamConfigWarning(); autoSaveApp('exam'); autoSaveScores('exam');
     });
     document.getElementById('examAppendQuestionBtn').addEventListener('click', function() {
         const newId=examState.questions.length?Math.max(...examState.questions.map(q=>q.id))+1:1;
         examState.questions.push({id:newId,maxScore:10,criteriaCodes:[],name:'',description:''});
         examState.scores.forEach(row=>row.push(0)); reorderExamQuestionIds(); normalizeExamScores(); renderExamQuestionsTable();
-        document.getElementById('examInputNumQuestions').value=examState.questions.length; validateExamCriteria(); updateExamConfigWarning();
+        document.getElementById('examInputNumQuestions').value=examState.questions.length; validateExamCriteria(); updateExamConfigWarning(); autoSaveApp('exam'); autoSaveScores('exam');
     });
     document.getElementById('examBtnAddStudent').addEventListener('click', function() {
         const input=document.getElementById('examStudentNameInput'), name=input.value.trim(); if(!name) return;
         if(isStudentDuplicate(examState,name)){ showDuplicateMessage('examDuplicateMessage',`El alumno "${name}" ya existe.`); input.value=''; return; }
-        examState.students.push({id:uuid(),fullName:name}); normalizeExamScores(); sortStudents(examState,'scores'); renderExamStudentTags(); input.value=''; showDuplicateMessage('examDuplicateMessage',''); updateExamConfigWarning();
+        examState.students.push({id:uuid(),fullName:name}); normalizeExamScores(); sortStudents(examState,'scores'); renderExamStudentTags(); input.value=''; showDuplicateMessage('examDuplicateMessage',''); updateExamConfigWarning(); autoSaveApp('exam'); autoSaveScores('exam');
     });
     document.getElementById('examBtnClearStudents').addEventListener('click', function() {
-        if(confirm('¿Estás seguro de que deseas eliminar a todos los alumnos?')){ examState.students=[]; examState.scores=[]; renderExamStudentTags(); updateExamConfigWarning(); }
+        if(confirm('¿Estás seguro de que deseas eliminar a todos los alumnos?')){ examState.students=[]; examState.scores=[]; renderExamStudentTags(); updateExamConfigWarning(); autoSaveApp('exam'); autoSaveScores('exam'); }
     });
     document.getElementById('examImportFile').addEventListener('change', function() {
-        if(this.files.length) importStudentsFromFile(this.files[0],examState,'scores',()=>{ normalizeExamScores(); renderExamStudentTags(); if(document.getElementById('examScreenGrade').classList.contains('active')) renderExamGradeTable(); updateExamConfigWarning(); });
+        if(this.files.length) importStudentsFromFile(this.files[0],examState,'scores',()=>{ normalizeExamScores(); renderExamStudentTags(); if(document.getElementById('examScreenGrade').classList.contains('active')) renderExamGradeTable(); updateExamConfigWarning(); autoSaveApp('exam'); autoSaveScores('exam'); });
         this.value='';
     });
     document.getElementById('examExportConfigBtn').addEventListener('click', ()=>exportAppConfig('exam'));
@@ -10677,7 +11362,7 @@ window.onload = function() {
     document.getElementById('examImportScoresFile').addEventListener('change', function() { if(this.files.length) importAppScores(this.files[0],'exam'); this.value=''; });
     document.getElementById('examRecoverScoresBtn').addEventListener('click', ()=>recoverScores('exam_scores_backup',
         data=>{ if(!data.students||!data.questions||!data.scores) throw new Error('Formato no válido.'); examState.scores=data.scores; normalizeExamScores(); },
-        renderExamGradeTable, 'examGradeMessage'));
+        ()=>{ renderExamGradeTable(); autoSaveApp('exam'); autoSaveScores('exam'); }, 'examGradeMessage'));
     document.getElementById('examResetAllBtn').addEventListener('click', ()=>resetAppState('exam'));
     document.getElementById('examShowGlobalGrade').addEventListener('change', ()=>renderResultsTable('exam'));
 
@@ -10692,30 +11377,38 @@ window.onload = function() {
         if(!testState.globalCriteria.length){ alert('Selecciona al menos un criterio.'); return; }
         showAppScreen('test','results');
     });
-    document.getElementById('testExamTitleInput').addEventListener('input', e=>{ testState.examName=e.target.value; updateTestConfigWarning(); updateActivityBadge('test'); });
-    document.getElementById('testCourseInput').addEventListener('input', e=>{ testState.course=e.target.value; updateTestConfigWarning(); updateActivityBadge('test'); });
+    document.getElementById('testExamTitleInput').addEventListener('input', e=>{ testState.examName=e.target.value; updateTestConfigWarning(); updateActivityBadge('test'); autoSaveApp('test'); });
+    document.getElementById('testCourseInput').addEventListener('input', e=>{ testState.course=e.target.value; updateTestConfigWarning(); updateActivityBadge('test'); autoSaveApp('test'); });
     document.getElementById('testCourseInput').addEventListener('change', e=>{ if (fb_importGroupStudentsToApp('test', e.target.value)) { alert('✅ Alumnos del grupo "' + e.target.value + '" importados a la actividad.'); } });
-    document.getElementById('testTotalQuestions').addEventListener('input', function() {
-        let val=parseInt(this.value)||1; if(val<1) val=1; this.value=val; testState.totalQuestions=val;
-        testState.studentScores=testState.students.map(()=>({correct:0,wrong:0,unanswered:val}));
-        if(document.getElementById('testScreenGrade').classList.contains('active')) renderTestGradeTable();
+    document.getElementById('testTotalQuestions').addEventListener('change', function() {
+        let val = parseInt(this.value, 10) || 1; if (val < 1) val = 1; this.value = val;
+        testState.totalQuestions = val;
+        // Clamp existing scores instead of wiping them (preserves user data)
+        testState.studentScores = testState.studentScores.map(ss => {
+            const c = Math.min(ss.correct || 0, val);
+            const w = Math.min(ss.wrong || 0, val - c);
+            return { correct: c, wrong: w, unanswered: Math.max(0, val - c - w) };
+        });
+        if (document.getElementById('testScreenGrade').classList.contains('active')) renderTestGradeTable();
+        autoSaveApp('test'); autoSaveScores('test');
     });
     document.querySelectorAll('#testPenaltyOptions .penalty-option').forEach(opt=>opt.addEventListener('click',function(){
         this.querySelector('input').checked=true; testState.penaltyFactor=parseFloat(this.querySelector('input').value);
         document.querySelectorAll('.penalty-option').forEach(o=>o.classList.remove('selected')); this.classList.add('selected');
+        autoSaveApp('test');
     }));
     document.querySelectorAll('#testPenaltyOptions .penalty-option input:checked').forEach(inp=>inp.closest('.penalty-option').classList.add('selected'));
     document.getElementById('testBtnAddStudent').addEventListener('click', function() {
         const input=document.getElementById('testStudentNameInput'), name=input.value.trim(); if(!name) return;
         if(isStudentDuplicate(testState,name)){ showDuplicateMessage('testDuplicateMessage',`El alumno "${name}" ya existe.`); input.value=''; return; }
         testState.students.push({id:uuid(),fullName:name}); testState.studentScores.push({correct:0,wrong:0,unanswered:testState.totalQuestions});
-        sortStudents(testState,'studentScores'); renderTestStudentTags(); input.value=''; showDuplicateMessage('testDuplicateMessage',''); updateTestConfigWarning();
+        sortStudents(testState,'studentScores'); renderTestStudentTags(); input.value=''; showDuplicateMessage('testDuplicateMessage',''); updateTestConfigWarning(); autoSaveApp('test'); autoSaveScores('test');
     });
     document.getElementById('testBtnClearStudents').addEventListener('click', function() {
-        if(confirm('¿Estás seguro de que deseas eliminar a todos los alumnos?')){ testState.students=[]; testState.studentScores=[]; renderTestStudentTags(); updateTestConfigWarning(); }
+        if(confirm('¿Estás seguro de que deseas eliminar a todos los alumnos?')){ testState.students=[]; testState.studentScores=[]; renderTestStudentTags(); updateTestConfigWarning(); autoSaveApp('test'); autoSaveScores('test'); }
     });
     document.getElementById('testImportFile').addEventListener('change', function() {
-        if(this.files.length) importStudentsFromFile(this.files[0],testState,'studentScores',()=>{ renderTestStudentTags(); if(document.getElementById('testScreenGrade').classList.contains('active')) renderTestGradeTable(); updateTestConfigWarning(); });
+        if(this.files.length) importStudentsFromFile(this.files[0],testState,'studentScores',()=>{ renderTestStudentTags(); if(document.getElementById('testScreenGrade').classList.contains('active')) renderTestGradeTable(); updateTestConfigWarning(); autoSaveApp('test'); autoSaveScores('test'); });
         this.value='';
     });
     document.getElementById('testExportConfigBtn').addEventListener('click', ()=>exportAppConfig('test'));
@@ -10728,8 +11421,19 @@ window.onload = function() {
     fileDelegate('testImportScoresBtn','testImportScoresFile');
     document.getElementById('testImportScoresFile').addEventListener('change', function() { if(this.files.length) importAppScores(this.files[0],'test'); this.value=''; });
     document.getElementById('testRecoverScoresBtn').addEventListener('click', ()=>recoverScores('test_scores_backup',
-        data=>{ if(!data.studentScores) throw new Error('Formato no válido.'); testState.studentScores=data.studentScores.map(ss=>({correct:ss.correct||0,wrong:ss.wrong||0,unanswered:testState.totalQuestions-(ss.correct||0)-(ss.wrong||0)})); },
-        renderTestGradeTable, 'testGradeMessage'));
+        data=>{
+            if (!data || !Array.isArray(data.studentScores)) throw new Error('Formato no válido.');
+            testState.studentScores = data.studentScores.map(ss => {
+                if (!ss || typeof ss !== 'object') return {correct:0,wrong:0,unanswered:testState.totalQuestions};
+                const c = Math.min(Number(ss.correct)||0, testState.totalQuestions);
+                const w = Math.min(Number(ss.wrong)||0, testState.totalQuestions - c);
+                return { correct: c, wrong: w, unanswered: Math.max(0, testState.totalQuestions - c - w) };
+            });
+            // Truncar/padear a longitud de students
+            while (testState.studentScores.length < testState.students.length) testState.studentScores.push({correct:0,wrong:0,unanswered:testState.totalQuestions});
+            testState.studentScores = testState.studentScores.slice(0, testState.students.length);
+        },
+        ()=>{ renderTestGradeTable(); autoSaveApp('test'); autoSaveScores('test'); }, 'testGradeMessage'));
     document.getElementById('testResetAllBtn2').addEventListener('click', ()=>resetAppState('test'));
     document.getElementById('testShowGlobalGrade').addEventListener('change', ()=>renderResultsTable('test'));
 
@@ -10744,19 +11448,19 @@ window.onload = function() {
         if(!validateGenericCriteria()){ alert('Selecciona al menos un criterio.'); return; }
         showAppScreen('generic','results');
     });
-    document.getElementById('genericExamNameInput').addEventListener('input', e=>{ genericState.examName=e.target.value; updateGenericConfigWarning(); updateActivityBadge('generic'); });
-    document.getElementById('genericCourseInput').addEventListener('input', e=>{ genericState.course=e.target.value; updateGenericConfigWarning(); updateActivityBadge('generic'); });
+    document.getElementById('genericExamNameInput').addEventListener('input', e=>{ genericState.examName=e.target.value; updateGenericConfigWarning(); updateActivityBadge('generic'); autoSaveApp('generic'); });
+    document.getElementById('genericCourseInput').addEventListener('input', e=>{ genericState.course=e.target.value; updateGenericConfigWarning(); updateActivityBadge('generic'); autoSaveApp('generic'); });
     document.getElementById('genericCourseInput').addEventListener('change', e=>{ if (fb_importGroupStudentsToApp('generic', e.target.value)) { alert('✅ Alumnos del grupo "' + e.target.value + '" importados a la actividad.'); } });
     document.getElementById('genericBtnAddStudent').addEventListener('click', function() {
         const input=document.getElementById('genericStudentNameInput'), name=input.value.trim(); if(!name) return;
         if(isStudentDuplicate(genericState,name)){ showDuplicateMessage('genericDuplicateMessage',`El alumno "${name}" ya existe.`); input.value=''; return; }
-        genericState.students.push({id:uuid(),fullName:name}); normalizeGenericScores(); sortStudents(genericState,'scores'); renderGenericStudentTags(); input.value=''; showDuplicateMessage('genericDuplicateMessage',''); updateGenericConfigWarning();
+        genericState.students.push({id:uuid(),fullName:name}); normalizeGenericScores(); sortStudents(genericState,'scores'); renderGenericStudentTags(); input.value=''; showDuplicateMessage('genericDuplicateMessage',''); updateGenericConfigWarning(); autoSaveApp('generic'); autoSaveScores('generic');
     });
     document.getElementById('genericBtnClearStudents').addEventListener('click', function() {
-        if(confirm('¿Estás seguro de que deseas eliminar a todos los alumnos?')){ genericState.students=[]; genericState.scores=[]; renderGenericStudentTags(); updateGenericConfigWarning(); }
+        if(confirm('¿Estás seguro de que deseas eliminar a todos los alumnos?')){ genericState.students=[]; genericState.scores=[]; renderGenericStudentTags(); updateGenericConfigWarning(); autoSaveApp('generic'); autoSaveScores('generic'); }
     });
     document.getElementById('genericImportFile').addEventListener('change', function() {
-        if(this.files.length) importStudentsFromFile(this.files[0],genericState,'scores',()=>{ renderGenericStudentTags(); if(document.getElementById('genericScreenGrade').classList.contains('active')) renderGenericGradeTable(); updateGenericConfigWarning(); });
+        if(this.files.length) importStudentsFromFile(this.files[0],genericState,'scores',()=>{ renderGenericStudentTags(); if(document.getElementById('genericScreenGrade').classList.contains('active')) renderGenericGradeTable(); updateGenericConfigWarning(); autoSaveApp('generic'); autoSaveScores('generic'); });
         this.value='';
     });
     document.getElementById('genericExportConfigBtn').addEventListener('click', ()=>exportAppConfig('generic'));
@@ -10770,7 +11474,7 @@ window.onload = function() {
     document.getElementById('genericImportScoresFile').addEventListener('change', function() { if(this.files.length) importAppScores(this.files[0],'generic'); this.value=''; });
     document.getElementById('genericRecoverScoresBtn').addEventListener('click', ()=>recoverScores('generic_scores_backup',
         data=>{ if(!data.students||!data.scores||!data.criteria) throw new Error('Formato no válido.'); genericState.scores=data.scores; normalizeGenericScores(); },
-        renderGenericGradeTable, 'genericGradeMessage'));
+        ()=>{ renderGenericGradeTable(); autoSaveApp('generic'); autoSaveScores('generic'); }, 'genericGradeMessage'));
     document.getElementById('genericResetAllBtn').addEventListener('click', ()=>resetAppState('generic'));
     document.getElementById('genericShowGlobalGrade').addEventListener('change', ()=>renderResultsTable('generic'));
 
@@ -10793,10 +11497,10 @@ window.onload = function() {
             delete state.criteriaDescriptions[code];
         }
         // Re-render todo lo pertinente según app
-        if (app === 'generic') { renderGlobalBadges('generic'); renderGenericGradeTable(); renderResultsTable('generic'); }
-        else if (app === 'exam')    { renderGlobalBadges('exam'); if(document.getElementById('examScreenGrade')?.classList.contains('active')) renderExamGradeTable(); renderResultsTable('exam'); }
-        else if (app === 'test')    { renderGlobalBadges('test'); if(document.getElementById('testScreenGrade')?.classList.contains('active')) renderTestGradeTable(); renderResultsTable('test'); }
-        else if (app === 'inst')    { if(document.getElementById('inst_relacion').classList.contains('active')) inst_renderMatrix(); if(document.getElementById('inst_eval').classList.contains('active')) inst_renderEvaluation(); }
+        if (app === 'generic') { renderGlobalBadges('generic'); renderGenericGradeTable(); renderResultsTable('generic'); autoSaveApp('generic'); }
+        else if (app === 'exam')    { renderGlobalBadges('exam'); if(document.getElementById('examScreenGrade')?.classList.contains('active')) renderExamGradeTable(); renderResultsTable('exam'); autoSaveApp('exam'); }
+        else if (app === 'test')    { renderGlobalBadges('test'); if(document.getElementById('testScreenGrade')?.classList.contains('active')) renderTestGradeTable(); renderResultsTable('test'); autoSaveApp('test'); }
+        else if (app === 'inst')    { if(document.getElementById('inst_relacion').classList.contains('active')) inst_renderMatrix(); if(document.getElementById('inst_eval').classList.contains('active')) inst_renderEvaluation(); inst_saveConfigLocalSilent(); }
         else if (app === 'rubric')  { renderGlobalBadges('rubric'); rubric_saveLocal(); }
     });
 
@@ -10812,25 +11516,29 @@ window.onload = function() {
             showInstrumentosScreen('inst_relacion');
             const toastEl = document.getElementById('inst_toastWarning');
             const plural = uncovered.length === 1 ? 'el instrumento' : 'los instrumentos';
-            const lista  = uncovered.map(({ name }) => name).join(', ');
+            const lista  = uncovered.map(({ name }) => escapeHtml(name)).join(', ');
             document.getElementById('inst_toastWarningMsg').innerHTML =
                 `<i class="bi bi-exclamation-triangle-fill me-2"></i>Cada instrumento debe tener al menos un criterio asignado. Falta: ${plural} <strong>${lista}</strong>.`;
             bootstrap.Toast.getOrCreateInstance(toastEl).show();
             return;
         }
+        // Normalizar evalScores antes de mostrar (fix 15-B-6)
+        inst_normalizeEvalScores();
+        instrumentState.evalWeights = instrumentState.instruments.map(i => i.weight);
         showInstrumentosScreen('inst_eval');
     });
-    document.getElementById('inst_actividadInput').addEventListener('input', e=>{ instrumentState.actividad=e.target.value; inst_updateConfigButtonState(); updateActivityBadge('instrumentos'); });
-    document.getElementById('inst_claseInput').addEventListener('input', e=>{ instrumentState.clase=e.target.value; inst_updateConfigButtonState(); updateActivityBadge('instrumentos'); });
+    document.getElementById('inst_actividadInput').addEventListener('input', e=>{ instrumentState.actividad=e.target.value; inst_updateConfigButtonState(); updateActivityBadge('instrumentos'); inst_saveConfigLocalSilent(); });
+    document.getElementById('inst_claseInput').addEventListener('input', e=>{ instrumentState.clase=e.target.value; inst_updateConfigButtonState(); updateActivityBadge('instrumentos'); inst_saveConfigLocalSilent(); });
     document.getElementById('inst_claseInput').addEventListener('change', e=>{ if (fb_importGroupStudentsToApp('instrumentos', e.target.value)) { alert('✅ Alumnos del grupo "' + e.target.value + '" importados a la actividad.'); } });
     document.getElementById('inst_numInstrumentos').addEventListener('change', function() {
         inst_setNumInstruments(parseInt(this.value)||1);
         if(document.getElementById('inst_relacion').classList.contains('active')) inst_renderMatrix();
         if(document.getElementById('inst_eval').classList.contains('active')) inst_renderEvaluation();
+        inst_saveConfigLocalSilent(); inst_saveMatrixLocalSilent(); inst_saveEvalLocalSilent();
     });
     document.getElementById('inst_instrumentsBody').addEventListener('input', function(e) {
-        if(e.target.matches('input[data-field="name"]')){ instrumentState.instruments[e.target.dataset.idx].name=e.target.value; }
-        if(e.target.matches('textarea[data-field="description"]')){ instrumentState.instruments[e.target.dataset.idx].description=e.target.value; }
+        if(e.target.matches('input[data-field="name"]')){ instrumentState.instruments[e.target.dataset.idx].name=e.target.value; inst_saveConfigLocalSilent(); inst_saveEvalLocalSilent(); }
+        if(e.target.matches('textarea[data-field="description"]')){ instrumentState.instruments[e.target.dataset.idx].description=e.target.value; inst_saveConfigLocalSilent(); inst_saveEvalLocalSilent(); }
         if(e.target.matches('input[data-field="weight"]:not(.inst-weight-readonly)')){
             const idx=parseInt(e.target.dataset.idx), nI=instrumentState.instruments.length;
             if(idx===nI-1) return;
@@ -10843,6 +11551,7 @@ window.onload = function() {
             inst_syncPesosBadge();
             instrumentState.evalWeights=instrumentState.instruments.map(i=>i.weight);
             if(document.getElementById('inst_eval').classList.contains('active')) inst_renderEvaluation();
+            inst_saveConfigLocalSilent(); inst_saveEvalLocalSilent();
         }
     });
     document.getElementById('inst_btnAddStudent').addEventListener('click', function() {
@@ -10852,12 +11561,13 @@ window.onload = function() {
         sortStudents(instrumentState,'evalScores'); renderInstrumentosStudentTags(); input.value=''; document.getElementById('inst_duplicateMessage').innerHTML='';
         if(document.getElementById('inst_eval').classList.contains('active')) inst_renderEvaluation();
         inst_updateConfigButtonState();
+        inst_saveConfigLocalSilent(); inst_saveEvalLocalSilent();
     });
     document.getElementById('inst_btnClearStudents').addEventListener('click', function() {
-        if(confirm('¿Estás seguro de que deseas eliminar a todos los alumnos?')){ instrumentState.students=[]; instrumentState.evalScores=[]; renderInstrumentosStudentTags(); if(document.getElementById('inst_eval').classList.contains('active')) inst_renderEvaluation(); inst_updateConfigButtonState(); }
+        if(confirm('¿Estás seguro de que deseas eliminar a todos los alumnos?')){ instrumentState.students=[]; instrumentState.evalScores=[]; renderInstrumentosStudentTags(); if(document.getElementById('inst_eval').classList.contains('active')) inst_renderEvaluation(); inst_updateConfigButtonState(); inst_saveConfigLocalSilent(); inst_saveEvalLocalSilent(); }
     });
     document.getElementById('inst_importExcel').addEventListener('change', function() {
-        if(this.files.length) importStudentsFromFile(this.files[0], instrumentState, 'evalScores', ()=>{ renderInstrumentosStudentTags(); inst_updateConfigButtonState(); if(document.getElementById('inst_eval').classList.contains('active')) inst_renderEvaluation(); });
+        if(this.files.length) importStudentsFromFile(this.files[0], instrumentState, 'evalScores', ()=>{ renderInstrumentosStudentTags(); inst_updateConfigButtonState(); if(document.getElementById('inst_eval').classList.contains('active')) inst_renderEvaluation(); inst_saveConfigLocalSilent(); inst_saveEvalLocalSilent(); });
         this.value='';
     });
     document.getElementById('inst_irRelacionBtn').addEventListener('click', function() {
@@ -10867,8 +11577,18 @@ window.onload = function() {
     document.getElementById('inst_irEvalBtn').addEventListener('click', function() {
         if(this.disabled){ alert('Asigna al menos un criterio a cada instrumento antes de continuar.'); return; }
         instrumentState.evalWeights=instrumentState.instruments.map(i=>i.weight);
-        if(instrumentState.evalScores.length!==instrumentState.students.length) instrumentState.evalScores=instrumentState.students.map(()=>new Array(instrumentState.instruments.length).fill(0));
+        // Non-destructive resize: preserve existing scores, only fill missing rows / pad columns
+        while (instrumentState.evalScores.length < instrumentState.students.length)
+            instrumentState.evalScores.push(new Array(instrumentState.instruments.length).fill(0));
+        while (instrumentState.evalScores.length > instrumentState.students.length)
+            instrumentState.evalScores.pop();
+        instrumentState.evalScores = instrumentState.evalScores.map(row => {
+            const r = Array.isArray(row) ? row : [];
+            while (r.length < instrumentState.instruments.length) r.push(0);
+            return r.slice(0, instrumentState.instruments.length);
+        });
         inst_renderEvaluation(); showInstrumentosScreen('inst_eval');
+        inst_saveEvalLocalSilent();
     });
     document.getElementById('inst_hideUnusedCriteria').addEventListener('change', inst_renderMatrix);
     document.getElementById('inst_showGradeColumn').addEventListener('change', inst_renderEvaluation);
@@ -10898,6 +11618,7 @@ window.onload = function() {
         examState.scores = examState.students.map(() => new Array(examState.questions.length).fill(0));
         renderExamGradeTable();
         showMessage('examGradeMessage', '<i class="bi bi-check-circle"></i> Calificaciones borradas.');
+        autoSaveScores('exam');
     });
     document.getElementById('testClearScoresBtn').addEventListener('click', function() {
         if (!testState.students.length) return;
@@ -10905,6 +11626,7 @@ window.onload = function() {
         testState.studentScores = testState.students.map(() => ({ correct: 0, wrong: 0, unanswered: testState.totalQuestions }));
         renderTestGradeTable();
         showMessage('testGradeMessage', '<i class="bi bi-check-circle"></i> Calificaciones borradas.');
+        autoSaveScores('test');
     });
     document.getElementById('genericClearScoresBtn').addEventListener('click', function() {
         if (!genericState.students.length) return;
@@ -10912,12 +11634,14 @@ window.onload = function() {
         genericState.scores = genericState.students.map(() => new Array(genericState.globalCriteria.length).fill(0));
         renderGenericGradeTable();
         showMessage('genericGradeMessage', '<i class="bi bi-check-circle"></i> Calificaciones borradas.');
+        autoSaveScores('generic');
     });
     document.getElementById('inst_clearScoresBtn').addEventListener('click', function() {
         if (!instrumentState.students.length) return;
         if (!confirm('¿Borrar todas las calificaciones de instrumentos? Los alumnos, instrumentos y matriz se mantendrán.')) return;
         instrumentState.evalScores = instrumentState.students.map(() => new Array(instrumentState.instruments.length).fill(0));
         inst_renderEvaluation();
+        inst_saveEvalLocalSilent();
     });
     // ─────────────────────────────────────────────────────────────────────────
 
@@ -10958,15 +11682,8 @@ window.onload = function() {
         // Re-render pantallas activas
         if (document.getElementById('inst_relacion').classList.contains('active')) inst_renderMatrix();
         if (document.getElementById('inst_eval').classList.contains('active')) inst_renderEvaluation();
+        inst_saveConfigLocalSilent(); inst_saveEvalLocalSilent();
     });
-
-    // Intro overlay
-    const intro = document.getElementById('intro-overlay');
-    if (intro) {
-        const hideIntro = () => { if(!intro.classList.contains('fade-out')){ intro.classList.add('fade-out'); setTimeout(()=>{ if(intro.parentNode) intro.style.display='none'; },1000); } };
-        setTimeout(hideIntro, 5000);
-        document.addEventListener('click', hideIntro, {once:true});
-    }
 
     // ── PONDERACIÓN ──────────────────────────────────────────────────────────
     // Tab buttons
@@ -10976,6 +11693,8 @@ window.onload = function() {
         ponderacionState.curso  = document.getElementById('pond_cursoInput')?.value.trim()  || ponderacionState.curso;
         ponderacionState.numActividades = parseInt(document.getElementById('pond_numActividadesInput')?.value) || 2;
         if (!pond_validateConfig()) return;
+        pond_saveConfigLocalSilent();
+        pond_saveImportLocalSilent();
         pond_showScreen('Import');
     });
     document.getElementById('pond_tabResults')?.addEventListener('click', () => {
@@ -10985,13 +11704,16 @@ window.onload = function() {
     });
 
     // Config inputs
-    document.getElementById('pond_nombreInput')?.addEventListener('input', function() { ponderacionState.nombre = this.value.trim(); updateActivityBadge('ponderacion'); });
-    document.getElementById('pond_cursoInput')?.addEventListener('input', function() { ponderacionState.curso = this.value.trim(); updateActivityBadge('ponderacion'); });
+    document.getElementById('pond_nombreInput')?.addEventListener('input', function() { ponderacionState.nombre = this.value.trim(); updateActivityBadge('ponderacion'); pond_saveConfigLocalSilent(); pond_saveImportLocalSilent(); });
+    document.getElementById('pond_cursoInput')?.addEventListener('input', function() { ponderacionState.curso = this.value.trim(); updateActivityBadge('ponderacion'); pond_saveConfigLocalSilent(); pond_saveImportLocalSilent(); });
     document.getElementById('pond_numActividadesInput')?.addEventListener('change', function() {
         let n = parseInt(this.value);
         if (isNaN(n) || n < 2) { n = 2; this.value = 2; }
         if (n > 10) { n = 10; this.value = 10; }
         ponderacionState.numActividades = n;
+        pond_initActividades(n);
+        pond_saveConfigLocalSilent();
+        pond_saveImportLocalSilent();
     });
 
     // Config management buttons
@@ -11008,6 +11730,8 @@ window.onload = function() {
         ponderacionState.curso  = document.getElementById('pond_cursoInput').value.trim();
         ponderacionState.numActividades = parseInt(document.getElementById('pond_numActividadesInput').value) || 2;
         if (!pond_validateConfig()) return;
+        pond_saveConfigLocalSilent();
+        pond_saveImportLocalSilent();
         pond_showScreen('Import');
     });
 
@@ -11251,6 +11975,22 @@ window.onload = function() {
         rubric_renderValues();
     }
 
+    // Inicialización de ponderación: cargar de localStorage si existe (auto-load silencioso)
+    try { pond_loadConfigLocalSilent(); pond_loadImportLocalSilent(); } catch(e) { console.warn('Error cargando ponderación:', e); }
+
+    // Inicialización de exam/test/generic: cargar de localStorage si existe (auto-load silencioso)
+    // Cada app en su propio try/catch para que un fallo no afecte a las demás (fix 15-A-1/15-D-2)
+    try { loadAppFromLocal('exam', true); } catch(e) { console.warn('Error cargando exam:', e); }
+    try { loadAppFromLocal('test', true); } catch(e) { console.warn('Error cargando test:', e); }
+    try { loadAppFromLocal('generic', true); } catch(e) { console.warn('Error cargando generic:', e); }
+
+    // Inicialización de instrumentos: cargar config, luego matrix, luego eval (auto-load silencioso)
+    try {
+        inst_loadConfigLocalSilent();
+        inst_loadMatrixLocalSilent();
+        inst_loadEvalLocalSilent();
+    } catch(e) { console.warn('Error cargando instrumentos:', e); }
+
     // ========== MODAL ACTIVIDADES PREDEFINIDAS (GENERIC) ==========
     document.getElementById('genericPredefinedApplyBtn')?.addEventListener('click', generic_applyPredefinedTask);
     document.getElementById('genericPredefinedSearch')?.addEventListener('input', e => generic_renderPredefinedTasks(e.target.value));
@@ -11434,27 +12174,103 @@ window.onload = function() {
         })
         .catch(function() { showAppVersion(null); });
 
-    // Service Worker
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', function() {
-            navigator.serviceWorker.register('sw.js')
-                .then(function(reg) {
-                    reg.addEventListener('updatefound', function() {
-                        var newWorker = reg.installing;
-                        newWorker.addEventListener('statechange', function() {
-                            if (newWorker.state === 'activated') {
-                                fetch('sw.js', { cache: 'no-store' })
-                                    .then(function(r) { return r.text(); })
-                                    .then(function(text) {
-                                        var m = text.match(/CACHE_NAME\s*=\s*['"][^'"]*v([\d.]+)/);
-                                        showAppVersion(m ? m[1] : null);
-                                    });
-                            }
+    // === MENÚ DE NAVEGACIÓN INFERIOR (móviles y tablets) ===
+    // Clona el menú superior (.btn-group) de cada subapp al final de su contenedor,
+    // lo marca con .subapp-bottom-nav (visible solo en pantallas ≤ 992px vía CSS),
+    // redirige los clicks al botón original y sincroniza la clase 'active'.
+    (function setupBottomNavs() {
+        const containerIds = [
+            'appExamContainer','appTestContainer','appGenericContainer',
+            'appInstrumentosContainer','appPonderacionContainer','appRubricasContainer'
+        ];
+        containerIds.forEach(containerId => {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            // Localizar el primer .btn-group del header (menú superior)
+            const originalGroup = container.querySelector('.d-flex .btn-group, .d-flex > .btn-group');
+            if (!originalGroup) return;
+            // Evitar duplicar si ya existe
+            if (container.querySelector('.subapp-bottom-nav')) return;
+            // Clonar el grupo de botones
+            const clone = originalGroup.cloneNode(true);
+            clone.classList.add('subapp-bottom-nav');
+            // Asegurar que el clon también tenga btn-group (para que los selectores
+            // existentes '.btn-group .btn' lo incluyan al sincronizar 'active')
+            clone.classList.add('btn-group');
+            // A cada botón clonado: quitar su id (evitar duplicados) y redirigir click
+            clone.querySelectorAll('button').forEach(btn => {
+                const originalId = btn.id;
+                btn.removeAttribute('id');
+                if (originalId) {
+                    btn.addEventListener('click', function() {
+                        const original = originalGroup.querySelector('#' + CSS.escape(originalId));
+                        if (original) original.click();
+                    });
+                }
+            });
+            // Insertar al final del contenedor
+            container.appendChild(clone);
+        });
+
+        // Sincronizar 'active' entre menú superior y clon inferior.
+        // Las funciones show* ya usan '.btn-group .btn' (que incluye ambos grupos)
+        // para quitar 'active', pero solo añaden 'active' al botón original (por id).
+        // Aquí propagamos el 'active' del original al clon por texto coincidente.
+        let _syncingBottomNav = false;
+        function syncBottomNavActive(container) {
+            if (_syncingBottomNav) return;
+            _syncingBottomNav = true;
+            try {
+                const groups = container.querySelectorAll('.btn-group');
+                groups.forEach(g => {
+                    g.querySelectorAll('.btn.active').forEach(activeBtn => {
+                        const text = activeBtn.textContent.trim();
+                        groups.forEach(otherG => {
+                            if (otherG === g) return;
+                            otherG.querySelectorAll('.btn').forEach(b => {
+                                if (b.textContent.trim() === text) b.classList.add('active');
+                            });
                         });
                     });
-                })
-                .catch(function(err) { console.warn('SW:', err); });
+                });
+            } finally { _syncingBottomNav = false; }
+        }
+        const syncObserver = new MutationObserver(() => {
+            // El observer dispara en cualquier cambio de clase; comprobamos todos los contenedores
+            containerIds.forEach(containerId => {
+                const container = document.getElementById(containerId);
+                if (container && container.classList.contains('active')) {
+                    syncBottomNavActive(container);
+                }
+            });
         });
+        containerIds.forEach(containerId => {
+            const container = document.getElementById(containerId);
+            if (container) {
+                syncObserver.observe(container, { subtree: true, attributes: true, attributeFilter: ['class'] });
+            }
+        });
+    })();
+
+    // Service Worker (registro directo: ya estamos dentro de window.onload)
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js')
+            .then(function(reg) {
+                reg.addEventListener('updatefound', function() {
+                    var newWorker = reg.installing;
+                    newWorker.addEventListener('statechange', function() {
+                        if (newWorker.state === 'activated') {
+                            fetch('sw.js', { cache: 'no-store' })
+                                .then(function(r) { return r.text(); })
+                                .then(function(text) {
+                                    var m = text.match(/CACHE_NAME\s*=\s*['"][^'"]*v([\d.]+)/);
+                                    showAppVersion(m ? m[1] : null);
+                                });
+                        }
+                    });
+                });
+            })
+            .catch(function(err) { console.warn('SW:', err); });
     }
 };
 </script>
