@@ -2452,6 +2452,56 @@
                 font-size: 0.85rem !important;
             }
         }
+
+        /* === MENÚ DE NAVEGACIÓN INFERIOR (móviles y tablets) === */
+        /* Clon de los botones de navegación superior de cada subapp,
+           fijado al pie, solo visible en pantallas ≤ 992px */
+        .subapp-bottom-nav {
+            display: none; /* oculto por defecto (desktop) */
+        }
+        @media (max-width: 992px) {
+            .subapp-bottom-nav {
+                display: flex;
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right:  0;
+                z-index: 1050;
+                justify-content: center;
+                gap: 6px;
+                padding: 8px 10px;
+                background: linear-gradient(180deg, rgba(248,249,250,0.96) 0%, rgba(255,255,255,0.99) 100%);
+                border-top: 1px solid #dee2e6;
+                box-shadow: 0 -2px 12px rgba(0,0,0,0.08);
+                backdrop-filter: blur(6px);
+                -webkit-backdrop-filter: blur(6px);
+            }
+            /* Los botones del clon ocupan el ancho disponible de forma equitativa */
+            .subapp-bottom-nav .btn {
+                flex: 1 1 0;
+                min-width: 0;
+                font-size: 0.78rem;
+                padding: 8px 4px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+            /* Evitar que el menú tape el contenido inferior de cada pantalla */
+            #appExamContainer.active,
+            #appTestContainer.active,
+            #appGenericContainer.active,
+            #appInstrumentosContainer.active,
+            #appPonderacionContainer.active,
+            #appRubricasContainer.active {
+                padding-bottom: 70px;
+            }
+        }
+        @media (max-width: 480px) {
+            .subapp-bottom-nav .btn {
+                font-size: 0.72rem;
+                padding: 7px 2px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -4417,6 +4467,9 @@ function exportResults(app, fmt, includeGrade) {
     if (app === 'generic') normalizeGenericScores();
     const state = appStates[app];
     if (!state.students.length) return alert('No hay datos para exportar.');
+    // Guards de librerías (fix 16-A-2/3)
+    if (fmt === 'excel' && typeof XLSX === 'undefined') { alert('Librería de Excel no disponible. Recarga la página.'); return; }
+    if (fmt === 'pdf' && (!window.jspdf || !window.jspdf.jsPDF)) { alert('Librería PDF no disponible. Recarga la página.'); return; }
     const prefixMap = { exam:'Examen', test:'Test', generic:'Actividad' };
     const prefix = prefixMap[app];
     const baseName = makeBaseName(prefix, state.examName, state.course);
@@ -5617,6 +5670,9 @@ function inst_getExportRows(includeGrade) {
 
 function inst_exportResults(fmt, includeGrade) {
     if(!instrumentState.students.length) return alert('No hay datos para exportar.');
+    // Guards de librerías (fix 16-A-2/3)
+    if (fmt === 'excel' && typeof XLSX === 'undefined') { alert('Librería de Excel no disponible. Recarga la página.'); return; }
+    if (fmt === 'pdf' && (!window.jspdf || !window.jspdf.jsPDF)) { alert('Librería PDF no disponible. Recarga la página.'); return; }
     const baseName = makeBaseName('Instrumentos', instrumentState.actividad, instrumentState.clase);
     if(fmt==='json'){
         const usedCriteria=inst_getUsedCriteria();
@@ -6443,6 +6499,9 @@ function pond_renderResults() {
 function pond_exportResults(fmt) {
     const { rows, criteria } = pond_computeResults();
     if (!rows.length) return alert('No hay datos para exportar.');
+    // Guards de librerías (fix 16-A-2/3)
+    if (fmt === 'excel' && typeof XLSX === 'undefined') { alert('Librería de Excel no disponible. Recarga la página.'); return; }
+    if (fmt === 'pdf' && (!window.jspdf || !window.jspdf.jsPDF)) { alert('Librería PDF no disponible. Recarga la página.'); return; }
     const showGrade = document.getElementById('pond_showGradeColumn')?.checked !== false;
     const baseName = makeBaseName('Ponderación', ponderacionState.nombre, ponderacionState.curso);
     const acts = ponderacionState.actividades.filter(a => a.loaded);
@@ -6708,6 +6767,7 @@ function pond_showScreen(screen) {
     const tabMap = { Config:'pond_tabConfig', Import:'pond_tabImport', Results:'pond_tabResults' };
     const tabEl = document.getElementById(tabMap[screen]);
     if (tabEl) tabEl.classList.add('active');
+    syncBottomNavActive(document.getElementById('appPonderacionContainer'));
 
     if (screen === 'Import') {
         pond_initActividades(ponderacionState.numActividades);
@@ -6736,6 +6796,23 @@ function pond_validateConfig() {
 // =============================================================================
 let currentApp = 'home';
 
+// Sincroniza la clase 'active' entre el menú superior y el clon inferior (.subapp-bottom-nav)
+// de un contenedor de subapp, casando por texto del botón.
+function syncBottomNavActive(container) {
+    if (!container) return;
+    const bottomNav = container.querySelector('.subapp-bottom-nav');
+    if (!bottomNav) return;
+    // Buscar el botón activo en el menú superior original (el que tiene id)
+    const activeOriginal = container.querySelector('.btn-group:not(.subapp-bottom-nav) .btn.active');
+    if (!activeOriginal) return;
+    const text = activeOriginal.textContent.trim();
+    // Sincronizar: el botón del clon con el mismo texto recibe 'active'
+    bottomNav.querySelectorAll('.btn').forEach(b => {
+        if (b.textContent.trim() === text) b.classList.add('active');
+        else b.classList.remove('active');
+    });
+}
+
 function hideAllApps() {
     ['homeScreen','appExamContainer','appTestContainer','appGenericContainer','appInstrumentosContainer','appPonderacionContainer','appRubricasContainer'].forEach(id => document.getElementById(id).classList.remove('active'));
 }
@@ -6758,6 +6835,8 @@ function showAppScreen(prefix, screen) {
     document.getElementById(`${prefix}Screen${cap(screen)}`).classList.add('active');
     document.querySelectorAll(`#app${cap(prefix)}Container .btn-group .btn`).forEach(b=>b.classList.remove('active'));
     document.getElementById(`${prefix}Nav${cap(screen)}`).classList.add('active');
+    // Sincronizar 'active' en el menú inferior clonado (por texto coincidente)
+    syncBottomNavActive(document.getElementById(`app${cap(prefix)}Container`));
     if (screen==='grade')   { if(prefix==='exam') renderExamGradeTable(); else if(prefix==='test') renderTestGradeTable(); else if(prefix==='generic') renderGenericGradeTable(); }
     if (screen==='results') renderResultsTable(prefix);
 }
@@ -6768,6 +6847,7 @@ function showInstrumentosScreen(screenId) {
     document.querySelectorAll('#appInstrumentosContainer .btn-group .btn').forEach(b=>b.classList.remove('active'));
     const tabMap={'inst_config':'inst_config-tab','inst_relacion':'inst_relacion-tab','inst_eval':'inst_eval-tab'};
     document.getElementById(tabMap[screenId])?.classList.add('active');
+    syncBottomNavActive(document.getElementById('appInstrumentosContainer'));
     if (screenId==='inst_relacion') inst_renderMatrix();
     else if (screenId==='inst_eval') inst_renderEvaluation();
 }
@@ -7385,6 +7465,7 @@ function rubric_showScreen(screen) {
     if (target) target.classList.add('active');
     const tab = document.getElementById(tabMap[screen]);
     if (tab) tab.classList.add('active');
+    syncBottomNavActive(document.getElementById('appRubricasContainer'));
 
     if (screen === 'Eval') {
         if (rubricState.students.length === 0) { alert('Añade al menos un alumno.'); rubric_showScreen('Setup'); return; }
@@ -7525,6 +7606,7 @@ function rubric_importData(file) {
 }
 function rubric_exportExcel(opts) {
     if (!rubricState.results) { alert('Calcula las notas primero.'); return; }
+    if (typeof XLSX === 'undefined') { alert('Librería de Excel no disponible. Recarga la página.'); return; }
     opts = opts || { teacher:true, coeval:true, final:true, criteria:false };
     const header = ['Estudiante'];
     if (opts.teacher)  header.push('Nota Profesor');
@@ -7549,6 +7631,7 @@ function rubric_exportExcel(opts) {
 }
 function rubric_exportPdf(opts) {
     if (!rubricState.results) { alert('Calcula las notas primero.'); return; }
+    if (!window.jspdf || !window.jspdf.jsPDF) { alert('Librería PDF no disponible. Recarga la página.'); return; }
     opts = opts || { teacher:true, coeval:true, final:true, criteria:false };
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF({ orientation: opts.criteria && rubricState.globalCriteria.length > 4 ? 'landscape' : 'portrait' });
@@ -8358,6 +8441,7 @@ function fb_onAuthStateChanged(user) {
 
 // Login con username/password (convertido internamente a email sintético)
 function fb_login(username, password) {
+    if (!fbAuth) { fb_showAuthMessage('Firebase no está disponible. Recarga la página.', 'danger'); return; }
     if (!username || !password) { fb_showAuthMessage('Introduce tu nombre de usuario y contraseña.', 'danger'); return; }
     if (!fb_isValidUsername(username)) {
         fb_showAuthMessage('El nombre de usuario debe tener entre 3 y 30 caracteres alfanuméricos (letras, números, . _ -).', 'danger');
@@ -8384,6 +8468,7 @@ function fb_login(username, password) {
 
 // Registro de nuevo usuario
 function fb_register(displayName, username, password) {
+    if (!fbAuth) { fb_showAuthMessage('Firebase no está disponible. Recarga la página.', 'danger'); return; }
     if (!displayName || !username || !password) { fb_showAuthMessage('Completa todos los campos.', 'danger'); return; }
     if (!fb_isValidUsername(username)) {
         fb_showAuthMessage('El nombre de usuario debe tener entre 3 y 30 caracteres alfanuméricos (letras, números, . _ -).', 'danger');
@@ -11143,7 +11228,14 @@ window.onload = function() {
         document.addEventListener('click', hideIntro, {once:true});
     }
 
-    [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]')).map(el => new bootstrap.Tooltip(el));
+    // Inicializar tooltips de Bootstrap (con guard por si el CDN falla — fix 16-A-1)
+    if (typeof bootstrap !== 'undefined' && bootstrap.Tooltip) {
+        try {
+            [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]')).map(el => new bootstrap.Tooltip(el));
+        } catch(e) { console.warn('Tooltip init failed:', e); }
+    } else {
+        console.warn('Bootstrap no cargó: tooltips deshabilitados.');
+    }
 
     document.getElementById('examCourseInput').value    = examState.course;
     document.getElementById('testCourseInput').value    = testState.course;
@@ -12123,6 +12215,61 @@ window.onload = function() {
             showAppVersion(m ? m[1] : null);
         })
         .catch(function() { showAppVersion(null); });
+
+    // === MENÚ DE NAVEGACIÓN INFERIOR (móviles y tablets) ===
+    // Clona el menú superior (.btn-group) de cada subapp al final de su contenedor,
+    // lo marca con .subapp-bottom-nav (visible solo en pantallas ≤ 992px vía CSS),
+    // redirige los clicks al botón original y sincroniza la clase 'active'.
+    (function setupBottomNavs() {
+        const containerIds = [
+            'appExamContainer','appTestContainer','appGenericContainer',
+            'appInstrumentosContainer','appPonderacionContainer','appRubricasContainer'
+        ];
+        // Mapa: id del contenedor → selector específico del menú superior (header)
+        // Necesario porque algunas subapps (rúbricas) tienen muchos .btn-group;
+        // el del header es el PRIMERO que es hijo directo del .d-flex del header.
+        const headerMenuSelectors = {
+            'appExamContainer':         '.d-flex.justify-content-between > .btn-group',
+            'appTestContainer':         '.d-flex.justify-content-between > .btn-group',
+            'appGenericContainer':      '.d-flex.justify-content-between > .btn-group',
+            'appInstrumentosContainer': '.d-flex.justify-content-between > .btn-group',
+            'appPonderacionContainer':  '.d-flex.justify-content-between > .btn-group',
+            'appRubricasContainer':     '.d-flex.justify-content-between > .btn-group'
+        };
+        containerIds.forEach(containerId => {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            // Localizar el .btn-group del header (menú superior) — selector específico
+            const originalGroup = container.querySelector(headerMenuSelectors[containerId]);
+            if (!originalGroup) return;
+            // Evitar duplicar si ya existe
+            if (container.querySelector('.subapp-bottom-nav')) return;
+            // Clonar el grupo de botones
+            const clone = originalGroup.cloneNode(true);
+            clone.classList.add('subapp-bottom-nav');
+            // El clon mantiene btn-group (heredado de cloneNode + este add) para que
+            // showAppScreen/showInstrumentosScreen/pond_showScreen/rubric_showScreen
+            // lo incluyan al resetear .active. syncBottomNavActive filtra con
+            // :not(.subapp-bottom-nav) al sincronizar desde el menú superior.
+            clone.classList.add('btn-group');
+            // A cada botón clonado: quitar su id (evitar duplicados) y redirigir click
+            clone.querySelectorAll('button').forEach(btn => {
+                const originalId = btn.id;
+                btn.removeAttribute('id');
+                if (originalId) {
+                    btn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        // Buscar el botón original por id (sin CSS.escape para máxima compatibilidad)
+                        const original = document.getElementById(originalId);
+                        if (original) original.click();
+                    });
+                }
+            });
+            // Insertar al final del contenedor
+            container.appendChild(clone);
+        });
+    })();
 
     // Service Worker (registro directo: ya estamos dentro de window.onload)
     if ('serviceWorker' in navigator) {
