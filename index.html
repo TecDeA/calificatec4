@@ -2575,8 +2575,8 @@
             <div class="section-card">
                 <div class="section-title"><i class="bi bi-pencil-square"></i> Configuración del examen <i class="bi bi-question-circle help-icon" data-bs-toggle="tooltip" title="Nombre del examen y grupo de alumnado."></i></div>
                 <div class="row g-3 align-items-end">
-                    <div class="col-md-4"><label class="form-label fw-semibold">📌 Nombre del examen</label><input type="text" id="examNameInput" class="form-control" placeholder="Introduce un nombre"></div>
-                    <div class="col-md-3"><label class="form-label fw-semibold">👥 Grupo</label><input type="text" id="examCourseInput" class="form-control" list="fbGroupsDatalist" placeholder="Ej: 4º ESO A"></div>
+                    <div class="col-md-4"><label for="examNameInput" class="form-label fw-semibold">📌 Nombre del examen</label><input type="text" id="examNameInput" class="form-control" placeholder="Introduce un nombre"></div>
+                    <div class="col-md-3"><label for="examCourseInput" class="form-label fw-semibold">👥 Grupo</label><input type="text" id="examCourseInput" class="form-control" list="fbGroupsDatalist" placeholder="Ej: 4º ESO A"></div>
                 </div>
             </div>
             <div class="section-card">
@@ -2592,7 +2592,7 @@
             <div class="section-card">
                 <div class="section-title"><i class="bi bi-question-circle"></i> Gestión de preguntas y criterios <i class="bi bi-question-circle help-icon" data-bs-toggle="tooltip" title="Define las preguntas, su puntuación máxima y asigna los criterios de evaluación."></i></div>
                 <div class="row g-3 align-items-end mb-4">
-                    <div class="col-md-3"><label class="form-label fw-semibold">Número de preguntas</label><input type="number" id="examInputNumQuestions" class="form-control" min="1" value="3"></div>
+                    <div class="col-md-3"><label for="examInputNumQuestions" class="form-label fw-semibold">Número de preguntas</label><input type="number" id="examInputNumQuestions" id="examInputNumQuestions" class="form-control" min="1" value="3"></div>
                     <div class="col-md-3"><button id="examBtnSetQuestions" class="btn btn-primary">📌 Generar / Resetear preguntas</button></div>
                     <div class="col-md-6 text-end">
                         <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#globalCriteriaModal" data-app="exam"><i class="bi bi-check2-square"></i> Criterios TEC.4.X.Y.</button>
@@ -2670,8 +2670,8 @@
             <div class="section-card">
                 <div class="section-title"><i class="fas fa-clipboard-list"></i> Configuración del test <i class="bi bi-question-circle help-icon" data-bs-toggle="tooltip" title="Título del test y grupo de alumnado."></i></div>
                 <div class="row g-4">
-                    <div class="col-md-6"><label class="form-label fw-semibold">📌 Nombre del examen</label><input type="text" id="testExamTitleInput" class="form-control" placeholder="Introduce un nombre"></div>
-                    <div class="col-md-6"><label class="form-label fw-semibold">👥 Grupo</label><input type="text" id="testCourseInput" class="form-control" list="fbGroupsDatalist" placeholder="Ej: 4º ESO A"></div>
+                    <div class="col-md-6"><label for="testExamTitleInput" class="form-label fw-semibold">📌 Nombre del examen</label><input type="text" id="testExamTitleInput" class="form-control" placeholder="Introduce un nombre"></div>
+                    <div class="col-md-6"><label for="testCourseInput" class="form-label fw-semibold">👥 Grupo</label><input type="text" id="testCourseInput" class="form-control" list="fbGroupsDatalist" placeholder="Ej: 4º ESO A"></div>
                 </div>
             </div>
                         <div class="section-card">
@@ -2695,8 +2695,8 @@
             <div class="section-card">
                 <div class="section-title"><i class="fas fa-question-circle"></i> Diseña el test: número de preguntas y penalizaciones <i class="bi bi-question-circle help-icon" data-bs-toggle="tooltip" title="Número total de preguntas y penalización."></i></div>
                 <div class="row g-4">
-                    <div class="col-md-3"><label class="form-label fw-semibold">Número total preguntas:</label><input type="number" id="testTotalQuestions" class="form-control" min="1" value="20"></div>
-                    <div class="col-md-9"><label class="form-label fw-semibold">Penalizaciones:</label>
+                    <div class="col-md-3"><label for="testTotalQuestions" class="form-label fw-semibold">Número total preguntas:</label><input type="number" id="testTotalQuestions" class="form-control" min="1" value="20"></div>
+                    <div class="col-md-9"><label for="testPenalty0" class="form-label fw-semibold">Penalizaciones:</label>
                         <div class="penalty-options" id="testPenaltyOptions">
                             <div class="penalty-option" data-value="0"><input type="radio" name="penalty" id="testPenalty0" value="0" checked><label for="testPenalty0">Sin penalización</label></div>
                             <div class="penalty-option" data-value="0.2"><input type="radio" name="penalty" id="testPenalty5" value="0.2"><label for="testPenalty5">Fallo resta 1/5 del acierto</label></div>
@@ -2775,8 +2775,8 @@
             <div class="section-card">
                 <div class="section-title"><i class="bi bi-pencil-square"></i> Configuración de la actividad <i class="bi bi-question-circle help-icon" data-bs-toggle="tooltip" title="Nombre de la actividad y grupo de alumnado."></i></div>
                 <div class="row g-3 align-items-end">
-                    <div class="col-md-4"><label class="form-label fw-semibold">📌 Nombre de la actividad</label><input type="text" id="genericExamNameInput" class="form-control" placeholder="Introduce un nombre"></div>
-                    <div class="col-md-3"><label class="form-label fw-semibold">👥 Grupo</label><input type="text" id="genericCourseInput" class="form-control" list="fbGroupsDatalist" placeholder="Ej: 4º ESO A"></div>
+                    <div class="col-md-4"><label for="genericExamNameInput" class="form-label fw-semibold">📌 Nombre de la actividad</label><input type="text" id="genericExamNameInput" class="form-control" placeholder="Introduce un nombre"></div>
+                    <div class="col-md-3"><label for="genericCourseInput" class="form-label fw-semibold">👥 Grupo</label><input type="text" id="genericCourseInput" class="form-control" list="fbGroupsDatalist" placeholder="Ej: 4º ESO A"></div>
                 </div>
             </div>
             <div class="section-card">
@@ -2884,7 +2884,7 @@
                 <div class="section-card">
                     <div class="section-title"><i class="bi bi-tools"></i> Instrumentos de evaluación</div>
                     <div class="row g-3 align-items-end mb-3">
-                        <div class="col-md-3"><label class="form-label fw-semibold">Número de instrumentos</label><input type="number" id="inst_numInstrumentos" class="form-control" min="1" value="3"></div>
+                        <div class="col-md-3"><label for="inst_numInstrumentos" class="form-label fw-semibold">Número de instrumentos</label><input type="number" id="inst_numInstrumentos" class="form-control" min="1" value="3"></div>
                         <div class="col-md-9 text-end"><span class="fw-bold me-3">Total pesos: <span id="inst_totalPesos">100.0</span>%</span><span id="inst_pesosWarning" class="inst-warning-note" style="display:none;"><i class="bi bi-exclamation-triangle"></i> No suman 100%</span></div>
                     </div>
                     <table class="table table-sm table-bordered" id="inst_instrumentsTable"><thead><tr><th>#</th><th>Instrumentos</th><th>Descripción</th><th>Peso (%)</th></tr></thead><tbody id="inst_instrumentsBody"></tbody></table>
@@ -3006,7 +3006,7 @@
                 <div class="section-title"><i class="bi bi-list-ol"></i> Número de actividades a ponderar</div>
                 <div class="row g-3 align-items-center">
                     <div class="col-md-3">
-                        <label class="form-label fw-semibold">Nº de actividades</label>
+                        <label for="pond_numActividadesInput" class="form-label fw-semibold">Nº de actividades</label>
                         <input type="number" id="pond_numActividadesInput" class="form-control" min="2" max="10" value="2">
                     </div>
                     <div class="col-md-9">
@@ -3124,8 +3124,8 @@
             <div class="section-card">
                 <div class="section-title"><i class="bi bi-pencil-square"></i> Configuración de la evaluación <i class="bi bi-question-circle help-icon" data-bs-toggle="tooltip" title="Título de la evaluación y grupo de alumnado."></i></div>
                 <div class="row g-3 align-items-end">
-                    <div class="col-md-5"><label class="form-label fw-semibold">📌 Título de la evaluación</label><input type="text" id="rubricEvalNameInput" class="form-control" placeholder="Ej: Exposición, Proyecto..."></div>
-                    <div class="col-md-4"><label class="form-label fw-semibold">👥 Grupo</label><input type="text" id="rubricGroupNameInput" class="form-control" list="fbGroupsDatalist" placeholder="Ej: 4º ESO A"></div>
+                    <div class="col-md-5"><label for="rubricEvalNameInput" class="form-label fw-semibold">📌 Título de la evaluación</label><input type="text" id="rubricEvalNameInput" class="form-control" placeholder="Ej: Exposición, Proyecto..."></div>
+                    <div class="col-md-4"><label for="rubricGroupNameInput" class="form-label fw-semibold">👥 Grupo</label><input type="text" id="rubricGroupNameInput" class="form-control" list="fbGroupsDatalist" placeholder="Ej: 4º ESO A"></div>
                 </div>
             </div>
 
@@ -3467,25 +3467,25 @@
                             <div class="card card-body bg-light">
                                 <div class="row g-2 mb-2">
                                     <div class="col-md-6">
-                                        <label class="form-label small fw-semibold">Nombre para mostrar</label>
+                                        <label for="fbCreateDisplayName" class="form-label small fw-semibold">Nombre para mostrar</label>
                                         <input type="text" class="form-control form-control-sm" id="fbCreateDisplayName" placeholder="Ej: Juan Pérez" autocomplete="name">
                                     </div>
                                     <div class="col-md-6">
-                                        <label class="form-label small fw-semibold">Nombre de usuario</label>
+                                        <label for="fbCreateUsername" class="form-label small fw-semibold">Nombre de usuario</label>
                                         <input type="text" class="form-control form-control-sm" id="fbCreateUsername" placeholder="3-30 chars: letras, números, . _ -" autocomplete="username">
                                     </div>
                                 </div>
                                 <div class="row g-2 align-items-end">
                                     <div class="col-md-4">
-                                        <label class="form-label small fw-semibold">Contraseña</label>
+                                        <label for="fbCreatePassword" class="form-label small fw-semibold">Contraseña</label>
                                         <input type="password" class="form-control form-control-sm" id="fbCreatePassword" placeholder="Mínimo 6 caracteres" autocomplete="new-password">
                                     </div>
                                     <div class="col-md-4">
-                                        <label class="form-label small fw-semibold">Repetir contraseña</label>
+                                        <label for="fbCreatePassword2" class="form-label small fw-semibold">Repetir contraseña</label>
                                         <input type="password" class="form-control form-control-sm" id="fbCreatePassword2" placeholder="Repite la contraseña" autocomplete="new-password">
                                     </div>
                                     <div class="col-md-3">
-                                        <label class="form-label small fw-semibold">Perfil</label>
+                                        <label for="fbCreateRole" class="form-label small fw-semibold">Perfil</label>
                                         <select class="form-select form-select-sm" id="fbCreateRole">
                                             <option value="admin">Administrador</option>
                                             <option value="user" selected>Usuario</option>
@@ -3564,7 +3564,7 @@
                 </div>
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label class="form-label fw-semibold">Nuevo nombre</label>
+                        <label for="fbRenameInput" class="form-label fw-semibold">Nuevo nombre</label>
                         <input type="text" class="form-control" id="fbRenameInput">
                     </div>
                     <div id="fbRenameMessage" class="small text-danger"></div>
@@ -3621,7 +3621,7 @@
                 </div>
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label class="form-label fw-bold text-secondary small text-uppercase">Criterio</label>
+                        <label for="genericCriterionDescCode" class="form-label fw-bold text-secondary small text-uppercase">Criterio</label>
                         <input type="text" id="genericCriterionDescCode" class="form-control fw-bold fs-5" readonly style="background:#f8f9fa; color:#0b4b6b; border-color:#dee2e6;">
                     </div>
                     <div class="mb-3">
@@ -3653,7 +3653,7 @@
                 </div>
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label class="form-label fw-bold text-secondary small text-uppercase">Nombre del instrumento</label>
+                        <label for="inst_instrDescName" class="form-label fw-bold text-secondary small text-uppercase">Nombre del instrumento</label>
                         <input type="text" id="inst_instrDescName" class="form-control fw-bold fs-5" placeholder="Nombre del instrumento" style="color:#6f42c1; border-color:#dee2e6;">
                     </div>
                     <div class="mb-3">
@@ -3692,12 +3692,12 @@
                 </div>
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label class="form-label fw-semibold">Nombre / etiqueta de la pregunta</label>
+                        <label for="examQDescName" class="form-label fw-semibold">Nombre / etiqueta de la pregunta</label>
                         <input type="text" id="examQDescName" class="form-control fw-bold" placeholder="Ej: P1, Pregunta 1, Problema A…">
                         <div class="form-text">Si se deja vacío se usará la etiqueta automática P<em>n</em>.</div>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label fw-semibold">Descripción</label>
+                        <label for="examQDescText" class="form-label fw-semibold">Descripción</label>
                         <textarea id="examQDescText" class="form-control" rows="5" placeholder="Describe el enunciado, el tema o qué se evalúa con esta pregunta…"></textarea>
                     </div>
                     <hr style="border-color:#dee2e6; margin: 20px 0 16px;">
@@ -4294,7 +4294,7 @@ function renderSimpleGradeTable(state, tableId, tbodyId, descFn, app) {
             const fbg = criteriaFamilyBg(c, app);
             if (fbg) td.style.backgroundColor = fbg;
             const val = state.scores[sIdx]?.[cIdx] ?? 0;
-            td.innerHTML = `<input type="text" inputmode="decimal" class="form-control form-control-sm grade-text-input generic-score-input" data-student="${sIdx}" data-criterion="${cIdx}" data-max="10" value="${formatGradeDisplay(val)}" placeholder="0">`;
+            td.innerHTML = `<input type="text" inputmode="decimal" class="form-control form-control-sm grade-text-input generic-score-input" data-student="${sIdx}" data-criterion="${cIdx}" data-max="10" name="generic_score_${sIdx}_${cIdx}" value="${formatGradeDisplay(val)}" placeholder="0">`;
             tr.appendChild(td);
         });
         tbody.appendChild(tr);
@@ -4931,15 +4931,15 @@ function renderExamQuestionsTable() {
         const autoLabel = `P${q.id}`;
         tr.innerHTML = `
             <td style="min-width:90px;">
-              <input type="text" class="exam-q-name-input" data-qidx="${index}" data-field="name"
+              <input type="text" class="exam-q-name-input" data-qidx="${index}" data-field="name" name="exam_q_name_${index}"
                 value="${nameVal}" placeholder="${autoLabel}"
                 title="Etiqueta de la pregunta (vacío = ${autoLabel})">
             </td>
             <td style="min-width:180px;">
-              <textarea class="exam-q-desc-textarea" rows="2" data-qidx="${index}" data-field="description"
+              <textarea class="exam-q-desc-textarea" rows="2" data-qidx="${index}" data-field="description" name="exam_q_desc_${index}"
                 placeholder="Descripción opcional…">${descVal}</textarea>
             </td>
-            <td style="width:130px;"><input type="text" inputmode="decimal" class="form-control form-control-sm grade-text-input max-score-input" data-qidx="${index}" value="${formatGradeDisplay(q.maxScore)}" placeholder="10"></td>
+            <td style="width:130px;"><input type="text" inputmode="decimal" class="form-control form-control-sm grade-text-input max-score-input" data-qidx="${index}" name="exam_q_max_${index}" value="${formatGradeDisplay(q.maxScore)}" placeholder="10"></td>
             <td>${badgesHtml}</td>
             <td style="width:210px;"><div class="d-flex flex-wrap gap-1">
                 <button class="btn btn-sm btn-outline-primary assign-criteria-btn" data-qid="${q.id}" data-bs-toggle="modal" data-bs-target="#examQuestionCriteriaModal"><i class="bi bi-tags"></i> Asignar</button>
@@ -5056,7 +5056,7 @@ function renderExamGradeTable() {
         tr.innerHTML = `<td><div class="d-flex align-items-center justify-content-between"><strong class="text-nowrap">${escapeHtml(student.fullName)}</strong>${copyRowBtn}</div></td>`;
         examState.questions.forEach((q, qIdx) => {
             const td = document.createElement('td'); td.style.minWidth='80px';
-            td.innerHTML = `<input type="text" inputmode="decimal" class="form-control form-control-sm grade-text-input exam-score-input" data-student="${sIdx}" data-question="${qIdx}" data-max="${q.maxScore}" value="${formatGradeDisplay(examState.scores[sIdx]?.[qIdx]??0)}" placeholder="0">`;
+            td.innerHTML = `<input type="text" inputmode="decimal" class="form-control form-control-sm grade-text-input exam-score-input" data-student="${sIdx}" data-question="${qIdx}" data-max="${q.maxScore}" name="exam_score_${sIdx}_${qIdx}" value="${formatGradeDisplay(examState.scores[sIdx]?.[qIdx]??0)}" placeholder="0">`;
             tr.appendChild(td);
         });
         tbody.appendChild(tr);
@@ -5396,11 +5396,11 @@ function inst_renderInstrumentsTable() {
     instrumentState.instruments.forEach((inst, idx) => {
         const isLast = (idx === n - 1);
         const tr = document.createElement('tr');
-        const nameCell = `<input type="text" class="form-control form-control-sm" data-idx="${idx}" data-field="name" value="${inst.name.replace(/"/g,'&quot;')}">`;
-        const descCell = `<textarea class="inst-desc-textarea" rows="2" data-idx="${idx}" data-field="description" placeholder="Descripción opcional del instrumento…">${(inst.description||'').replace(/</g,'&lt;')}</textarea>`;
+        const nameCell = `<input type="text" class="form-control form-control-sm" data-idx="${idx}" data-field="name" name="inst_name_${idx}" value="${inst.name.replace(/"/g,'&quot;')}">`;
+        const descCell = `<textarea class="inst-desc-textarea" rows="2" data-idx="${idx}" data-field="description" name="inst_desc_${idx}" placeholder="Descripción opcional del instrumento…">${(inst.description||'').replace(/</g,'&lt;')}</textarea>`;
         const weightCell = isLast
-            ? `<div class="d-flex align-items-center gap-1"><input type="number" step="0.01" class="form-control form-control-sm inst-weight-input inst-weight-readonly" data-idx="${idx}" data-field="weight" value="${inst.weight.toFixed(2)}" readonly tabindex="-1"><span class="inst-weight-auto-badge">auto</span></div>`
-            : `<input type="number" step="0.01" min="1" max="${maxEditable}" class="form-control form-control-sm inst-weight-input" data-idx="${idx}" data-field="weight" value="${inst.weight.toFixed(2)}">`;
+            ? `<div class="d-flex align-items-center gap-1"><input type="number" step="0.01" class="form-control form-control-sm inst-weight-input inst-weight-readonly" data-idx="${idx}" data-field="weight" name="inst_weight_${idx}" value="${inst.weight.toFixed(2)}" readonly tabindex="-1"><span class="inst-weight-auto-badge">auto</span></div>`
+            : `<input type="number" step="0.01" min="1" max="${maxEditable}" class="form-control form-control-sm inst-weight-input" data-idx="${idx}" data-field="weight" name="inst_weight_${idx}" value="${inst.weight.toFixed(2)}">`;
         tr.innerHTML = `<td>${idx+1}</td><td>${nameCell}</td><td>${descCell}</td><td>${weightCell}</td>`;
         tbody.appendChild(tr);
     });
@@ -5535,8 +5535,8 @@ function inst_renderEvaluation() {
         const isLast=(i===n-1);
         const div=document.createElement('div'); div.className='input-group input-group-sm'; div.style.cssText='min-width:220px;flex:1 0 auto;';
         div.innerHTML = isLast
-            ? `<span class="input-group-text">${escapeHtml(inst.name)}</span><input type="number" step="0.01" class="form-control inst-eval-weight-input inst-weight-readonly" data-i="${i}" value="${(instrumentState.evalWeights[i]||inst.weight).toFixed(2)}" readonly tabindex="-1"><span class="input-group-text" style="background:#e8f5e9;color:#198754;font-size:0.72rem;">auto</span>`
-            : `<span class="input-group-text">${escapeHtml(inst.name)}</span><input type="number" step="0.01" min="1" max="${maxEditable}" class="form-control inst-eval-weight-input" data-i="${i}" value="${(instrumentState.evalWeights[i]||inst.weight).toFixed(2)}"><span class="input-group-text text-muted" style="font-size:0.75rem;">%</span>`;
+            ? `<span class="input-group-text">${escapeHtml(inst.name)}</span><input type="number" step="0.01" class="form-control inst-eval-weight-input inst-weight-readonly" data-i="${i}" name="inst_eval_weight_${i}" value="${(instrumentState.evalWeights[i]||inst.weight).toFixed(2)}" readonly tabindex="-1"><span class="input-group-text" style="background:#e8f5e9;color:#198754;font-size:0.72rem;">auto</span>`
+            : `<span class="input-group-text">${escapeHtml(inst.name)}</span><input type="number" step="0.01" min="1" max="${maxEditable}" class="form-control inst-eval-weight-input" data-i="${i}" name="inst_eval_weight_${i}" value="${(instrumentState.evalWeights[i]||inst.weight).toFixed(2)}"><span class="input-group-text text-muted" style="font-size:0.75rem;">%</span>`;
         weightsDiv.appendChild(div);
     });
     inst_syncPesosBadge();
@@ -6143,19 +6143,19 @@ function pond_renderImportCards() {
         card.innerHTML = `
             <div class="d-flex flex-wrap gap-3 align-items-end">
                 <div style="min-width:180px; flex:2;">
-                    <label class="form-label fw-semibold small text-uppercase" style="color:#006064;">Actividad ${i+1}</label>
-                    <input type="text" class="form-control form-control-sm pond-act-nombre" data-idx="${i}"
+                    <label for="pond_act_nombre_${i}" class="form-label fw-semibold small text-uppercase" style="color:#006064;">Actividad ${i+1}</label>
+                    <input type="text" id="pond_act_nombre_${i}" class="form-control form-control-sm pond-act-nombre" data-idx="${i}"
                         value="${(act.nombre||'').replace(/"/g,'&quot;')}" placeholder="Nombre de la actividad">
                 </div>
                 <div style="width:130px; flex-shrink:0;">
-                    <label class="form-label fw-semibold small text-uppercase" style="color:#006064;">Peso (%)</label>
-                    <input type="number" class="form-control form-control-sm pond-act-peso" data-idx="${i}"
+                    <label for="pond_act_peso_${i}" class="form-label fw-semibold small text-uppercase" style="color:#006064;">Peso (%)</label>
+                    <input type="number" id="pond_act_peso_${i}" class="form-control form-control-sm pond-act-peso" data-idx="${i}"
                         value="${act.peso}" min="0" max="100" step="0.01"
                         ${isLast ? 'readonly style="background:#f0f4fa;color:#6c757d;"' : ''}>
                     ${isLast ? '<small class="text-muted"><i class="bi bi-calculator"></i> Automático</small>' : ''}
                 </div>
                 <div style="flex-shrink:0;">
-                    <label class="form-label fw-semibold small text-uppercase" style="color:#006064;">Datos</label>
+                    <label for="pond_file_${i}" class="form-label fw-semibold small text-uppercase" style="color:#006064;">Datos</label>
                     <div>
                         <label for="pond_file_${i}" class="import-label" style="background:#e0f7fa; border-color:#80deea; cursor:pointer;">
                             <i class="bi bi-file-earmark-arrow-up"></i> Importar JSON
@@ -9785,10 +9785,10 @@ function fb_renderGroupsList(course) {
                 <div class="fb-group-students mt-2" id="fbGroupStudents_${groupId}" style="display:none;">
                     <div class="d-flex flex-wrap gap-2 mb-2 align-items-center">
                         <div class="input-group input-group-sm" style="max-width:300px;">
-                            <input type="text" class="form-control fb-group-add-input" placeholder="Apellidos, Nombre" data-course="${escapeHtml(course.id)}" data-group="${groupId}">
+                            <input type="text" class="form-control fb-group-add-input" placeholder="Apellidos, Nombre" name="fb_group_add_${groupId}" data-course="${escapeHtml(course.id)}" data-group="${groupId}">
                             <button class="btn btn-outline-success fb-group-add-btn" data-course="${escapeHtml(course.id)}" data-group="${groupId}" title="Añadir alumno"><i class="bi bi-plus"></i></button>
                         </div>
-                        <label class="btn btn-outline-primary btn-sm mb-0" title="Importar alumnos desde Excel/JSON"><i class="bi bi-file-earmark-spreadsheet"></i> Importar Excel/JSON<input type="file" class="fb-group-import-file" accept=".xlsx,.xls,.json" hidden data-course="${escapeHtml(course.id)}" data-group="${groupId}"></label>
+                        <label class="btn btn-outline-primary btn-sm mb-0" title="Importar alumnos desde Excel/JSON"><i class="bi bi-file-earmark-spreadsheet"></i> Importar Excel/JSON<input type="file" class="fb-group-import-file" name="fb_group_import_${groupId}" accept=".xlsx,.xls,.json" hidden data-course="${escapeHtml(course.id)}" data-group="${groupId}"></label>
                     </div>
                     ${students.length === 0 ? '<div class="text-muted small">Sin alumnos todavía.</div>' : `
                         <ul class="list-group list-group-flush small" style="max-height:240px; overflow-y:auto;">
@@ -9862,7 +9862,7 @@ function fb_renderImportGroupsList() {
         const studentCount = Array.isArray(g.students) ? g.students.length : 0;
         html += `
             <label class="list-group-item d-flex align-items-center gap-2 py-1">
-                <input class="form-check-input fb-import-group-chk" type="checkbox" value="${escapeHtml(gid)}" checked>
+                <input class="form-check-input fb-import-group-chk" type="checkbox" name="fb_import_group_${gid}" value="${escapeHtml(gid)}" checked>
                 <span><i class="bi bi-people-fill"></i> <strong>${escapeHtml(g.name || 'Sin nombre')}</strong></span>
                 ${g.level ? `<span class="badge bg-secondary">${escapeHtml(g.level)}</span>` : ''}
                 <span class="badge bg-info text-dark">${studentCount} alumnos</span>
