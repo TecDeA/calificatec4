@@ -12207,11 +12207,15 @@ window.onload = function() {
         footer.innerHTML = html;
     }
 
-    // Lee sw.js y extrae la versión de CACHE_NAME
-    fetch('sw.js', { cache: 'no-store' })
+    // Lee sw.js y extrae la versión (de CACHE_VERSION o CACHE_NAME)
+    // Cache-busting (?v=timestamp) para saltar tanto la caché HTTP como la del SW
+    fetch('sw.js?v=' + Date.now(), { cache: 'no-store' })
         .then(function(r) { return r.text(); })
         .then(function(text) {
-            var m = text.match(/CACHE_NAME\s*=\s*['"][^'"]*v([\d.]+)/);
+            // Intentar primero CACHE_VERSION (formato nuevo: const CACHE_VERSION = 'v1.4.0')
+            var m = text.match(/CACHE_VERSION\s*=\s*['"]v([\d.]+)/);
+            // Si no coincide, intentar CACHE_NAME (formato antiguo: CACHE_NAME = 'evaltec4-online-v1.0.0')
+            if (!m) m = text.match(/CACHE_NAME\s*=\s*['"][^'"]*v([\d.]+)/);
             showAppVersion(m ? m[1] : null);
         })
         .catch(function() { showAppVersion(null); });
@@ -12279,10 +12283,11 @@ window.onload = function() {
                     var newWorker = reg.installing;
                     newWorker.addEventListener('statechange', function() {
                         if (newWorker.state === 'activated') {
-                            fetch('sw.js', { cache: 'no-store' })
+                            fetch('sw.js?v=' + Date.now(), { cache: 'no-store' })
                                 .then(function(r) { return r.text(); })
                                 .then(function(text) {
-                                    var m = text.match(/CACHE_NAME\s*=\s*['"][^'"]*v([\d.]+)/);
+                                    var m = text.match(/CACHE_VERSION\s*=\s*['"]v([\d.]+)/);
+                                    if (!m) m = text.match(/CACHE_NAME\s*=\s*['"][^'"]*v([\d.]+)/);
                                     showAppVersion(m ? m[1] : null);
                                 });
                         }
