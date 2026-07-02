@@ -2,14 +2,14 @@
 // Cacheo de recursos para funcionamiento offline.
 // Hosting: https://angelmicelti.github.io/AppCalificaActividadesTEC4V2/
 
-const CACHE_VERSION = 'v1.5.1';
+const CACHE_VERSION = 'v1.5.0';
 const CACHE_NAME = `evaltec4-online-${CACHE_VERSION}`;
 const BASE_PATH = './';
 
 // Recursos principales a cachear (rutas relativas para funcionar en GitHub Pages)
 const PRECACHE_URLS = [
     BASE_PATH,
-    BASE_PATH + 'index.html',
+    BASE_PATH + 'index2.html',
     BASE_PATH + 'manifest.json',
     BASE_PATH + 'icons/icon-192x192.png',
     BASE_PATH + 'icons/icon-512x512.png',
@@ -102,6 +102,11 @@ self.addEventListener('fetch', event => {
         return;
     }
 
+    // sw.js SIEMPRE va a la red (nunca cachear el propio service worker)
+    if (url.pathname.endsWith('/sw.js')) {
+        return;
+    }
+
     // Estrategia para navegación (HTML): network-first con fallback a caché
     if (request.mode === 'navigate' ||
         (request.headers.get('accept') && request.headers.get('accept').includes('text/html'))) {
@@ -118,7 +123,7 @@ self.addEventListener('fetch', event => {
                 .catch(() => {
                     // Si no hay red, servir desde caché
                     return caches.match(request)
-                        .then(cached => cached || caches.match(BASE_PATH + 'index.html'));
+                        .then(cached => cached || caches.match(BASE_PATH + 'index2.html'));
                 })
         );
         return;
