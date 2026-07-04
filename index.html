@@ -1339,6 +1339,11 @@
             padding: 0.35em 0.8em;
             border-radius: 50px;
         }
+        /* Fix: bg-purple no existe en Bootstrap 5.3 — definirlo para que el badge de Instrumentos sea visible */
+        .bg-purple {
+            background-color: #6f42c1 !important;
+            color: #fff !important;
+        }
 
         /* ===== CARD HOVER EFFECTS ===== */
         .card {
@@ -2573,10 +2578,21 @@
         </div>
         <div id="examScreenConfig" class="screen active">
             <div class="section-card">
+                <div class="section-title"><i class="bi bi-gear-wide-connected"></i> Gestión de información <i class="bi bi-question-circle help-icon" data-bs-toggle="tooltip" title="Importar, exportar o guardar la configuración actual."></i></div>
+                <div class="d-flex flex-wrap gap-2 justify-content-start">
+                    <button id="examExportConfigBtn" class="btn btn-outline-primary btn-sm"><i class="bi bi-file-earmark-arrow-down"></i> Exportar JSON</button>
+                    <button id="examImportConfigBtn" class="btn btn-outline-secondary btn-sm"><i class="bi bi-file-earmark-arrow-up"></i> Importar JSON</button>
+                    <input type="file" id="examImportConfigFile" accept=".json" hidden>
+                    <button class="btn btn-outline-warning btn-sm fb-app-save-btn" data-app="exam" title="Guardar en la nube (requiere sesión)"><i class="bi bi-cloud-arrow-up"></i> Guardar en la nube</button>
+                    <button class="btn btn-outline-warning btn-sm fb-app-load-btn" data-app="exam" title="Cargar desde la nube (requiere sesión)"><i class="bi bi-cloud-arrow-down"></i> Cargar nube</button>
+                    <button id="examResetAllBtn" class="btn btn-outline-danger btn-sm"><i class="bi bi-eraser"></i> Reiniciar todo</button>
+                </div>
+            </div>
+            <div class="section-card">
                 <div class="section-title"><i class="bi bi-pencil-square"></i> Configuración del examen <i class="bi bi-question-circle help-icon" data-bs-toggle="tooltip" title="Nombre del examen y grupo de alumnado."></i></div>
                 <div class="row g-3 align-items-end">
-                    <div class="col-md-4"><label class="form-label fw-semibold">📌 Nombre del examen</label><input type="text" id="examNameInput" class="form-control" placeholder="Introduce un nombre"></div>
-                    <div class="col-md-3"><label class="form-label fw-semibold">👥 Grupo</label><input type="text" id="examCourseInput" class="form-control" list="fbGroupsDatalist" placeholder="Ej: 4º ESO A"></div>
+                    <div class="col-md-4"><label for="examNameInput" class="form-label fw-semibold">📌 Nombre del examen</label><input type="text" id="examNameInput" class="form-control" placeholder="Introduce un nombre"></div>
+                    <div class="col-md-3"><label for="examCourseInput" class="form-label fw-semibold">👥 Grupo</label><input type="text" id="examCourseInput" class="form-control" list="fbGroupsDatalist" placeholder="Ej: 4º ESO A"></div>
                 </div>
             </div>
             <div class="section-card">
@@ -2592,7 +2608,7 @@
             <div class="section-card">
                 <div class="section-title"><i class="bi bi-question-circle"></i> Gestión de preguntas y criterios <i class="bi bi-question-circle help-icon" data-bs-toggle="tooltip" title="Define las preguntas, su puntuación máxima y asigna los criterios de evaluación."></i></div>
                 <div class="row g-3 align-items-end mb-4">
-                    <div class="col-md-3"><label class="form-label fw-semibold">Número de preguntas</label><input type="number" id="examInputNumQuestions" class="form-control" min="1" value="3"></div>
+                    <div class="col-md-3"><label for="examInputNumQuestions" class="form-label fw-semibold">Número de preguntas</label><input type="number" id="examInputNumQuestions" id="examInputNumQuestions" class="form-control" min="1" value="3"></div>
                     <div class="col-md-3"><button id="examBtnSetQuestions" class="btn btn-primary">📌 Generar / Resetear preguntas</button></div>
                     <div class="col-md-6 text-end">
                         <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#globalCriteriaModal" data-app="exam"><i class="bi bi-check2-square"></i> Criterios TEC.4.X.Y.</button>
@@ -2603,19 +2619,6 @@
                 <div class="table-responsive mt-3"><table class="table table-bordered align-middle table-custom" id="examQuestionsTable"><thead><tr><th>Pregunta</th><th>Descripción</th><th>Calificación máxima</th><th>Criterios</th><th>Acciones</th></tr></thead><tbody id="examQuestionsTbody"></tbody></table></div>
                 <div id="examScoreTotalsContainer" class="mt-3 p-3 border border-info rounded" style="background:rgba(13,110,253,0.05);"></div>
                 <div class="d-flex justify-content-end mt-2"><button id="examAppendQuestionBtn" class="btn btn-success btn-sm"><i class="bi bi-plus-circle"></i> Añadir pregunta</button></div>
-            </div>
-            <div class="section-card">
-                <div class="section-title"><i class="bi bi-gear-wide-connected"></i> Gestión de información <i class="bi bi-question-circle help-icon" data-bs-toggle="tooltip" title="Importar, exportar o guardar la configuración actual."></i></div>
-                <div class="d-flex flex-wrap gap-2 justify-content-start">
-                    <button id="examExportConfigBtn" class="btn btn-outline-primary btn-sm"><i class="bi bi-file-earmark-arrow-down"></i> Exportar JSON</button>
-                    <button id="examImportConfigBtn" class="btn btn-outline-secondary btn-sm"><i class="bi bi-file-earmark-arrow-up"></i> Importar JSON</button>
-                    <input type="file" id="examImportConfigFile" accept=".json" hidden>
-                    <button id="examSaveToLocalBtn" class="btn btn-outline-success btn-sm"><i class="bi bi-save"></i> Guardar local</button>
-                    <button id="examLoadFromLocalBtn" class="btn btn-outline-info btn-sm"><i class="bi bi-folder-symlink"></i> Cargar local</button>
-                    <button id="examResetAllBtn" class="btn btn-outline-danger btn-sm"><i class="bi bi-eraser"></i> Reiniciar todo</button>
-                    <button class="btn btn-outline-warning btn-sm fb-app-save-btn" data-app="exam" title="Guardar en la nube (requiere sesión)"><i class="bi bi-cloud-arrow-up"></i> Guardar en la nube</button>
-                    <button class="btn btn-outline-warning btn-sm fb-app-load-btn" data-app="exam" title="Cargar desde la nube (requiere sesión)"><i class="bi bi-cloud-arrow-down"></i> Cargar nube</button>
-                </div>
             </div>
             <div id="examConfigWarning" class="validation-warning" style="display:none;"></div>
         </div>
@@ -2668,10 +2671,21 @@
         </div>
         <div id="testScreenConfig" class="screen active">
             <div class="section-card">
+                <div class="section-title"><i class="bi bi-gear-wide-connected"></i> Gestión de información <i class="bi bi-question-circle help-icon" data-bs-toggle="tooltip" title="Importar, exportar o guardar la configuración actual."></i></div>
+                <div class="d-flex flex-wrap justify-content-start gap-2 mt-2">
+                    <button id="testExportConfigBtn" class="btn btn-outline-primary btn-sm"><i class="fas fa-download"></i> Exportar JSON</button>
+                    <button id="testImportConfigBtn" class="btn btn-outline-secondary btn-sm"><i class="fas fa-upload"></i> Importar JSON</button>
+                    <input type="file" id="testImportConfigFile" accept=".json" hidden>
+                    <button class="btn btn-outline-warning btn-sm fb-app-save-btn" data-app="test" title="Guardar en la nube (requiere sesión)"><i class="bi bi-cloud-arrow-up"></i> Guardar en la nube</button>
+                    <button class="btn btn-outline-warning btn-sm fb-app-load-btn" data-app="test" title="Cargar desde la nube (requiere sesión)"><i class="bi bi-cloud-arrow-down"></i> Cargar nube</button>
+                    <button id="testResetAllBtn2" class="btn btn-outline-danger btn-sm"><i class="bi bi-eraser"></i> Reiniciar todo</button>
+                </div>
+            </div>
+            <div class="section-card">
                 <div class="section-title"><i class="fas fa-clipboard-list"></i> Configuración del test <i class="bi bi-question-circle help-icon" data-bs-toggle="tooltip" title="Título del test y grupo de alumnado."></i></div>
                 <div class="row g-4">
-                    <div class="col-md-6"><label class="form-label fw-semibold">📌 Nombre del examen</label><input type="text" id="testExamTitleInput" class="form-control" placeholder="Introduce un nombre"></div>
-                    <div class="col-md-6"><label class="form-label fw-semibold">👥 Grupo</label><input type="text" id="testCourseInput" class="form-control" list="fbGroupsDatalist" placeholder="Ej: 4º ESO A"></div>
+                    <div class="col-md-6"><label for="testExamTitleInput" class="form-label fw-semibold">📌 Nombre del examen</label><input type="text" id="testExamTitleInput" class="form-control" placeholder="Introduce un nombre"></div>
+                    <div class="col-md-6"><label for="testCourseInput" class="form-label fw-semibold">👥 Grupo</label><input type="text" id="testCourseInput" class="form-control" list="fbGroupsDatalist" placeholder="Ej: 4º ESO A"></div>
                 </div>
             </div>
                         <div class="section-card">
@@ -2695,8 +2709,8 @@
             <div class="section-card">
                 <div class="section-title"><i class="fas fa-question-circle"></i> Diseña el test: número de preguntas y penalizaciones <i class="bi bi-question-circle help-icon" data-bs-toggle="tooltip" title="Número total de preguntas y penalización."></i></div>
                 <div class="row g-4">
-                    <div class="col-md-3"><label class="form-label fw-semibold">Número total preguntas:</label><input type="number" id="testTotalQuestions" class="form-control" min="1" value="20"></div>
-                    <div class="col-md-9"><label class="form-label fw-semibold">Penalizaciones:</label>
+                    <div class="col-md-3"><label for="testTotalQuestions" class="form-label fw-semibold">Número total preguntas:</label><input type="number" id="testTotalQuestions" class="form-control" min="1" value="20"></div>
+                    <div class="col-md-9"><label for="testPenalty0" class="form-label fw-semibold">Penalizaciones:</label>
                         <div class="penalty-options" id="testPenaltyOptions">
                             <div class="penalty-option" data-value="0"><input type="radio" name="penalty" id="testPenalty0" value="0" checked><label for="testPenalty0">Sin penalización</label></div>
                             <div class="penalty-option" data-value="0.2"><input type="radio" name="penalty" id="testPenalty5" value="0.2"><label for="testPenalty5">Fallo resta 1/5 del acierto</label></div>
@@ -2709,19 +2723,6 @@
                 </div>
             </div>
 
-            <div class="section-card">
-                <div class="section-title"><i class="bi bi-gear-wide-connected"></i> Gestión de información <i class="bi bi-question-circle help-icon" data-bs-toggle="tooltip" title="Importar, exportar o guardar la configuración actual."></i></div>
-                <div class="d-flex flex-wrap justify-content-start gap-2 mt-2">
-                    <button id="testExportConfigBtn" class="btn btn-outline-primary btn-sm"><i class="fas fa-download"></i> Exportar JSON</button>
-                    <button id="testImportConfigBtn" class="btn btn-outline-secondary btn-sm"><i class="fas fa-upload"></i> Importar JSON</button>
-                    <input type="file" id="testImportConfigFile" accept=".json" hidden>
-                    <button id="testSaveToLocalBtn" class="btn btn-outline-success btn-sm"><i class="fas fa-save"></i> Guardar local</button>
-                    <button id="testLoadFromLocalBtn" class="btn btn-outline-info btn-sm"><i class="fas fa-folder-open"></i> Cargar local</button>
-                    <button id="testResetAllBtn2" class="btn btn-outline-danger btn-sm"><i class="bi bi-eraser"></i> Reiniciar todo</button>
-                    <button class="btn btn-outline-warning btn-sm fb-app-save-btn" data-app="test" title="Guardar en la nube (requiere sesión)"><i class="bi bi-cloud-arrow-up"></i> Guardar en la nube</button>
-                    <button class="btn btn-outline-warning btn-sm fb-app-load-btn" data-app="test" title="Cargar desde la nube (requiere sesión)"><i class="bi bi-cloud-arrow-down"></i> Cargar nube</button>
-                </div>
-            </div>
             <div id="testConfigWarning" class="validation-warning" style="display:none;"></div>
         </div>
         <div id="testScreenGrade" class="screen">
@@ -2773,10 +2774,21 @@
         </div>
         <div id="genericScreenConfig" class="screen active">
             <div class="section-card">
+                <div class="section-title"><i class="bi bi-gear-wide-connected"></i> Gestión de información <i class="bi bi-question-circle help-icon" data-bs-toggle="tooltip" title="Importar, exportar o guardar la configuración actual."></i></div>
+                <div class="d-flex flex-wrap gap-2 justify-content-start">
+                    <button id="genericExportConfigBtn" class="btn btn-outline-primary btn-sm"><i class="bi bi-file-earmark-arrow-down"></i> Exportar JSON</button>
+                    <button id="genericImportConfigBtn" class="btn btn-outline-secondary btn-sm"><i class="bi bi-file-earmark-arrow-up"></i> Importar JSON</button>
+                    <input type="file" id="genericImportConfigFile" accept=".json" hidden>
+                    <button class="btn btn-outline-warning btn-sm fb-app-save-btn" data-app="generic" title="Guardar en la nube (requiere sesión)"><i class="bi bi-cloud-arrow-up"></i> Guardar en la nube</button>
+                    <button class="btn btn-outline-warning btn-sm fb-app-load-btn" data-app="generic" title="Cargar desde la nube (requiere sesión)"><i class="bi bi-cloud-arrow-down"></i> Cargar nube</button>
+                    <button id="genericResetAllBtn" class="btn btn-outline-danger btn-sm"><i class="bi bi-eraser"></i> Reiniciar todo</button>
+                </div>
+            </div>
+            <div class="section-card">
                 <div class="section-title"><i class="bi bi-pencil-square"></i> Configuración de la actividad <i class="bi bi-question-circle help-icon" data-bs-toggle="tooltip" title="Nombre de la actividad y grupo de alumnado."></i></div>
                 <div class="row g-3 align-items-end">
-                    <div class="col-md-4"><label class="form-label fw-semibold">📌 Nombre de la actividad</label><input type="text" id="genericExamNameInput" class="form-control" placeholder="Introduce un nombre"></div>
-                    <div class="col-md-3"><label class="form-label fw-semibold">👥 Grupo</label><input type="text" id="genericCourseInput" class="form-control" list="fbGroupsDatalist" placeholder="Ej: 4º ESO A"></div>
+                    <div class="col-md-4"><label for="genericExamNameInput" class="form-label fw-semibold">📌 Nombre de la actividad</label><input type="text" id="genericExamNameInput" class="form-control" placeholder="Introduce un nombre"></div>
+                    <div class="col-md-3"><label for="genericCourseInput" class="form-label fw-semibold">👥 Grupo</label><input type="text" id="genericCourseInput" class="form-control" list="fbGroupsDatalist" placeholder="Ej: 4º ESO A"></div>
                 </div>
             </div>
             <div class="section-card">
@@ -2798,19 +2810,6 @@
                 </div>
                 <div class="form-text mt-2"><i class="bi bi-info-circle"></i> <strong>Actividades predefinidas</strong> permite cargar de una vez los criterios típicos de una actividad (Exposición oral, Memoria final, Maqueta, etc.). Podrás editar o añadir criterios después.</div>
                 <div id="genericOrphanedCriteriaWarning" class="validation-warning mt-3" style="display:none;"><span id="genericOrphanedCriteriaMessage"></span></div>
-            </div>
-            <div class="section-card">
-                <div class="section-title"><i class="bi bi-gear-wide-connected"></i> Gestión de información <i class="bi bi-question-circle help-icon" data-bs-toggle="tooltip" title="Importar, exportar o guardar la configuración actual."></i></div>
-                <div class="d-flex flex-wrap gap-2 justify-content-start">
-                    <button id="genericExportConfigBtn" class="btn btn-outline-primary btn-sm"><i class="bi bi-file-earmark-arrow-down"></i> Exportar JSON</button>
-                    <button id="genericImportConfigBtn" class="btn btn-outline-secondary btn-sm"><i class="bi bi-file-earmark-arrow-up"></i> Importar JSON</button>
-                    <input type="file" id="genericImportConfigFile" accept=".json" hidden>
-                    <button id="genericSaveToLocalBtn" class="btn btn-outline-success btn-sm"><i class="bi bi-save"></i> Guardar local</button>
-                    <button id="genericLoadFromLocalBtn" class="btn btn-outline-info btn-sm"><i class="bi bi-folder-symlink"></i> Cargar local</button>
-                    <button id="genericResetAllBtn" class="btn btn-outline-danger btn-sm"><i class="bi bi-eraser"></i> Reiniciar todo</button>
-                    <button class="btn btn-outline-warning btn-sm fb-app-save-btn" data-app="generic" title="Guardar en la nube (requiere sesión)"><i class="bi bi-cloud-arrow-up"></i> Guardar en la nube</button>
-                    <button class="btn btn-outline-warning btn-sm fb-app-load-btn" data-app="generic" title="Cargar desde la nube (requiere sesión)"><i class="bi bi-cloud-arrow-down"></i> Cargar nube</button>
-                </div>
             </div>
             <div id="genericConfigWarning" class="validation-warning" style="display:none;"></div>
         </div>
@@ -2865,6 +2864,17 @@
             <!-- CONFIG -->
             <div class="tab-pane fade show active" id="inst_config" role="tabpanel">
                 <div class="section-card">
+                    <div class="section-title"><i class="bi bi-gear-wide-connected"></i> Gestión de información <i class="bi bi-question-circle help-icon" data-bs-toggle="tooltip" title="Importar, exportar o guardar la configuración actual."></i></div>
+                    <div class="d-flex flex-wrap gap-2 justify-content-start">
+                        <button id="inst_exportConfigJson" class="btn btn-outline-primary btn-sm"><i class="bi bi-file-earmark-arrow-down"></i> Exportar JSON</button>
+                        <button id="inst_importConfigJsonBtn" class="btn btn-outline-secondary btn-sm"><i class="bi bi-file-earmark-arrow-up"></i> Importar JSON</button>
+                        <input type="file" id="inst_importConfigFile" accept=".json" hidden>
+                        <button class="btn btn-outline-warning btn-sm fb-app-save-btn" data-app="instrumentos" title="Guardar en la nube (requiere sesión)"><i class="bi bi-cloud-arrow-up"></i> Guardar en la nube</button>
+                        <button class="btn btn-outline-warning btn-sm fb-app-load-btn" data-app="instrumentos" title="Cargar desde la nube (requiere sesión)"><i class="bi bi-cloud-arrow-down"></i> Cargar nube</button>
+                        <button id="inst_resetAllBtn" class="btn btn-outline-danger btn-sm"><i class="bi bi-eraser"></i> Reiniciar todo</button>
+                    </div>
+                </div>
+                <div class="section-card">
                     <div class="section-title"><i class="bi bi-pencil-square"></i> Configuración de la actividad</div>
                     <div class="row g-3">
                         <div class="col-md-6"><label class="form-label fw-semibold">📌 Nombre de la actividad <span class="text-danger">*</span></label><input type="text" id="inst_actividadInput" class="form-control" placeholder="Introduce un nombre"></div>
@@ -2884,24 +2894,11 @@
                 <div class="section-card">
                     <div class="section-title"><i class="bi bi-tools"></i> Instrumentos de evaluación</div>
                     <div class="row g-3 align-items-end mb-3">
-                        <div class="col-md-3"><label class="form-label fw-semibold">Número de instrumentos</label><input type="number" id="inst_numInstrumentos" class="form-control" min="1" value="3"></div>
+                        <div class="col-md-3"><label for="inst_numInstrumentos" class="form-label fw-semibold">Número de instrumentos</label><input type="number" id="inst_numInstrumentos" class="form-control" min="1" value="3"></div>
                         <div class="col-md-9 text-end"><span class="fw-bold me-3">Total pesos: <span id="inst_totalPesos">100.0</span>%</span><span id="inst_pesosWarning" class="inst-warning-note" style="display:none;"><i class="bi bi-exclamation-triangle"></i> No suman 100%</span></div>
                     </div>
                     <table class="table table-sm table-bordered" id="inst_instrumentsTable"><thead><tr><th>#</th><th>Instrumentos</th><th>Descripción</th><th>Peso (%)</th></tr></thead><tbody id="inst_instrumentsBody"></tbody></table>
                     <p class="text-muted small">El último instrumento se calcula automáticamente para que la suma sea siempre 100%.</p>
-                </div>
-                <div class="section-card">
-                    <div class="section-title"><i class="bi bi-gear-wide-connected"></i> Gestión de información <i class="bi bi-question-circle help-icon" data-bs-toggle="tooltip" title="Importar, exportar o guardar la configuración actual."></i></div>
-                    <div class="d-flex flex-wrap gap-2 justify-content-start">
-                        <button id="inst_exportConfigJson" class="btn btn-outline-primary btn-sm"><i class="bi bi-file-earmark-arrow-down"></i> Exportar JSON</button>
-                        <button id="inst_importConfigJsonBtn" class="btn btn-outline-secondary btn-sm"><i class="bi bi-file-earmark-arrow-up"></i> Importar JSON</button>
-                        <input type="file" id="inst_importConfigFile" accept=".json" hidden>
-                        <button id="inst_saveConfigLocal" class="btn btn-outline-success btn-sm"><i class="bi bi-save"></i> Guardar local</button>
-                        <button id="inst_loadConfigLocal" class="btn btn-outline-info btn-sm"><i class="bi bi-folder-symlink"></i> Cargar local</button>
-                        <button id="inst_resetAllBtn" class="btn btn-outline-danger btn-sm"><i class="bi bi-eraser"></i> Reiniciar todo</button>
-                        <button class="btn btn-outline-warning btn-sm fb-app-save-btn" data-app="instrumentos" title="Guardar en la nube (requiere sesión)"><i class="bi bi-cloud-arrow-up"></i> Guardar en la nube</button>
-                        <button class="btn btn-outline-warning btn-sm fb-app-load-btn" data-app="instrumentos" title="Cargar desde la nube (requiere sesión)"><i class="bi bi-cloud-arrow-down"></i> Cargar nube</button>
-                    </div>
                 </div>
                 <div id="inst_configWarning" class="validation-warning" style="display:none;"></div>
                 <div class="d-flex justify-content-end"><button id="inst_irRelacionBtn" class="btn btn-primary btn-lg" disabled><i class="bi bi-arrow-right"></i> Ir a Relación</button></div>
@@ -2916,12 +2913,8 @@
                     <div class="btn-group mb-3">
                         <button id="inst_exportMatrixJson" class="btn btn-outline-success btn-sm"><i class="bi bi-download"></i> Exportar matriz</button>
                         <button id="inst_importMatrixJsonBtn" class="btn btn-outline-warning btn-sm"><i class="bi bi-upload"></i> Importar matriz</button>
-                        <button id="inst_saveMatrixLocal" class="btn btn-outline-info btn-sm"><i class="bi bi-save"></i> Guardar local</button>
-                        <button id="inst_loadMatrixLocal" class="btn btn-outline-secondary btn-sm"><i class="bi bi-folder-symlink"></i> Recuperar local</button>
-                    </div>
-                    <div class="d-flex flex-wrap gap-2 mb-3">
-                        <button id="inst_saveMatrixCloud" class="btn btn-outline-warning btn-sm" title="Guardar la matriz de relación en la nube (requiere sesión)"><i class="bi bi-cloud-arrow-up"></i> Guardar nube</button>
-                        <button id="inst_loadMatrixCloud" class="btn btn-outline-warning btn-sm" title="Cargar la matriz de relación desde la nube (requiere sesión)"><i class="bi bi-cloud-arrow-down"></i> Cargar nube</button>
+                        <button id="inst_saveMatrixCloud" class="btn btn-outline-primary btn-sm"><i class="bi bi-cloud-arrow-up"></i> Guardar matriz en la nube</button>
+                        <button id="inst_loadMatrixCloud" class="btn btn-outline-info btn-sm"><i class="bi bi-cloud-arrow-down"></i> Cargar matriz de la nube</button>
                     </div>
                     <input type="file" id="inst_importMatrixFile" accept=".json" hidden>
                     <div class="d-flex justify-content-end"><button id="inst_irEvalBtn" class="btn btn-primary btn-lg" disabled><i class="bi bi-arrow-right"></i> Ir a Evaluación</button></div>
@@ -2952,8 +2945,7 @@
                         <button id="inst_clearScoresBtn" class="btn btn-outline-danger btn-sm"><i class="bi bi-trash3"></i> Borrar calificaciones</button>
                         <button id="inst_exportEvalJson" class="btn btn-outline-primary btn-sm"><i class="bi bi-file-earmark-arrow-down"></i> Exportar JSON</button>
                         <button id="inst_importEvalJsonBtn" class="btn btn-outline-secondary btn-sm"><i class="bi bi-file-earmark-arrow-up"></i> Importar JSON</button>
-                        <input type="file" id="inst_importEvalFile" accept=".json" hidden><button id="inst_saveEvalLocal" class="btn btn-outline-success btn-sm"><i class="bi bi-save"></i> Guardar calificaciones</button>
-                        <button id="inst_loadEvalLocal" class="btn btn-outline-info btn-sm"><i class="bi bi-folder-symlink"></i> Recuperar calificaciones</button>
+                        <input type="file" id="inst_importEvalFile" accept=".json" hidden>
                     </div>
                     <div class="table-responsive" style="max-height:500px;"><table class="table table-bordered table-striped" id="inst_evalTable"><thead class="inst-fixed-header" id="inst_evalThead"></thead><tbody id="inst_evalTbody"></tbody></table></div>
                     <div class="d-flex flex-wrap gap-2 mt-3 justify-content-end">
@@ -2990,6 +2982,17 @@
         <!-- CONFIG -->
         <div id="pond_screenConfig" class="screen active">
             <div class="section-card">
+                <div class="section-title"><i class="bi bi-gear-wide-connected"></i> Gestión de información</div>
+                <div class="d-flex flex-wrap gap-2 justify-content-start">
+                    <button id="pond_exportConfigBtn" class="btn btn-outline-primary btn-sm"><i class="bi bi-file-earmark-arrow-down"></i> Exportar JSON</button>
+                    <button id="pond_importConfigBtn" class="btn btn-outline-secondary btn-sm"><i class="bi bi-file-earmark-arrow-up"></i> Importar JSON</button>
+                    <input type="file" id="pond_importConfigFile" accept=".json" hidden>
+                    <button class="btn btn-outline-warning btn-sm fb-app-save-btn" data-app="ponderacion" title="Guardar en la nube (requiere sesión)"><i class="bi bi-cloud-arrow-up"></i> Guardar en la nube</button>
+                    <button class="btn btn-outline-warning btn-sm fb-app-load-btn" data-app="ponderacion" title="Cargar desde la nube (requiere sesión)"><i class="bi bi-cloud-arrow-down"></i> Cargar nube</button>
+                    <button id="pond_resetAllBtn" class="btn btn-outline-danger btn-sm"><i class="bi bi-eraser"></i> Reiniciar todo</button>
+                </div>
+            </div>
+            <div class="section-card">
                 <div class="section-title"><i class="bi bi-pencil-square"></i> Configuración de la ponderación</div>
                 <div class="row g-3">
                     <div class="col-md-6">
@@ -3006,7 +3009,7 @@
                 <div class="section-title"><i class="bi bi-list-ol"></i> Número de actividades a ponderar</div>
                 <div class="row g-3 align-items-center">
                     <div class="col-md-3">
-                        <label class="form-label fw-semibold">Nº de actividades</label>
+                        <label for="pond_numActividadesInput" class="form-label fw-semibold">Nº de actividades</label>
                         <input type="number" id="pond_numActividadesInput" class="form-control" min="2" max="10" value="2">
                     </div>
                     <div class="col-md-9">
@@ -3017,17 +3020,6 @@
                 </div>
             </div>
             <div id="pond_configWarning" class="validation-warning" style="display:none;"></div>
-            <div class="section-card">
-                <div class="section-title"><i class="bi bi-gear-wide-connected"></i> Gestión de información</div>
-                <div class="d-flex flex-wrap gap-2 justify-content-start">
-                    <button id="pond_exportConfigBtn" class="btn btn-outline-primary btn-sm"><i class="bi bi-file-earmark-arrow-down"></i> Exportar configuración</button>
-                    <button id="pond_importConfigBtn" class="btn btn-outline-secondary btn-sm"><i class="bi bi-file-earmark-arrow-up"></i> Importar configuración</button>
-                    <input type="file" id="pond_importConfigFile" accept=".json" hidden>
-                    <button id="pond_saveConfigLocal" class="btn btn-outline-success btn-sm"><i class="bi bi-save"></i> Guardar local</button>
-                    <button id="pond_loadConfigLocal" class="btn btn-outline-info btn-sm"><i class="bi bi-folder-symlink"></i> Cargar local</button>
-                    <button id="pond_resetAllBtn" class="btn btn-outline-danger btn-sm"><i class="bi bi-eraser"></i> Reiniciar todo</button>
-                </div>
-            </div>
             <div class="d-flex justify-content-end">
                 <button id="pond_btnGoImport" class="btn btn-info btn-lg text-white"><i class="bi bi-arrow-right"></i> Ir a Importar</button>
             </div>
@@ -3055,8 +3047,6 @@
                     <button id="pond_exportImportBtn" class="btn btn-outline-primary btn-sm"><i class="bi bi-file-earmark-arrow-down"></i> Exportar importación</button>
                     <button id="pond_importImportBtn" class="btn btn-outline-secondary btn-sm"><i class="bi bi-file-earmark-arrow-up"></i> Importar importación</button>
                     <input type="file" id="pond_importImportFile" accept=".json" hidden>
-                    <button id="pond_saveImportLocal" class="btn btn-outline-success btn-sm"><i class="bi bi-save"></i> Guardar local</button>
-                    <button id="pond_loadImportLocal" class="btn btn-outline-info btn-sm"><i class="bi bi-folder-symlink"></i> Cargar local</button>
                 </div>
                 <div id="pond_importMgmtMessage" class="small mt-2"></div>
             </div>
@@ -3122,10 +3112,21 @@
         <!-- PANTALLA CONFIGURACIÓN -->
         <div id="rubricScreenSetup" class="screen active">
             <div class="section-card">
+                <div class="section-title"><i class="bi bi-gear-wide-connected"></i> Gestión de información <i class="bi bi-question-circle help-icon" data-bs-toggle="tooltip" title="Exporta, importa o guarda localmente la configuración completa de la rúbrica."></i></div>
+                <div class="d-flex flex-wrap gap-2 justify-content-start">
+                    <button id="rubricExportConfigBtn" class="btn btn-outline-primary btn-sm"><i class="bi bi-file-earmark-arrow-down"></i> Exportar JSON</button>
+                    <button id="rubricImportConfigBtn" class="btn btn-outline-secondary btn-sm"><i class="bi bi-file-earmark-arrow-up"></i> Importar JSON</button>
+                    <input type="file" id="rubricImportConfigFile" accept=".json" hidden>
+                    <button class="btn btn-outline-warning btn-sm fb-app-save-btn" data-app="rubricas" title="Guardar en la nube (requiere sesión)"><i class="bi bi-cloud-arrow-up"></i> Guardar en la nube</button>
+                    <button class="btn btn-outline-warning btn-sm fb-app-load-btn" data-app="rubricas" title="Cargar desde la nube (requiere sesión)"><i class="bi bi-cloud-arrow-down"></i> Cargar nube</button>
+                    <button id="rubricResetAllBtn" class="btn btn-outline-danger btn-sm"><i class="bi bi-eraser"></i> Reiniciar todo</button>
+                </div>
+            </div>
+            <div class="section-card">
                 <div class="section-title"><i class="bi bi-pencil-square"></i> Configuración de la evaluación <i class="bi bi-question-circle help-icon" data-bs-toggle="tooltip" title="Título de la evaluación y grupo de alumnado."></i></div>
                 <div class="row g-3 align-items-end">
-                    <div class="col-md-5"><label class="form-label fw-semibold">📌 Título de la evaluación</label><input type="text" id="rubricEvalNameInput" class="form-control" placeholder="Ej: Exposición, Proyecto..."></div>
-                    <div class="col-md-4"><label class="form-label fw-semibold">👥 Grupo</label><input type="text" id="rubricGroupNameInput" class="form-control" list="fbGroupsDatalist" placeholder="Ej: 4º ESO A"></div>
+                    <div class="col-md-5"><label for="rubricEvalNameInput" class="form-label fw-semibold">📌 Título de la evaluación</label><input type="text" id="rubricEvalNameInput" class="form-control" placeholder="Ej: Exposición, Proyecto..."></div>
+                    <div class="col-md-4"><label for="rubricGroupNameInput" class="form-label fw-semibold">👥 Grupo</label><input type="text" id="rubricGroupNameInput" class="form-control" list="fbGroupsDatalist" placeholder="Ej: 4º ESO A"></div>
                 </div>
             </div>
 
@@ -3183,20 +3184,6 @@
                     <span id="rubricSelectedCriteriaBadges" class="d-flex flex-wrap gap-1"></span>
                 </div>
                 <div class="form-text mt-2"><i class="bi bi-info-circle"></i> Estos criterios se usarán para exportar las <strong>notas por criterio</strong> en los resultados. La nota final del alumno se asignará a cada criterio seleccionado.</div>
-            </div>
-
-            <div class="section-card">
-                <div class="section-title"><i class="bi bi-gear-wide-connected"></i> Gestión de información <i class="bi bi-question-circle help-icon" data-bs-toggle="tooltip" title="Exporta, importa o guarda localmente la configuración completa de la rúbrica."></i></div>
-                <div class="d-flex flex-wrap gap-2 justify-content-start">
-                    <button id="rubricExportConfigBtn" class="btn btn-outline-primary btn-sm"><i class="bi bi-file-earmark-arrow-down"></i> Exportar JSON</button>
-                    <button id="rubricImportConfigBtn" class="btn btn-outline-secondary btn-sm"><i class="bi bi-file-earmark-arrow-up"></i> Importar JSON</button>
-                    <input type="file" id="rubricImportConfigFile" accept=".json" hidden>
-                    <button id="rubricSaveToLocalBtn" class="btn btn-outline-success btn-sm"><i class="bi bi-save"></i> Guardar local</button>
-                    <button id="rubricLoadFromLocalBtn" class="btn btn-outline-info btn-sm"><i class="bi bi-folder-symlink"></i> Cargar local</button>
-                    <button id="rubricResetAllBtn" class="btn btn-outline-danger btn-sm"><i class="bi bi-eraser"></i> Reiniciar todo</button>
-                    <button class="btn btn-outline-warning btn-sm fb-app-save-btn" data-app="rubricas" title="Guardar en la nube (requiere sesión)"><i class="bi bi-cloud-arrow-up"></i> Guardar en la nube</button>
-                    <button class="btn btn-outline-warning btn-sm fb-app-load-btn" data-app="rubricas" title="Cargar desde la nube (requiere sesión)"><i class="bi bi-cloud-arrow-down"></i> Cargar nube</button>
-                </div>
             </div>
 
             <div id="rubricSetupWarning" class="validation-warning" style="display:none;"></div>
@@ -3467,25 +3454,25 @@
                             <div class="card card-body bg-light">
                                 <div class="row g-2 mb-2">
                                     <div class="col-md-6">
-                                        <label class="form-label small fw-semibold">Nombre para mostrar</label>
+                                        <label for="fbCreateDisplayName" class="form-label small fw-semibold">Nombre para mostrar</label>
                                         <input type="text" class="form-control form-control-sm" id="fbCreateDisplayName" placeholder="Ej: Juan Pérez" autocomplete="name">
                                     </div>
                                     <div class="col-md-6">
-                                        <label class="form-label small fw-semibold">Nombre de usuario</label>
+                                        <label for="fbCreateUsername" class="form-label small fw-semibold">Nombre de usuario</label>
                                         <input type="text" class="form-control form-control-sm" id="fbCreateUsername" placeholder="3-30 chars: letras, números, . _ -" autocomplete="username">
                                     </div>
                                 </div>
                                 <div class="row g-2 align-items-end">
                                     <div class="col-md-4">
-                                        <label class="form-label small fw-semibold">Contraseña</label>
+                                        <label for="fbCreatePassword" class="form-label small fw-semibold">Contraseña</label>
                                         <input type="password" class="form-control form-control-sm" id="fbCreatePassword" placeholder="Mínimo 6 caracteres" autocomplete="new-password">
                                     </div>
                                     <div class="col-md-4">
-                                        <label class="form-label small fw-semibold">Repetir contraseña</label>
+                                        <label for="fbCreatePassword2" class="form-label small fw-semibold">Repetir contraseña</label>
                                         <input type="password" class="form-control form-control-sm" id="fbCreatePassword2" placeholder="Repite la contraseña" autocomplete="new-password">
                                     </div>
                                     <div class="col-md-3">
-                                        <label class="form-label small fw-semibold">Perfil</label>
+                                        <label for="fbCreateRole" class="form-label small fw-semibold">Perfil</label>
                                         <select class="form-select form-select-sm" id="fbCreateRole">
                                             <option value="admin">Administrador</option>
                                             <option value="user" selected>Usuario</option>
@@ -3564,7 +3551,7 @@
                 </div>
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label class="form-label fw-semibold">Nuevo nombre</label>
+                        <label for="fbRenameInput" class="form-label fw-semibold">Nuevo nombre</label>
                         <input type="text" class="form-control" id="fbRenameInput">
                     </div>
                     <div id="fbRenameMessage" class="small text-danger"></div>
@@ -3621,7 +3608,7 @@
                 </div>
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label class="form-label fw-bold text-secondary small text-uppercase">Criterio</label>
+                        <label for="genericCriterionDescCode" class="form-label fw-bold text-secondary small text-uppercase">Criterio</label>
                         <input type="text" id="genericCriterionDescCode" class="form-control fw-bold fs-5" readonly style="background:#f8f9fa; color:#0b4b6b; border-color:#dee2e6;">
                     </div>
                     <div class="mb-3">
@@ -3653,7 +3640,7 @@
                 </div>
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label class="form-label fw-bold text-secondary small text-uppercase">Nombre del instrumento</label>
+                        <label for="inst_instrDescName" class="form-label fw-bold text-secondary small text-uppercase">Nombre del instrumento</label>
                         <input type="text" id="inst_instrDescName" class="form-control fw-bold fs-5" placeholder="Nombre del instrumento" style="color:#6f42c1; border-color:#dee2e6;">
                     </div>
                     <div class="mb-3">
@@ -3692,12 +3679,12 @@
                 </div>
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label class="form-label fw-semibold">Nombre / etiqueta de la pregunta</label>
+                        <label for="examQDescName" class="form-label fw-semibold">Nombre / etiqueta de la pregunta</label>
                         <input type="text" id="examQDescName" class="form-control fw-bold" placeholder="Ej: P1, Pregunta 1, Problema A…">
                         <div class="form-text">Si se deja vacío se usará la etiqueta automática P<em>n</em>.</div>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label fw-semibold">Descripción</label>
+                        <label for="examQDescText" class="form-label fw-semibold">Descripción</label>
                         <textarea id="examQDescText" class="form-control" rows="5" placeholder="Describe el enunciado, el tema o qué se evalúa con esta pregunta…"></textarea>
                     </div>
                     <hr style="border-color:#dee2e6; margin: 20px 0 16px;">
@@ -4294,7 +4281,7 @@ function renderSimpleGradeTable(state, tableId, tbodyId, descFn, app) {
             const fbg = criteriaFamilyBg(c, app);
             if (fbg) td.style.backgroundColor = fbg;
             const val = state.scores[sIdx]?.[cIdx] ?? 0;
-            td.innerHTML = `<input type="text" inputmode="decimal" class="form-control form-control-sm grade-text-input generic-score-input" data-student="${sIdx}" data-criterion="${cIdx}" data-max="10" value="${formatGradeDisplay(val)}" placeholder="0">`;
+            td.innerHTML = `<input type="text" inputmode="decimal" class="form-control form-control-sm grade-text-input generic-score-input" data-student="${sIdx}" data-criterion="${cIdx}" data-max="10" name="generic_score_${sIdx}_${cIdx}" value="${formatGradeDisplay(val)}" placeholder="0">`;
             tr.appendChild(td);
         });
         tbody.appendChild(tr);
@@ -4467,6 +4454,9 @@ function exportResults(app, fmt, includeGrade) {
     if (app === 'generic') normalizeGenericScores();
     const state = appStates[app];
     if (!state.students.length) return alert('No hay datos para exportar.');
+    // Guards de librerías (fix 16-A-2/3)
+    if (fmt === 'excel' && typeof XLSX === 'undefined') { alert('Librería de Excel no disponible. Recarga la página.'); return; }
+    if (fmt === 'pdf' && (!window.jspdf || !window.jspdf.jsPDF)) { alert('Librería PDF no disponible. Recarga la página.'); return; }
     const prefixMap = { exam:'Examen', test:'Test', generic:'Actividad' };
     const prefix = prefixMap[app];
     const baseName = makeBaseName(prefix, state.examName, state.course);
@@ -4928,15 +4918,15 @@ function renderExamQuestionsTable() {
         const autoLabel = `P${q.id}`;
         tr.innerHTML = `
             <td style="min-width:90px;">
-              <input type="text" class="exam-q-name-input" data-qidx="${index}" data-field="name"
+              <input type="text" class="exam-q-name-input" data-qidx="${index}" data-field="name" name="exam_q_name_${index}"
                 value="${nameVal}" placeholder="${autoLabel}"
                 title="Etiqueta de la pregunta (vacío = ${autoLabel})">
             </td>
             <td style="min-width:180px;">
-              <textarea class="exam-q-desc-textarea" rows="2" data-qidx="${index}" data-field="description"
+              <textarea class="exam-q-desc-textarea" rows="2" data-qidx="${index}" data-field="description" name="exam_q_desc_${index}"
                 placeholder="Descripción opcional…">${descVal}</textarea>
             </td>
-            <td style="width:130px;"><input type="text" inputmode="decimal" class="form-control form-control-sm grade-text-input max-score-input" data-qidx="${index}" value="${formatGradeDisplay(q.maxScore)}" placeholder="10"></td>
+            <td style="width:130px;"><input type="text" inputmode="decimal" class="form-control form-control-sm grade-text-input max-score-input" data-qidx="${index}" name="exam_q_max_${index}" value="${formatGradeDisplay(q.maxScore)}" placeholder="10"></td>
             <td>${badgesHtml}</td>
             <td style="width:210px;"><div class="d-flex flex-wrap gap-1">
                 <button class="btn btn-sm btn-outline-primary assign-criteria-btn" data-qid="${q.id}" data-bs-toggle="modal" data-bs-target="#examQuestionCriteriaModal"><i class="bi bi-tags"></i> Asignar</button>
@@ -5053,7 +5043,7 @@ function renderExamGradeTable() {
         tr.innerHTML = `<td><div class="d-flex align-items-center justify-content-between"><strong class="text-nowrap">${escapeHtml(student.fullName)}</strong>${copyRowBtn}</div></td>`;
         examState.questions.forEach((q, qIdx) => {
             const td = document.createElement('td'); td.style.minWidth='80px';
-            td.innerHTML = `<input type="text" inputmode="decimal" class="form-control form-control-sm grade-text-input exam-score-input" data-student="${sIdx}" data-question="${qIdx}" data-max="${q.maxScore}" value="${formatGradeDisplay(examState.scores[sIdx]?.[qIdx]??0)}" placeholder="0">`;
+            td.innerHTML = `<input type="text" inputmode="decimal" class="form-control form-control-sm grade-text-input exam-score-input" data-student="${sIdx}" data-question="${qIdx}" data-max="${q.maxScore}" name="exam_score_${sIdx}_${qIdx}" value="${formatGradeDisplay(examState.scores[sIdx]?.[qIdx]??0)}" placeholder="0">`;
             tr.appendChild(td);
         });
         tbody.appendChild(tr);
@@ -5393,11 +5383,11 @@ function inst_renderInstrumentsTable() {
     instrumentState.instruments.forEach((inst, idx) => {
         const isLast = (idx === n - 1);
         const tr = document.createElement('tr');
-        const nameCell = `<input type="text" class="form-control form-control-sm" data-idx="${idx}" data-field="name" value="${inst.name.replace(/"/g,'&quot;')}">`;
-        const descCell = `<textarea class="inst-desc-textarea" rows="2" data-idx="${idx}" data-field="description" placeholder="Descripción opcional del instrumento…">${(inst.description||'').replace(/</g,'&lt;')}</textarea>`;
+        const nameCell = `<input type="text" class="form-control form-control-sm" data-idx="${idx}" data-field="name" name="inst_name_${idx}" value="${inst.name.replace(/"/g,'&quot;')}">`;
+        const descCell = `<textarea class="inst-desc-textarea" rows="2" data-idx="${idx}" data-field="description" name="inst_desc_${idx}" placeholder="Descripción opcional del instrumento…">${(inst.description||'').replace(/</g,'&lt;')}</textarea>`;
         const weightCell = isLast
-            ? `<div class="d-flex align-items-center gap-1"><input type="number" step="0.01" class="form-control form-control-sm inst-weight-input inst-weight-readonly" data-idx="${idx}" data-field="weight" value="${inst.weight.toFixed(2)}" readonly tabindex="-1"><span class="inst-weight-auto-badge">auto</span></div>`
-            : `<input type="number" step="0.01" min="1" max="${maxEditable}" class="form-control form-control-sm inst-weight-input" data-idx="${idx}" data-field="weight" value="${inst.weight.toFixed(2)}">`;
+            ? `<div class="d-flex align-items-center gap-1"><input type="number" step="0.01" class="form-control form-control-sm inst-weight-input inst-weight-readonly" data-idx="${idx}" data-field="weight" name="inst_weight_${idx}" value="${inst.weight.toFixed(2)}" readonly tabindex="-1"><span class="inst-weight-auto-badge">auto</span></div>`
+            : `<input type="number" step="0.01" min="1" max="${maxEditable}" class="form-control form-control-sm inst-weight-input" data-idx="${idx}" data-field="weight" name="inst_weight_${idx}" value="${inst.weight.toFixed(2)}">`;
         tr.innerHTML = `<td>${idx+1}</td><td>${nameCell}</td><td>${descCell}</td><td>${weightCell}</td>`;
         tbody.appendChild(tr);
     });
@@ -5532,8 +5522,8 @@ function inst_renderEvaluation() {
         const isLast=(i===n-1);
         const div=document.createElement('div'); div.className='input-group input-group-sm'; div.style.cssText='min-width:220px;flex:1 0 auto;';
         div.innerHTML = isLast
-            ? `<span class="input-group-text">${escapeHtml(inst.name)}</span><input type="number" step="0.01" class="form-control inst-eval-weight-input inst-weight-readonly" data-i="${i}" value="${(instrumentState.evalWeights[i]||inst.weight).toFixed(2)}" readonly tabindex="-1"><span class="input-group-text" style="background:#e8f5e9;color:#198754;font-size:0.72rem;">auto</span>`
-            : `<span class="input-group-text">${escapeHtml(inst.name)}</span><input type="number" step="0.01" min="1" max="${maxEditable}" class="form-control inst-eval-weight-input" data-i="${i}" value="${(instrumentState.evalWeights[i]||inst.weight).toFixed(2)}"><span class="input-group-text text-muted" style="font-size:0.75rem;">%</span>`;
+            ? `<span class="input-group-text">${escapeHtml(inst.name)}</span><input type="number" step="0.01" class="form-control inst-eval-weight-input inst-weight-readonly" data-i="${i}" name="inst_eval_weight_${i}" value="${(instrumentState.evalWeights[i]||inst.weight).toFixed(2)}" readonly tabindex="-1"><span class="input-group-text" style="background:#e8f5e9;color:#198754;font-size:0.72rem;">auto</span>`
+            : `<span class="input-group-text">${escapeHtml(inst.name)}</span><input type="number" step="0.01" min="1" max="${maxEditable}" class="form-control inst-eval-weight-input" data-i="${i}" name="inst_eval_weight_${i}" value="${(instrumentState.evalWeights[i]||inst.weight).toFixed(2)}"><span class="input-group-text text-muted" style="font-size:0.75rem;">%</span>`;
         weightsDiv.appendChild(div);
     });
     inst_syncPesosBadge();
@@ -5667,6 +5657,9 @@ function inst_getExportRows(includeGrade) {
 
 function inst_exportResults(fmt, includeGrade) {
     if(!instrumentState.students.length) return alert('No hay datos para exportar.');
+    // Guards de librerías (fix 16-A-2/3)
+    if (fmt === 'excel' && typeof XLSX === 'undefined') { alert('Librería de Excel no disponible. Recarga la página.'); return; }
+    if (fmt === 'pdf' && (!window.jspdf || !window.jspdf.jsPDF)) { alert('Librería PDF no disponible. Recarga la página.'); return; }
     const baseName = makeBaseName('Instrumentos', instrumentState.actividad, instrumentState.clase);
     if(fmt==='json'){
         const usedCriteria=inst_getUsedCriteria();
@@ -6137,19 +6130,19 @@ function pond_renderImportCards() {
         card.innerHTML = `
             <div class="d-flex flex-wrap gap-3 align-items-end">
                 <div style="min-width:180px; flex:2;">
-                    <label class="form-label fw-semibold small text-uppercase" style="color:#006064;">Actividad ${i+1}</label>
-                    <input type="text" class="form-control form-control-sm pond-act-nombre" data-idx="${i}"
+                    <label for="pond_act_nombre_${i}" class="form-label fw-semibold small text-uppercase" style="color:#006064;">Actividad ${i+1}</label>
+                    <input type="text" id="pond_act_nombre_${i}" class="form-control form-control-sm pond-act-nombre" data-idx="${i}"
                         value="${(act.nombre||'').replace(/"/g,'&quot;')}" placeholder="Nombre de la actividad">
                 </div>
                 <div style="width:130px; flex-shrink:0;">
-                    <label class="form-label fw-semibold small text-uppercase" style="color:#006064;">Peso (%)</label>
-                    <input type="number" class="form-control form-control-sm pond-act-peso" data-idx="${i}"
+                    <label for="pond_act_peso_${i}" class="form-label fw-semibold small text-uppercase" style="color:#006064;">Peso (%)</label>
+                    <input type="number" id="pond_act_peso_${i}" class="form-control form-control-sm pond-act-peso" data-idx="${i}"
                         value="${act.peso}" min="0" max="100" step="0.01"
                         ${isLast ? 'readonly style="background:#f0f4fa;color:#6c757d;"' : ''}>
                     ${isLast ? '<small class="text-muted"><i class="bi bi-calculator"></i> Automático</small>' : ''}
                 </div>
                 <div style="flex-shrink:0;">
-                    <label class="form-label fw-semibold small text-uppercase" style="color:#006064;">Datos</label>
+                    <label for="pond_file_${i}" class="form-label fw-semibold small text-uppercase" style="color:#006064;">Datos</label>
                     <div>
                         <label for="pond_file_${i}" class="import-label" style="background:#e0f7fa; border-color:#80deea; cursor:pointer;">
                             <i class="bi bi-file-earmark-arrow-up"></i> Importar JSON
@@ -6493,6 +6486,9 @@ function pond_renderResults() {
 function pond_exportResults(fmt) {
     const { rows, criteria } = pond_computeResults();
     if (!rows.length) return alert('No hay datos para exportar.');
+    // Guards de librerías (fix 16-A-2/3)
+    if (fmt === 'excel' && typeof XLSX === 'undefined') { alert('Librería de Excel no disponible. Recarga la página.'); return; }
+    if (fmt === 'pdf' && (!window.jspdf || !window.jspdf.jsPDF)) { alert('Librería PDF no disponible. Recarga la página.'); return; }
     const showGrade = document.getElementById('pond_showGradeColumn')?.checked !== false;
     const baseName = makeBaseName('Ponderación', ponderacionState.nombre, ponderacionState.curso);
     const acts = ponderacionState.actividades.filter(a => a.loaded);
@@ -6758,6 +6754,7 @@ function pond_showScreen(screen) {
     const tabMap = { Config:'pond_tabConfig', Import:'pond_tabImport', Results:'pond_tabResults' };
     const tabEl = document.getElementById(tabMap[screen]);
     if (tabEl) tabEl.classList.add('active');
+    syncBottomNavActive(document.getElementById('appPonderacionContainer'));
 
     if (screen === 'Import') {
         pond_initActividades(ponderacionState.numActividades);
@@ -6786,6 +6783,23 @@ function pond_validateConfig() {
 // =============================================================================
 let currentApp = 'home';
 
+// Sincroniza la clase 'active' entre el menú superior y el clon inferior (.subapp-bottom-nav)
+// de un contenedor de subapp, casando por texto del botón.
+function syncBottomNavActive(container) {
+    if (!container) return;
+    const bottomNav = container.querySelector('.subapp-bottom-nav');
+    if (!bottomNav) return;
+    // Buscar el botón activo en el menú superior original (el que tiene id)
+    const activeOriginal = container.querySelector('.btn-group:not(.subapp-bottom-nav) .btn.active');
+    if (!activeOriginal) return;
+    const text = activeOriginal.textContent.trim();
+    // Sincronizar: el botón del clon con el mismo texto recibe 'active'
+    bottomNav.querySelectorAll('.btn').forEach(b => {
+        if (b.textContent.trim() === text) b.classList.add('active');
+        else b.classList.remove('active');
+    });
+}
+
 function hideAllApps() {
     ['homeScreen','appExamContainer','appTestContainer','appGenericContainer','appInstrumentosContainer','appPonderacionContainer','appRubricasContainer'].forEach(id => document.getElementById(id).classList.remove('active'));
 }
@@ -6808,6 +6822,8 @@ function showAppScreen(prefix, screen) {
     document.getElementById(`${prefix}Screen${cap(screen)}`).classList.add('active');
     document.querySelectorAll(`#app${cap(prefix)}Container .btn-group .btn`).forEach(b=>b.classList.remove('active'));
     document.getElementById(`${prefix}Nav${cap(screen)}`).classList.add('active');
+    // Sincronizar 'active' en el menú inferior clonado (por texto coincidente)
+    syncBottomNavActive(document.getElementById(`app${cap(prefix)}Container`));
     if (screen==='grade')   { if(prefix==='exam') renderExamGradeTable(); else if(prefix==='test') renderTestGradeTable(); else if(prefix==='generic') renderGenericGradeTable(); }
     if (screen==='results') renderResultsTable(prefix);
 }
@@ -6818,6 +6834,7 @@ function showInstrumentosScreen(screenId) {
     document.querySelectorAll('#appInstrumentosContainer .btn-group .btn').forEach(b=>b.classList.remove('active'));
     const tabMap={'inst_config':'inst_config-tab','inst_relacion':'inst_relacion-tab','inst_eval':'inst_eval-tab'};
     document.getElementById(tabMap[screenId])?.classList.add('active');
+    syncBottomNavActive(document.getElementById('appInstrumentosContainer'));
     if (screenId==='inst_relacion') inst_renderMatrix();
     else if (screenId==='inst_eval') inst_renderEvaluation();
 }
@@ -7435,6 +7452,7 @@ function rubric_showScreen(screen) {
     if (target) target.classList.add('active');
     const tab = document.getElementById(tabMap[screen]);
     if (tab) tab.classList.add('active');
+    syncBottomNavActive(document.getElementById('appRubricasContainer'));
 
     if (screen === 'Eval') {
         if (rubricState.students.length === 0) { alert('Añade al menos un alumno.'); rubric_showScreen('Setup'); return; }
@@ -7575,6 +7593,7 @@ function rubric_importData(file) {
 }
 function rubric_exportExcel(opts) {
     if (!rubricState.results) { alert('Calcula las notas primero.'); return; }
+    if (typeof XLSX === 'undefined') { alert('Librería de Excel no disponible. Recarga la página.'); return; }
     opts = opts || { teacher:true, coeval:true, final:true, criteria:false };
     const header = ['Estudiante'];
     if (opts.teacher)  header.push('Nota Profesor');
@@ -7599,6 +7618,7 @@ function rubric_exportExcel(opts) {
 }
 function rubric_exportPdf(opts) {
     if (!rubricState.results) { alert('Calcula las notas primero.'); return; }
+    if (!window.jspdf || !window.jspdf.jsPDF) { alert('Librería PDF no disponible. Recarga la página.'); return; }
     opts = opts || { teacher:true, coeval:true, final:true, criteria:false };
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF({ orientation: opts.criteria && rubricState.globalCriteria.length > 4 ? 'landscape' : 'portrait' });
@@ -8193,7 +8213,8 @@ const FB_APP_LABELS = {
     test: 'Examen tipo test',
     generic: 'Actividad por criterios',
     instrumentos: 'Actividad por instrumentos',
-    rubricas: 'Evaluación de rúbricas'
+    rubricas: 'Evaluación de rúbricas',
+    ponderacion: 'Ponderación de actividades'
 };
 
 // Extrae el nombre del grupo/clase de la app indicada (para etiquetar registros en la nube)
@@ -8225,6 +8246,7 @@ function fb_getClassName(app) {
         if (app === 'generic') return genericState.course || '';
         if (app === 'instrumentos') return instrumentState.clase || '';
         if (app === 'rubricas') return rubricState.groupName || '';
+        if (app === 'ponderacion') return ponderacionState.curso || '';
     } catch(e) {}
     return '';
 }
@@ -8408,6 +8430,7 @@ function fb_onAuthStateChanged(user) {
 
 // Login con username/password (convertido internamente a email sintético)
 function fb_login(username, password) {
+    if (!fbAuth) { fb_showAuthMessage('Firebase no está disponible. Recarga la página.', 'danger'); return; }
     if (!username || !password) { fb_showAuthMessage('Introduce tu nombre de usuario y contraseña.', 'danger'); return; }
     if (!fb_isValidUsername(username)) {
         fb_showAuthMessage('El nombre de usuario debe tener entre 3 y 30 caracteres alfanuméricos (letras, números, . _ -).', 'danger');
@@ -8434,6 +8457,7 @@ function fb_login(username, password) {
 
 // Registro de nuevo usuario
 function fb_register(displayName, username, password) {
+    if (!fbAuth) { fb_showAuthMessage('Firebase no está disponible. Recarga la página.', 'danger'); return; }
     if (!displayName || !username || !password) { fb_showAuthMessage('Completa todos los campos.', 'danger'); return; }
     if (!fb_isValidUsername(username)) {
         fb_showAuthMessage('El nombre de usuario debe tener entre 3 y 30 caracteres alfanuméricos (letras, números, . _ -).', 'danger');
@@ -9750,10 +9774,10 @@ function fb_renderGroupsList(course) {
                 <div class="fb-group-students mt-2" id="fbGroupStudents_${groupId}" style="display:none;">
                     <div class="d-flex flex-wrap gap-2 mb-2 align-items-center">
                         <div class="input-group input-group-sm" style="max-width:300px;">
-                            <input type="text" class="form-control fb-group-add-input" placeholder="Apellidos, Nombre" data-course="${escapeHtml(course.id)}" data-group="${groupId}">
+                            <input type="text" class="form-control fb-group-add-input" placeholder="Apellidos, Nombre" name="fb_group_add_${groupId}" data-course="${escapeHtml(course.id)}" data-group="${groupId}">
                             <button class="btn btn-outline-success fb-group-add-btn" data-course="${escapeHtml(course.id)}" data-group="${groupId}" title="Añadir alumno"><i class="bi bi-plus"></i></button>
                         </div>
-                        <label class="btn btn-outline-primary btn-sm mb-0" title="Importar alumnos desde Excel/JSON"><i class="bi bi-file-earmark-spreadsheet"></i> Importar Excel/JSON<input type="file" class="fb-group-import-file" accept=".xlsx,.xls,.json" hidden data-course="${escapeHtml(course.id)}" data-group="${groupId}"></label>
+                        <label class="btn btn-outline-primary btn-sm mb-0" title="Importar alumnos desde Excel/JSON"><i class="bi bi-file-earmark-spreadsheet"></i> Importar Excel/JSON<input type="file" class="fb-group-import-file" name="fb_group_import_${groupId}" accept=".xlsx,.xls,.json" hidden data-course="${escapeHtml(course.id)}" data-group="${groupId}"></label>
                     </div>
                     ${students.length === 0 ? '<div class="text-muted small">Sin alumnos todavía.</div>' : `
                         <ul class="list-group list-group-flush small" style="max-height:240px; overflow-y:auto;">
@@ -9827,7 +9851,7 @@ function fb_renderImportGroupsList() {
         const studentCount = Array.isArray(g.students) ? g.students.length : 0;
         html += `
             <label class="list-group-item d-flex align-items-center gap-2 py-1">
-                <input class="form-check-input fb-import-group-chk" type="checkbox" value="${escapeHtml(gid)}" checked>
+                <input class="form-check-input fb-import-group-chk" type="checkbox" name="fb_import_group_${gid}" value="${escapeHtml(gid)}" checked>
                 <span><i class="bi bi-people-fill"></i> <strong>${escapeHtml(g.name || 'Sin nombre')}</strong></span>
                 ${g.level ? `<span class="badge bg-secondary">${escapeHtml(g.level)}</span>` : ''}
                 <span class="badge bg-info text-dark">${studentCount} alumnos</span>
@@ -10184,6 +10208,20 @@ function fb_serializeAppState(app) {
                     students: rubricState.students.map(s => ({ id: s.id, fullName: s.fullName }))
                 }
             };
+        case 'ponderacion':
+            return {
+                type: 'ponderacion',
+                config: {
+                    nombre: ponderacionState.nombre || '',
+                    curso: ponderacionState.curso || '',
+                    numActividades: ponderacionState.numActividades,
+                    actividades: ponderacionState.actividades.map(a => ({
+                        nombre: a.nombre || '', peso: a.peso || 0, loaded: !!a.loaded,
+                        fileName: a.fileName || '',
+                        resultados: Array.isArray(a.resultados) ? a.resultados : []
+                    }))
+                }
+            };
         default:
             throw new Error('App no soportada: ' + app);
     }
@@ -10393,6 +10431,35 @@ function fb_applyAppState(app, data) {
             rubric_refreshAllUI();
             rubric_saveLocal();
             break;
+        case 'ponderacion':
+            ponderacionState.nombre = cfg.nombre || '';
+            ponderacionState.curso = cfg.curso || '';
+            const nA_pond = parseInt(cfg.numActividades);
+            if (!isNaN(nA_pond) && nA_pond >= 2 && nA_pond <= 10) ponderacionState.numActividades = nA_pond;
+            if (Array.isArray(cfg.actividades)) {
+                ponderacionState.actividades = cfg.actividades.map((a, i) => ({
+                    nombre: a.nombre || `Actividad ${i+1}`,
+                    peso: parseFloat(a.peso) || 0,
+                    loaded: !!a.loaded,
+                    fileName: a.fileName || '',
+                    resultados: Array.isArray(a.resultados) ? a.resultados : []
+                }));
+            }
+            pond_recalcLastWeight();
+            // Sincronizar DOM inputs
+            const ni_p = document.getElementById('pond_nombreInput');
+            const ci_p = document.getElementById('pond_cursoInput');
+            const na_p = document.getElementById('pond_numActividadesInput');
+            if (ni_p) ni_p.value = ponderacionState.nombre;
+            if (ci_p) ci_p.value = ponderacionState.curso;
+            if (na_p) na_p.value = ponderacionState.numActividades;
+            updateActivityBadge('ponderacion');
+            // Persistir en localStorage
+            pond_saveConfigLocalSilent();
+            pond_saveImportLocalSilent();
+            // Re-renderizar si la pantalla Import está activa
+            if (document.getElementById('pond_screenImport')?.classList.contains('active')) pond_renderImportCards();
+            break;
         default:
             throw new Error('App no soportada: ' + app);
     }
@@ -10471,6 +10538,7 @@ function fb_saveFromApp(app) {
         else if (app === 'generic') defaultName = genericState.examName || 'Actividad';
         else if (app === 'instrumentos') defaultName = instrumentState.actividad || 'Instrumentos';
         else if (app === 'rubricas') defaultName = rubricState.evalName || 'Rúbrica';
+        else if (app === 'ponderacion') defaultName = ponderacionState.nombre || 'Ponderación';
     } catch(e) {}
     const name = prompt(`Introduce un nombre para guardar esta actividad en la nube (${FB_APP_LABELS[app] || app}):`, defaultName);
     if (name === null) return;
@@ -11193,7 +11261,14 @@ window.onload = function() {
         document.addEventListener('click', hideIntro, {once:true});
     }
 
-    [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]')).map(el => new bootstrap.Tooltip(el));
+// Inicializar tooltips de Bootstrap (con guard por si el CDN falla — fix 16-A-1)
+if (typeof bootstrap !== 'undefined' && bootstrap.Tooltip) {
+    try {
+        [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]')).map(el => new bootstrap.Tooltip(el));
+    } catch(e) { console.warn('Tooltip init failed:', e); }
+} else {
+    console.warn('Bootstrap no cargó: tooltips deshabilitados.');
+}
 
     document.getElementById('examCourseInput').value    = examState.course;
     document.getElementById('testCourseInput').value    = testState.course;
@@ -11354,8 +11429,6 @@ window.onload = function() {
     document.getElementById('examExportConfigBtn').addEventListener('click', ()=>exportAppConfig('exam'));
     fileDelegate('examImportConfigBtn','examImportConfigFile');
     document.getElementById('examImportConfigFile').addEventListener('change', function() { if(this.files.length) importAppConfig(this.files[0],'exam'); this.value=''; });
-    document.getElementById('examSaveToLocalBtn').addEventListener('click', ()=>saveAppToLocal('exam'));
-    document.getElementById('examLoadFromLocalBtn').addEventListener('click', ()=>loadAppFromLocal('exam'));
     document.getElementById('examBtnSaveScores').addEventListener('click', ()=>saveScoresLocal('exam'));
     document.getElementById('examExportScoresBtn').addEventListener('click', ()=>exportAppScores('exam'));
     fileDelegate('examImportScoresBtn','examImportScoresFile');
@@ -11414,8 +11487,6 @@ window.onload = function() {
     document.getElementById('testExportConfigBtn').addEventListener('click', ()=>exportAppConfig('test'));
     fileDelegate('testImportConfigBtn','testImportConfigFile');
     document.getElementById('testImportConfigFile').addEventListener('change', function() { if(this.files.length) importAppConfig(this.files[0],'test'); this.value=''; });
-    document.getElementById('testSaveToLocalBtn').addEventListener('click', ()=>saveAppToLocal('test'));
-    document.getElementById('testLoadFromLocalBtn').addEventListener('click', ()=>loadAppFromLocal('test'));
     document.getElementById('testBtnSaveScores').addEventListener('click', ()=>saveScoresLocal('test'));
     document.getElementById('testExportScoresBtn').addEventListener('click', ()=>exportAppScores('test'));
     fileDelegate('testImportScoresBtn','testImportScoresFile');
@@ -11466,8 +11537,6 @@ window.onload = function() {
     document.getElementById('genericExportConfigBtn').addEventListener('click', ()=>exportAppConfig('generic'));
     fileDelegate('genericImportConfigBtn','genericImportConfigFile');
     document.getElementById('genericImportConfigFile').addEventListener('change', function() { if(this.files.length) importAppConfig(this.files[0],'generic'); this.value=''; });
-    document.getElementById('genericSaveToLocalBtn').addEventListener('click', ()=>saveAppToLocal('generic'));
-    document.getElementById('genericLoadFromLocalBtn').addEventListener('click', ()=>loadAppFromLocal('generic'));
     document.getElementById('genericBtnSaveScores').addEventListener('click', ()=>saveScoresLocal('generic'));
     document.getElementById('genericExportScoresBtn').addEventListener('click', ()=>exportAppScores('generic'));
     fileDelegate('genericImportScoresBtn','genericImportScoresFile');
@@ -11595,18 +11664,12 @@ window.onload = function() {
     document.getElementById('inst_exportConfigJson').addEventListener('click', inst_exportConfig);
     fileDelegate('inst_importConfigJsonBtn','inst_importConfigFile');
     document.getElementById('inst_importConfigFile').addEventListener('change', function() { if(this.files.length) inst_importConfig(this.files[0]); this.value=''; });
-    document.getElementById('inst_saveConfigLocal').addEventListener('click', inst_saveConfigLocal);
-    document.getElementById('inst_loadConfigLocal').addEventListener('click', inst_loadConfigLocal);
-    document.getElementById('inst_saveEvalLocal').addEventListener('click', inst_saveEvalLocal);
-    document.getElementById('inst_loadEvalLocal').addEventListener('click', inst_loadEvalLocal);
     document.getElementById('inst_exportEvalJson').addEventListener('click', inst_exportEvalJson);
     fileDelegate('inst_importEvalJsonBtn','inst_importEvalFile');
     document.getElementById('inst_importEvalFile').addEventListener('change', function() { if(this.files.length) inst_importEvalJson(this.files[0]); this.value=''; });
     document.getElementById('inst_exportMatrixJson').addEventListener('click', inst_exportMatrix);
     fileDelegate('inst_importMatrixJsonBtn','inst_importMatrixFile');
     document.getElementById('inst_importMatrixFile').addEventListener('change', function() { if(this.files.length) inst_importMatrix(this.files[0]); this.value=''; });
-    document.getElementById('inst_saveMatrixLocal').addEventListener('click', inst_saveMatrixLocal);
-    document.getElementById('inst_loadMatrixLocal').addEventListener('click', inst_loadMatrixLocal);
     document.getElementById('inst_saveMatrixCloud')?.addEventListener('click', inst_saveMatrixCloud);
     document.getElementById('inst_loadMatrixCloud')?.addEventListener('click', inst_loadMatrixCloud);
     document.getElementById('inst_resetAllBtn').addEventListener('click', resetInstrumentosState);
@@ -11720,8 +11783,6 @@ window.onload = function() {
     document.getElementById('pond_exportConfigBtn')?.addEventListener('click', pond_exportConfig);
     document.getElementById('pond_importConfigBtn')?.addEventListener('click', () => document.getElementById('pond_importConfigFile').click());
     document.getElementById('pond_importConfigFile')?.addEventListener('change', function() { if (this.files.length) pond_importConfig(this.files[0]); this.value = ''; });
-    document.getElementById('pond_saveConfigLocal')?.addEventListener('click', pond_saveConfigLocal);
-    document.getElementById('pond_loadConfigLocal')?.addEventListener('click', pond_loadConfigLocal);
     document.getElementById('pond_resetAllBtn')?.addEventListener('click', pond_resetAll);
 
     // Config → Importar
@@ -11742,8 +11803,6 @@ window.onload = function() {
     document.getElementById('pond_exportImportBtn')?.addEventListener('click', pond_exportImport);
     document.getElementById('pond_importImportBtn')?.addEventListener('click', () => document.getElementById('pond_importImportFile').click());
     document.getElementById('pond_importImportFile')?.addEventListener('change', function() { if (this.files.length) pond_importImport(this.files[0]); this.value = ''; });
-    document.getElementById('pond_saveImportLocal')?.addEventListener('click', pond_saveImportLocal);
-    document.getElementById('pond_loadImportLocal')?.addEventListener('click', pond_loadImportLocal);
 
     // Importar → Resultados
     document.getElementById('pond_btnGoResults')?.addEventListener('click', () => pond_showScreen('Results'));
@@ -11924,8 +11983,6 @@ window.onload = function() {
     document.getElementById('rubricExportConfigBtn')?.addEventListener('click', rubric_exportConfig);
     document.getElementById('rubricImportConfigBtn')?.addEventListener('click', () => document.getElementById('rubricImportConfigFile').click());
     document.getElementById('rubricImportConfigFile')?.addEventListener('change', function() { if (this.files.length) rubric_importConfig(this.files[0]); this.value = ''; });
-    document.getElementById('rubricSaveToLocalBtn')?.addEventListener('click', () => { rubric_saveLocal(); alert('✅ Guardado localmente.'); });
-    document.getElementById('rubricLoadFromLocalBtn')?.addEventListener('click', () => rubric_loadLocal(false));
     document.getElementById('rubricResetAllBtn')?.addEventListener('click', rubric_reset);
 
     // Evaluación: acciones masivas y datos
@@ -11966,14 +12023,25 @@ window.onload = function() {
     document.getElementById('rubricExportJsonResultsBtn')?.addEventListener('click', () => rubric_openExportOptions('json'));
     document.getElementById('rubricExpOptConfirm')?.addEventListener('click', rubric_confirmExport);
 
-    // Inicialización de rúbricas: cargar de localStorage si existe
-    if (!rubric_loadLocal(true)) {
-        rubric_updateHeader();
-        rubric_updateWeightDisplay();
-        rubric_renderStudentTags();
-        rubric_renderAspects();
-        rubric_renderValues();
-    }
+    // FORZAR ESTADO VIRGEN al arrancar: logout + limpiar localStorage + resetear estado en memoria
+    // Esto garantiza que la app siempre arranque con campos vacíos y sin sesión, vengamos de donde vengamos
+    try { fb_clearLocalData(); } catch(e) { console.warn('Error limpiando datos al arrancar:', e); }
+
+    // Inicialización de rúbricas: renderizar estado vacío (no cargar de localStorage)
+    rubric_updateHeader();
+    rubric_updateWeightDisplay();
+    rubric_renderStudentTags();
+    rubric_renderAspects();
+    rubric_renderValues();
+
+    // Inicialización de ponderación: estado vacío (no cargar de localStorage)
+    // (pond_loadConfigLocalSilent y pond_loadImportLocalSilent no se llaman — fb_clearLocalData ya borró LS)
+
+    // Inicialización de exam/test/generic: estado vacío (no cargar de localStorage)
+    // (loadAppFromLocal no se llama — fb_clearLocalData ya borró LS)
+
+    // Inicialización de instrumentos: estado vacío (no cargar de localStorage)
+    // (inst_loadConfigLocalSilent etc. no se llaman — fb_clearLocalData ya borró LS)
 
     // Inicialización de ponderación: cargar de localStorage si existe (auto-load silencioso)
     try { pond_loadConfigLocalSilent(); pond_loadImportLocalSilent(); } catch(e) { console.warn('Error cargando ponderación:', e); }
@@ -12045,6 +12113,11 @@ window.onload = function() {
 
     // ========== FIREBASE: INIT + LISTENERS ==========
     fb_setup();
+    // Forzar logout al arrancar: si había sesión persistida por Firebase Auth, cerrarla
+    // para que la app siempre arranque en modo logout
+    if (typeof fbAuth !== 'undefined' && fbAuth && fbAuth.currentUser) {
+        fbAuth.signOut().catch(()=>{});
+    }
 
     // Botones de guardar/cargar en la nube desde cada subaplicación (CONFIGURACIÓN)
     document.querySelectorAll('.fb-app-save-btn').forEach(btn => {
@@ -12165,11 +12238,15 @@ window.onload = function() {
         footer.innerHTML = html;
     }
 
-    // Lee sw.js y extrae la versión de CACHE_NAME
-    fetch('sw.js', { cache: 'no-store' })
+    // Lee sw.js y extrae la versión (de CACHE_VERSION o CACHE_NAME)
+    // Cache-busting (?v=timestamp) para saltar tanto la caché HTTP como la del SW
+    fetch('sw.js?v=' + Date.now(), { cache: 'no-store' })
         .then(function(r) { return r.text(); })
         .then(function(text) {
-            var m = text.match(/CACHE_NAME\s*=\s*['"][^'"]*v([\d.]+)/);
+            // Intentar primero CACHE_VERSION (formato nuevo: const CACHE_VERSION = 'v1.4.0')
+            var m = text.match(/CACHE_VERSION\s*=\s*['"]v([\d.]+)/);
+            // Si no coincide, intentar CACHE_NAME (formato antiguo: CACHE_NAME = 'evaltec4-online-v1.0.0')
+            if (!m) m = text.match(/CACHE_NAME\s*=\s*['"][^'"]*v([\d.]+)/);
             showAppVersion(m ? m[1] : null);
         })
         .catch(function() { showAppVersion(null); });
@@ -12183,72 +12260,49 @@ window.onload = function() {
             'appExamContainer','appTestContainer','appGenericContainer',
             'appInstrumentosContainer','appPonderacionContainer','appRubricasContainer'
         ];
-        containerIds.forEach(containerId => {
-            const container = document.getElementById(containerId);
-            if (!container) return;
-            // Localizar el primer .btn-group del header (menú superior)
-            const originalGroup = container.querySelector('.d-flex .btn-group, .d-flex > .btn-group');
+// Mapa: id del contenedor → selector específico del menú superior (header)
+// Necesario porque algunas subapps (rúbricas) tienen muchos .btn-group;
+// el del header es el PRIMERO que es hijo directo del .d-flex del header.
+const headerMenuSelectors = {
+    'appExamContainer':         '.d-flex.justify-content-between > .btn-group',
+    'appTestContainer':         '.d-flex.justify-content-between > .btn-group',
+    'appGenericContainer':      '.d-flex.justify-content-between > .btn-group',
+    'appInstrumentosContainer': '.d-flex.justify-content-between > .btn-group',
+    'appPonderacionContainer':  '.d-flex.justify-content-between > .btn-group',
+    'appRubricasContainer':     '.d-flex.justify-content-between > .btn-group'
+};
+containerIds.forEach(containerId => {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    // Localizar el .btn-group del header (menú superior) — selector específico
+    const originalGroup = container.querySelector(headerMenuSelectors[containerId]);
             if (!originalGroup) return;
             // Evitar duplicar si ya existe
             if (container.querySelector('.subapp-bottom-nav')) return;
             // Clonar el grupo de botones
             const clone = originalGroup.cloneNode(true);
             clone.classList.add('subapp-bottom-nav');
-            // Asegurar que el clon también tenga btn-group (para que los selectores
-            // existentes '.btn-group .btn' lo incluyan al sincronizar 'active')
+// El clon mantiene btn-group (heredado de cloneNode + este add) para que
+// showAppScreen/showInstrumentosScreen/pond_showScreen/rubric_showScreen
+// lo incluyan al resetear .active. syncBottomNavActive filtra con
+// :not(.subapp-bottom-nav) al sincronizar desde el menú superior.
             clone.classList.add('btn-group');
             // A cada botón clonado: quitar su id (evitar duplicados) y redirigir click
             clone.querySelectorAll('button').forEach(btn => {
                 const originalId = btn.id;
                 btn.removeAttribute('id');
                 if (originalId) {
-                    btn.addEventListener('click', function() {
-                        const original = originalGroup.querySelector('#' + CSS.escape(originalId));
+                    btn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        // Buscar el botón original por id (sin CSS.escape para máxima compatibilidad)
+                        const original = document.getElementById(originalId);
                         if (original) original.click();
                     });
                 }
             });
             // Insertar al final del contenedor
             container.appendChild(clone);
-        });
-
-        // Sincronizar 'active' entre menú superior y clon inferior.
-        // Las funciones show* ya usan '.btn-group .btn' (que incluye ambos grupos)
-        // para quitar 'active', pero solo añaden 'active' al botón original (por id).
-        // Aquí propagamos el 'active' del original al clon por texto coincidente.
-        let _syncingBottomNav = false;
-        function syncBottomNavActive(container) {
-            if (_syncingBottomNav) return;
-            _syncingBottomNav = true;
-            try {
-                const groups = container.querySelectorAll('.btn-group');
-                groups.forEach(g => {
-                    g.querySelectorAll('.btn.active').forEach(activeBtn => {
-                        const text = activeBtn.textContent.trim();
-                        groups.forEach(otherG => {
-                            if (otherG === g) return;
-                            otherG.querySelectorAll('.btn').forEach(b => {
-                                if (b.textContent.trim() === text) b.classList.add('active');
-                            });
-                        });
-                    });
-                });
-            } finally { _syncingBottomNav = false; }
-        }
-        const syncObserver = new MutationObserver(() => {
-            // El observer dispara en cualquier cambio de clase; comprobamos todos los contenedores
-            containerIds.forEach(containerId => {
-                const container = document.getElementById(containerId);
-                if (container && container.classList.contains('active')) {
-                    syncBottomNavActive(container);
-                }
-            });
-        });
-        containerIds.forEach(containerId => {
-            const container = document.getElementById(containerId);
-            if (container) {
-                syncObserver.observe(container, { subtree: true, attributes: true, attributeFilter: ['class'] });
-            }
         });
     })();
 
@@ -12260,10 +12314,11 @@ window.onload = function() {
                     var newWorker = reg.installing;
                     newWorker.addEventListener('statechange', function() {
                         if (newWorker.state === 'activated') {
-                            fetch('sw.js', { cache: 'no-store' })
+                            fetch('sw.js?v=' + Date.now(), { cache: 'no-store' })
                                 .then(function(r) { return r.text(); })
                                 .then(function(text) {
-                                    var m = text.match(/CACHE_NAME\s*=\s*['"][^'"]*v([\d.]+)/);
+                                    var m = text.match(/CACHE_VERSION\s*=\s*['"]v([\d.]+)/);
+                                    if (!m) m = text.match(/CACHE_NAME\s*=\s*['"][^'\"]*v([\d.]+)/);
                                     showAppVersion(m ? m[1] : null);
                                 });
                         }

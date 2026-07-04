@@ -2,14 +2,14 @@
 // Cacheo de recursos para funcionamiento offline.
 // Hosting: https://angelmicelti.github.io/AppCalificaActividadesTEC4V2/
 
-const CACHE_VERSION = 'v1.1.0';
+const CACHE_VERSION = 'v1.7.0';
 const CACHE_NAME = `evaltec4-online-${CACHE_VERSION}`;
 const BASE_PATH = './';
 
 // Recursos principales a cachear (rutas relativas para funcionar en GitHub Pages)
 const PRECACHE_URLS = [
     BASE_PATH,
-    BASE_PATH + 'index.html',
+    BASE_PATH + 'index2.html',
     BASE_PATH + 'manifest.json',
     BASE_PATH + 'icons/icon-192x192.png',
     BASE_PATH + 'icons/icon-512x512.png',
@@ -87,12 +87,23 @@ self.addEventListener('fetch', event => {
     // Ignorar peticiones que no son GET
     if (request.method !== 'GET') return;
 
-    // Ignorar peticiones a Firebase (deben ir siempre a la red)
+    // Ignorar peticiones con esquemas no soportados por la Cache API
+    // (chrome-extension:, moz-extension:, edge:, about:, data:, etc.)
     const url = new URL(request.url);
+    if (url.protocol !== 'http:' && url.protocol !== 'https:') {
+        return;
+    }
+
+    // Ignorar peticiones a Firebase (deben ir siempre a la red)
     if (url.hostname.includes('firebaseio.com') ||
         url.hostname.includes('firebase') ||
         url.hostname.includes('googleapis.com') ||
         url.hostname.includes('gstatic.com') && !PRECACHE_URLS.includes(request.url)) {
+        return;
+    }
+
+    // sw.js SIEMPRE va a la red (nunca cachear el propio service worker)
+    if (url.pathname.endsWith('/sw.js')) {
         return;
     }
 
@@ -102,15 +113,17 @@ self.addEventListener('fetch', event => {
         event.respondWith(
             fetch(request)
                 .then(response => {
-                    // Guardar copia fresca en caché
-                    const responseClone = response.clone();
-                    caches.open(CACHE_NAME).then(cache => cache.put(request, responseClone));
+                    // Guardar copia fresca en caché (solo si es válida)
+                    if (response && response.status === 200) {
+                        const responseClone = response.clone();
+                        caches.open(CACHE_NAME).then(cache => cache.put(request, responseClone)).catch(()=>{});
+                    }
                     return response;
                 })
                 .catch(() => {
                     // Si no hay red, servir desde caché
                     return caches.match(request)
-                        .then(cached => cached || caches.match(BASE_PATH + 'index.html'));
+                        .then(cached => cached || caches.match(BASE_PATH + 'index2.html'));
                 })
         );
         return;
@@ -123,9 +136,9 @@ self.addEventListener('fetch', event => {
                 if (cached) {
                     // Devolver de caché y actualizar en segundo plano
                     fetch(request).then(response => {
-                        if (response && response.status === 200) {
+                        if (response && response.status === 200 && response.type !== 'opaque') {
                             const responseClone = response.clone();
-                            caches.open(CACHE_NAME).then(cache => cache.put(request, responseClone));
+                            caches.open(CACHE_NAME).then(cache => cache.put(request, responseClone)).catch(()=>{});
                         }
                     }).catch(() => {});
                     return cached;
@@ -136,7 +149,7 @@ self.addEventListener('fetch', event => {
                         return response;
                     }
                     const responseClone = response.clone();
-                    caches.open(CACHE_NAME).then(cache => cache.put(request, responseClone));
+                    caches.open(CACHE_NAME).then(cache => cache.put(request, responseClone)).catch(()=>{});
                     return response;
                 }).catch(() => {
                     // Si es un icono o imagen, servir un placeholder
