@@ -242,7 +242,10 @@
         /* ===== PONDERACIÓN BREAKDOWN MODAL ===== */
         .pond-breakdown-table th {
             font-size: 0.82rem;
-            white-space: nowrap;
+            white-space: normal;
+            word-break: break-word;
+            overflow-wrap: break-word;
+            line-height: 1.25;
         }
         .pond-breakdown-table td {
             font-size: 0.9rem;
@@ -582,8 +585,6 @@
             border-radius: var(--border-radius-sm);
             background-color: white; 
             font-size: 1rem;
-            text-align: center;
-            text-align-last: center;
             transition: var(--transition);
         }
         
@@ -666,6 +667,48 @@
         
         table.table tbody tr:hover {
             background-color: #f8fafc;
+        }
+
+        /* ===== ENCABEZADOS DE TABLA CON ALTURA DINÁMICA ===== */
+        /* Permite que el texto de los <th> se ajuste a varias líneas y la altura
+           crezca automáticamente para que el contenido quepa perfectamente. */
+        table thead th,
+        table.table thead th,
+        .table-custom thead th,
+        th.criteria-th-editable,
+        th.exam-q-th-clickable,
+        th.inst-header-clickable,
+        th.inst-criteria-header,
+        .rubric-teacher-table thead th,
+        .rubric-coeval-table thead th,
+        .rubric-results-table thead th,
+        .pond-breakdown-table thead th,
+        #pond_resultsThead th,
+        #rubricTeacherThead th,
+        #inst_matrixHeader th,
+        #inst_evalThead th {
+            white-space: normal !important;
+            word-break: break-word;
+            overflow-wrap: break-word;
+            hyphens: auto;
+            height: auto !important;
+            min-height: 0;
+            line-height: 1.25;
+            vertical-align: middle;
+            padding-top: 10px;
+            padding-bottom: 10px;
+        }
+        /* Asegurar que los contenedores de los encabezados no recorten el contenido */
+        table thead th > span,
+        table thead th > small,
+        table thead th > div {
+            white-space: normal !important;
+            word-break: break-word;
+            overflow-wrap: break-word;
+        }
+        /* El primer <th> (ALUMNADO / Estudiante) puede ocupar el ancho disponible */
+        table thead th:first-child {
+            min-width: 140px;
         }
 
         /* ===== MODALS ===== */
@@ -835,19 +878,23 @@
         .inst-criteria-header {
             writing-mode: vertical-lr;
             transform: rotate(180deg);
-            height: 100px;
-            white-space: nowrap;
+            min-height: 100px;
+            height: auto;
+            white-space: normal;
+            word-break: break-word;
+            overflow-wrap: break-word;
             vertical-align: middle;
             text-align: center;
             width: 30px;
             min-width: 30px;
             max-width: 30px;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            overflow: visible;
             /* Encabezados de criterios en blanco por defecto */
             background-color: #ffffff;
             color: #0b4b6b;
             border: 1px solid #dee2e6;
+            padding-top: 10px;
+            padding-bottom: 10px;
         }
         /* Criterios relacionados con al menos un instrumento: fondo verde.
            Debe tener prioridad sobre criteria-th-custom (amarillo) y sobre el
@@ -1052,7 +1099,9 @@
         th.exam-q-th-clickable { 
             cursor: pointer; 
             transition: var(--transition); 
-            white-space: nowrap;
+            white-space: normal;
+            word-break: break-word;
+            overflow-wrap: break-word;
             font-weight: 700;
         }
         th.exam-q-th-clickable:hover { 
@@ -2345,9 +2394,18 @@
             table {
                 font-size: 0.78rem !important;
             }
-            th, td {
+            /* td compacto y sin wrap (los valores son cortos: números/notas) */
+            td {
                 padding: 4px 6px !important;
                 white-space: nowrap;
+            }
+            /* th SÍ permite wrap para que el contenido quepa perfectamente */
+            th {
+                padding: 6px 6px !important;
+                white-space: normal !important;
+                word-break: break-word;
+                overflow-wrap: break-word;
+                line-height: 1.2;
             }
             .student-score {
                 width: 44px !important;
@@ -2582,11 +2640,11 @@
             <div class="section-card">
                 <div class="section-title"><i class="bi bi-gear-wide-connected"></i> Gestión de información <i class="bi bi-question-circle help-icon" data-bs-toggle="tooltip" title="Importar, exportar o guardar la configuración actual."></i></div>
                 <div class="d-flex flex-wrap gap-2 justify-content-start">
+                    <button id="examExportConfigBtn" class="btn btn-outline-primary btn-sm"><i class="bi bi-file-earmark-arrow-down"></i> Exportar JSON</button>
                     <button id="examImportConfigBtn" class="btn btn-outline-secondary btn-sm"><i class="bi bi-file-earmark-arrow-up"></i> Importar JSON</button>
                     <input type="file" id="examImportConfigFile" accept=".json" hidden>
-                    <button class="btn btn-outline-warning btn-sm fb-app-load-btn" data-app="exam" title="Cargar desde la nube (requiere sesión)"><i class="bi bi-cloud-arrow-down"></i> Cargar nube</button>
-                    <button id="examExportConfigBtn" class="btn btn-outline-primary btn-sm"><i class="bi bi-file-earmark-arrow-down"></i> Exportar JSON</button>
                     <button class="btn btn-outline-warning btn-sm fb-app-save-btn" data-app="exam" title="Guardar en la nube (requiere sesión)"><i class="bi bi-cloud-arrow-up"></i> Guardar en la nube</button>
+                    <button class="btn btn-outline-warning btn-sm fb-app-load-btn" data-app="exam" title="Cargar desde la nube (requiere sesión)"><i class="bi bi-cloud-arrow-down"></i> Cargar nube</button>
                     <button id="examResetAllBtn" class="btn btn-outline-danger btn-sm"><i class="bi bi-eraser"></i> Reiniciar todo</button>
                 </div>
             </div>
@@ -2627,15 +2685,17 @@
         <div id="examScreenGrade" class="screen">
             <div class="section-card">
                 <div class="section-title"><i class="bi bi-pencil-square"></i> Calificaciones por pregunta <i class="bi bi-question-circle help-icon" data-bs-toggle="tooltip" title="Introduce la nota de cada alumno en cada pregunta (0-10)."></i></div>
-                <div class="d-flex flex-wrap gap-2 justify-content-end mb-3">
-                    <button id="examImportScoresBtn" class="btn btn-outline-secondary"><i class="bi bi-upload"></i> Importar calif.</button>
-                    <input type="file" id="examImportScoresFile" accept=".json" hidden>
-                    <button class="btn btn-outline-warning fb-scores-load-btn" data-app="exam" title="Cargar calificaciones desde la nube (requiere sesión)"><i class="bi bi-cloud-arrow-down"></i> Cargar calif. de la nube</button>
-                    <button id="examExportScoresBtn" class="btn btn-outline-dark"><i class="bi bi-download"></i> Exportar calif.</button>
-                    <button class="btn btn-outline-warning fb-scores-save-btn" data-app="exam" title="Guardar calificaciones en la nube (requiere sesión)"><i class="bi bi-cloud-arrow-up"></i> Guardar calif. en la nube</button>
-                    <button id="examClearScoresBtn" class="btn btn-outline-danger"><i class="bi bi-trash3"></i> Borrar calificaciones</button>
-                </div>
                 <div id="examGradeTableWrapper" class="table-responsive" style="max-height:500px; overflow-y:auto;"><table class="table table-bordered table-striped" id="examGradeTable"><thead class="sticky-top bg-white"></thead><tbody id="examGradeTbody"></tbody></table></div>
+                <div class="mt-3 d-flex flex-wrap gap-2 justify-content-end">
+                    <button id="examClearScoresBtn" class="btn btn-outline-danger"><i class="bi bi-trash3"></i> Borrar calificaciones</button>
+                    <button id="examExportScoresBtn" class="btn btn-outline-dark"><i class="bi bi-download"></i> Exportar calificaciones</button>
+                    <button id="examImportScoresBtn" class="btn btn-outline-secondary"><i class="bi bi-upload"></i> Importar calificaciones</button>
+                    <input type="file" id="examImportScoresFile" accept=".json" hidden>
+                    <button id="examBtnSaveScores" class="btn btn-primary"><i class="bi bi-save"></i> Guardar calificaciones</button>
+                    <button id="examRecoverScoresBtn" class="btn btn-outline-info"><i class="bi bi-arrow-repeat"></i> Recuperar calificaciones</button>
+                    <button class="btn btn-outline-warning fb-scores-save-btn" data-app="exam" title="Guardar calificaciones en la nube (requiere sesión)"><i class="bi bi-cloud-arrow-up"></i> Guardar calif. en la nube</button>
+                    <button class="btn btn-outline-warning fb-scores-load-btn" data-app="exam" title="Cargar calificaciones desde la nube (requiere sesión)"><i class="bi bi-cloud-arrow-down"></i> Cargar calif. de la nube</button>
+                </div>
                 <div class="alert alert-info mt-3 small" id="examGradeMessage"></div>
             </div>
         </div>
@@ -2673,11 +2733,11 @@
             <div class="section-card">
                 <div class="section-title"><i class="bi bi-gear-wide-connected"></i> Gestión de información <i class="bi bi-question-circle help-icon" data-bs-toggle="tooltip" title="Importar, exportar o guardar la configuración actual."></i></div>
                 <div class="d-flex flex-wrap justify-content-start gap-2 mt-2">
+                    <button id="testExportConfigBtn" class="btn btn-outline-primary btn-sm"><i class="fas fa-download"></i> Exportar JSON</button>
                     <button id="testImportConfigBtn" class="btn btn-outline-secondary btn-sm"><i class="fas fa-upload"></i> Importar JSON</button>
                     <input type="file" id="testImportConfigFile" accept=".json" hidden>
-                    <button class="btn btn-outline-warning btn-sm fb-app-load-btn" data-app="test" title="Cargar desde la nube (requiere sesión)"><i class="bi bi-cloud-arrow-down"></i> Cargar nube</button>
-                    <button id="testExportConfigBtn" class="btn btn-outline-primary btn-sm"><i class="fas fa-download"></i> Exportar JSON</button>
                     <button class="btn btn-outline-warning btn-sm fb-app-save-btn" data-app="test" title="Guardar en la nube (requiere sesión)"><i class="bi bi-cloud-arrow-up"></i> Guardar en la nube</button>
+                    <button class="btn btn-outline-warning btn-sm fb-app-load-btn" data-app="test" title="Cargar desde la nube (requiere sesión)"><i class="bi bi-cloud-arrow-down"></i> Cargar nube</button>
                     <button id="testResetAllBtn2" class="btn btn-outline-danger btn-sm"><i class="bi bi-eraser"></i> Reiniciar todo</button>
                 </div>
             </div>
@@ -2728,15 +2788,17 @@
         <div id="testScreenGrade" class="screen">
             <div class="section-card">
                 <div class="section-title"><i class="fas fa-pencil-alt"></i> Calificaciones por alumno <i class="bi bi-question-circle help-icon" data-bs-toggle="tooltip" title="Selecciona aciertos y fallos. NS/NC se calcula automáticamente."></i></div>
-                <div class="d-flex flex-wrap gap-2 justify-content-end mb-3">
-                    <button id="testImportScoresBtn" class="btn btn-outline-secondary"><i class="bi bi-upload"></i> Importar calif.</button>
-                    <input type="file" id="testImportScoresFile" accept=".json" hidden>
-                    <button class="btn btn-outline-warning fb-scores-load-btn" data-app="test" title="Cargar calificaciones desde la nube (requiere sesión)"><i class="bi bi-cloud-arrow-down"></i> Cargar calif. de la nube</button>
-                    <button id="testExportScoresBtn" class="btn btn-outline-dark"><i class="bi bi-download"></i> Exportar calif.</button>
-                    <button class="btn btn-outline-warning fb-scores-save-btn" data-app="test" title="Guardar calificaciones en la nube (requiere sesión)"><i class="bi bi-cloud-arrow-up"></i> Guardar calif. en la nube</button>
-                    <button id="testClearScoresBtn" class="btn btn-outline-danger"><i class="bi bi-trash3"></i> Borrar calificaciones</button>
-                </div>
                 <div id="testGradeTableWrapper" class="table-responsive" style="max-height:600px;"><table class="table table-bordered table-striped" id="testGradeTable"><thead class="table-secondary sticky-top"></thead><tbody id="testGradeTbody"></tbody></table></div>
+                <div class="mt-3 d-flex flex-wrap gap-2 justify-content-end">
+                    <button id="testClearScoresBtn" class="btn btn-outline-danger"><i class="bi bi-trash3"></i> Borrar calificaciones</button>
+                    <button id="testExportScoresBtn" class="btn btn-outline-dark"><i class="bi bi-download"></i> Exportar calificaciones</button>
+                    <button id="testImportScoresBtn" class="btn btn-outline-secondary"><i class="bi bi-upload"></i> Importar calificaciones</button>
+                    <input type="file" id="testImportScoresFile" accept=".json" hidden>
+                    <button id="testBtnSaveScores" class="btn btn-primary"><i class="fas fa-save"></i> Guardar calificaciones</button>
+                    <button id="testRecoverScoresBtn" class="btn btn-outline-info"><i class="bi bi-arrow-repeat"></i> Recuperar calificaciones</button>
+                    <button class="btn btn-outline-warning fb-scores-save-btn" data-app="test" title="Guardar calificaciones en la nube (requiere sesión)"><i class="bi bi-cloud-arrow-up"></i> Guardar calif. en la nube</button>
+                    <button class="btn btn-outline-warning fb-scores-load-btn" data-app="test" title="Cargar calificaciones desde la nube (requiere sesión)"><i class="bi bi-cloud-arrow-down"></i> Cargar calif. de la nube</button>
+                </div>
                 <div class="alert alert-info mt-3 small" id="testGradeMessage"></div>
             </div>
         </div>
@@ -2774,11 +2836,11 @@
             <div class="section-card">
                 <div class="section-title"><i class="bi bi-gear-wide-connected"></i> Gestión de información <i class="bi bi-question-circle help-icon" data-bs-toggle="tooltip" title="Importar, exportar o guardar la configuración actual."></i></div>
                 <div class="d-flex flex-wrap gap-2 justify-content-start">
+                    <button id="genericExportConfigBtn" class="btn btn-outline-primary btn-sm"><i class="bi bi-file-earmark-arrow-down"></i> Exportar JSON</button>
                     <button id="genericImportConfigBtn" class="btn btn-outline-secondary btn-sm"><i class="bi bi-file-earmark-arrow-up"></i> Importar JSON</button>
                     <input type="file" id="genericImportConfigFile" accept=".json" hidden>
-                    <button class="btn btn-outline-warning btn-sm fb-app-load-btn" data-app="generic" title="Cargar desde la nube (requiere sesión)"><i class="bi bi-cloud-arrow-down"></i> Cargar nube</button>
-                    <button id="genericExportConfigBtn" class="btn btn-outline-primary btn-sm"><i class="bi bi-file-earmark-arrow-down"></i> Exportar JSON</button>
                     <button class="btn btn-outline-warning btn-sm fb-app-save-btn" data-app="generic" title="Guardar en la nube (requiere sesión)"><i class="bi bi-cloud-arrow-up"></i> Guardar en la nube</button>
+                    <button class="btn btn-outline-warning btn-sm fb-app-load-btn" data-app="generic" title="Cargar desde la nube (requiere sesión)"><i class="bi bi-cloud-arrow-down"></i> Cargar nube</button>
                     <button id="genericResetAllBtn" class="btn btn-outline-danger btn-sm"><i class="bi bi-eraser"></i> Reiniciar todo</button>
                 </div>
             </div>
@@ -2814,15 +2876,17 @@
         <div id="genericScreenGrade" class="screen">
             <div class="section-card">
                 <div class="section-title"><i class="bi bi-pencil-square"></i> Calificaciones por criterio <i class="bi bi-question-circle help-icon" data-bs-toggle="tooltip" title="Introduce una nota (0-10) para cada alumno en cada criterio."></i></div>
-                <div class="d-flex flex-wrap gap-2 justify-content-end mb-3">
-                    <button id="genericImportScoresBtn" class="btn btn-outline-secondary"><i class="bi bi-upload"></i> Importar calif.</button>
-                    <input type="file" id="genericImportScoresFile" accept=".json" hidden>
-                    <button class="btn btn-outline-warning fb-scores-load-btn" data-app="generic" title="Cargar calificaciones desde la nube (requiere sesión)"><i class="bi bi-cloud-arrow-down"></i> Cargar calif. de la nube</button>
-                    <button id="genericExportScoresBtn" class="btn btn-outline-dark"><i class="bi bi-download"></i> Exportar calif.</button>
-                    <button class="btn btn-outline-warning fb-scores-save-btn" data-app="generic" title="Guardar calificaciones en la nube (requiere sesión)"><i class="bi bi-cloud-arrow-up"></i> Guardar calif. en la nube</button>
-                    <button id="genericClearScoresBtn" class="btn btn-outline-danger"><i class="bi bi-trash3"></i> Borrar calificaciones</button>
-                </div>
                 <div id="genericGradeTableWrapper" class="table-responsive" style="max-height:500px;"><table class="table table-bordered table-striped" id="genericGradeTable"><thead class="sticky-top bg-white"></thead><tbody id="genericGradeTbody"></tbody></table></div>
+                <div class="mt-3 d-flex flex-wrap gap-2 justify-content-end">
+                    <button id="genericClearScoresBtn" class="btn btn-outline-danger"><i class="bi bi-trash3"></i> Borrar calificaciones</button>
+                    <button id="genericExportScoresBtn" class="btn btn-outline-dark"><i class="bi bi-download"></i> Exportar calificaciones</button>
+                    <button id="genericImportScoresBtn" class="btn btn-outline-secondary"><i class="bi bi-upload"></i> Importar calificaciones</button>
+                    <input type="file" id="genericImportScoresFile" accept=".json" hidden>
+                    <button id="genericBtnSaveScores" class="btn btn-primary"><i class="bi bi-save"></i> Guardar calificaciones</button>
+                    <button id="genericRecoverScoresBtn" class="btn btn-outline-info"><i class="bi bi-arrow-repeat"></i> Recuperar calificaciones</button>
+                    <button class="btn btn-outline-warning fb-scores-save-btn" data-app="generic" title="Guardar calificaciones en la nube (requiere sesión)"><i class="bi bi-cloud-arrow-up"></i> Guardar calif. en la nube</button>
+                    <button class="btn btn-outline-warning fb-scores-load-btn" data-app="generic" title="Cargar calificaciones desde la nube (requiere sesión)"><i class="bi bi-cloud-arrow-down"></i> Cargar calif. de la nube</button>
+                </div>
                 <div class="alert alert-info mt-3 small" id="genericGradeMessage"></div>
             </div>
         </div>
@@ -2862,11 +2926,11 @@
                 <div class="section-card">
                     <div class="section-title"><i class="bi bi-gear-wide-connected"></i> Gestión de información <i class="bi bi-question-circle help-icon" data-bs-toggle="tooltip" title="Importar, exportar o guardar la configuración actual."></i></div>
                     <div class="d-flex flex-wrap gap-2 justify-content-start">
+                        <button id="inst_exportConfigJson" class="btn btn-outline-primary btn-sm"><i class="bi bi-file-earmark-arrow-down"></i> Exportar JSON</button>
                         <button id="inst_importConfigJsonBtn" class="btn btn-outline-secondary btn-sm"><i class="bi bi-file-earmark-arrow-up"></i> Importar JSON</button>
                         <input type="file" id="inst_importConfigFile" accept=".json" hidden>
-                        <button class="btn btn-outline-warning btn-sm fb-app-load-btn" data-app="instrumentos" title="Cargar desde la nube (requiere sesión)"><i class="bi bi-cloud-arrow-down"></i> Cargar nube</button>
-                        <button id="inst_exportConfigJson" class="btn btn-outline-primary btn-sm"><i class="bi bi-file-earmark-arrow-down"></i> Exportar JSON</button>
                         <button class="btn btn-outline-warning btn-sm fb-app-save-btn" data-app="instrumentos" title="Guardar en la nube (requiere sesión)"><i class="bi bi-cloud-arrow-up"></i> Guardar en la nube</button>
+                        <button class="btn btn-outline-warning btn-sm fb-app-load-btn" data-app="instrumentos" title="Cargar desde la nube (requiere sesión)"><i class="bi bi-cloud-arrow-down"></i> Cargar nube</button>
                         <button id="inst_resetAllBtn" class="btn btn-outline-danger btn-sm"><i class="bi bi-eraser"></i> Reiniciar todo</button>
                     </div>
                 </div>
@@ -2897,7 +2961,6 @@
                     <p class="text-muted small">El último instrumento se calcula automáticamente para que la suma sea siempre 100%.</p>
                 </div>
                 <div id="inst_configWarning" class="validation-warning" style="display:none;"></div>
-                <div class="d-flex justify-content-end"><button id="inst_irRelacionBtn" class="btn btn-primary btn-lg" disabled><i class="bi bi-arrow-right"></i> Ir a Relación</button></div>
             </div>
             <!-- RELACIÓN -->
             <div class="tab-pane fade" id="inst_relacion" role="tabpanel">
@@ -2913,7 +2976,6 @@
                         <button id="inst_loadMatrixCloud" class="btn btn-outline-info btn-sm"><i class="bi bi-cloud-arrow-down"></i> Cargar matriz de la nube</button>
                     </div>
                     <input type="file" id="inst_importMatrixFile" accept=".json" hidden>
-                    <div class="d-flex justify-content-end"><button id="inst_irEvalBtn" class="btn btn-primary btn-lg" disabled><i class="bi bi-arrow-right"></i> Ir a Evaluación</button></div>
                 </div>
             </div>
             <!-- EVALUACIÓN -->
@@ -2937,15 +2999,17 @@
                 <div class="section-card">
                     <div class="section-title"><i class="bi bi-table"></i> Calificaciones</div>
                     <div class="inst-switch-container"><div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="inst_showGradeColumn" checked><label class="form-check-label" for="inst_showGradeColumn">Mostrar columna Calificación</label></div></div>
-                    <div class="d-flex flex-wrap gap-2 justify-content-end mt-3 mb-3">
-                        <button id="inst_importEvalJsonBtn" class="btn btn-outline-secondary btn-sm"><i class="bi bi-file-earmark-arrow-up"></i> Importar calif. JSON</button>
-                        <input type="file" id="inst_importEvalFile" accept=".json" hidden>
-                        <button class="btn btn-outline-warning btn-sm fb-scores-load-btn" data-app="instrumentos" title="Cargar calificaciones desde la nube (requiere sesión)"><i class="bi bi-cloud-arrow-down"></i> Cargar calif. de la nube</button>
-                        <button id="inst_exportEvalJson" class="btn btn-outline-primary btn-sm"><i class="bi bi-file-earmark-arrow-down"></i> Exportar calif. JSON</button>
-                        <button class="btn btn-outline-warning btn-sm fb-scores-save-btn" data-app="instrumentos" title="Guardar calificaciones en la nube (requiere sesión)"><i class="bi bi-cloud-arrow-up"></i> Guardar calif. en la nube</button>
+                    <div class="inst-btn-file-group mt-3 mb-3">
                         <button id="inst_clearScoresBtn" class="btn btn-outline-danger btn-sm"><i class="bi bi-trash3"></i> Borrar calificaciones</button>
+                        <button id="inst_exportEvalJson" class="btn btn-outline-primary btn-sm"><i class="bi bi-file-earmark-arrow-down"></i> Exportar JSON</button>
+                        <button id="inst_importEvalJsonBtn" class="btn btn-outline-secondary btn-sm"><i class="bi bi-file-earmark-arrow-up"></i> Importar JSON</button>
+                        <input type="file" id="inst_importEvalFile" accept=".json" hidden>
                     </div>
                     <div class="table-responsive" style="max-height:500px;"><table class="table table-bordered table-striped" id="inst_evalTable"><thead class="inst-fixed-header" id="inst_evalThead"></thead><tbody id="inst_evalTbody"></tbody></table></div>
+                    <div class="d-flex flex-wrap gap-2 mt-3 justify-content-end">
+                        <button class="btn btn-outline-warning fb-scores-save-btn" data-app="instrumentos" title="Guardar calificaciones en la nube (requiere sesión)"><i class="bi bi-cloud-arrow-up"></i> Guardar calif. en la nube</button>
+                        <button class="btn btn-outline-warning fb-scores-load-btn" data-app="instrumentos" title="Cargar calificaciones desde la nube (requiere sesión)"><i class="bi bi-cloud-arrow-down"></i> Cargar calif. de la nube</button>
+                    </div>
                     <div class="d-flex flex-wrap gap-3 mt-4 justify-content-between">
                         <span class="fw-bold">Exportar resultados:</span>
                         <div>
@@ -2978,11 +3042,11 @@
             <div class="section-card">
                 <div class="section-title"><i class="bi bi-gear-wide-connected"></i> Gestión de información</div>
                 <div class="d-flex flex-wrap gap-2 justify-content-start">
+                    <button id="pond_exportConfigBtn" class="btn btn-outline-primary btn-sm"><i class="bi bi-file-earmark-arrow-down"></i> Exportar JSON</button>
                     <button id="pond_importConfigBtn" class="btn btn-outline-secondary btn-sm"><i class="bi bi-file-earmark-arrow-up"></i> Importar JSON</button>
                     <input type="file" id="pond_importConfigFile" accept=".json" hidden>
-                    <button class="btn btn-outline-warning btn-sm fb-app-load-btn" data-app="ponderacion" title="Cargar desde la nube (requiere sesión)"><i class="bi bi-cloud-arrow-down"></i> Cargar nube</button>
-                    <button id="pond_exportConfigBtn" class="btn btn-outline-primary btn-sm"><i class="bi bi-file-earmark-arrow-down"></i> Exportar JSON</button>
                     <button class="btn btn-outline-warning btn-sm fb-app-save-btn" data-app="ponderacion" title="Guardar en la nube (requiere sesión)"><i class="bi bi-cloud-arrow-up"></i> Guardar en la nube</button>
+                    <button class="btn btn-outline-warning btn-sm fb-app-load-btn" data-app="ponderacion" title="Cargar desde la nube (requiere sesión)"><i class="bi bi-cloud-arrow-down"></i> Cargar nube</button>
                     <button id="pond_resetAllBtn" class="btn btn-outline-danger btn-sm"><i class="bi bi-eraser"></i> Reiniciar todo</button>
                 </div>
             </div>
@@ -3015,7 +3079,6 @@
             </div>
             <div id="pond_configWarning" class="validation-warning" style="display:none;"></div>
             <div class="d-flex justify-content-end">
-                <button id="pond_btnGoImport" class="btn btn-info btn-lg text-white"><i class="bi bi-arrow-right"></i> Ir a Importar</button>
             </div>
         </div>
 
@@ -3045,8 +3108,6 @@
                 <div id="pond_importMgmtMessage" class="small mt-2"></div>
             </div>
             <div class="d-flex justify-content-between mt-3">
-                <button id="pond_btnBackConfig" class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i> Volver</button>
-                <button id="pond_btnGoResults" class="btn btn-info btn-lg text-white" disabled><i class="bi bi-bar-chart-line"></i> Ver Resultados</button>
             </div>
         </div>
 
@@ -3084,7 +3145,6 @@
                 </div>
             </div>
             <div class="d-flex justify-content-start mt-3">
-                <button id="pond_btnBackImport" class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i> Volver a Importar</button>
             </div>
         </div>
     </div>
@@ -3108,11 +3168,11 @@
             <div class="section-card">
                 <div class="section-title"><i class="bi bi-gear-wide-connected"></i> Gestión de información <i class="bi bi-question-circle help-icon" data-bs-toggle="tooltip" title="Exporta, importa o guarda localmente la configuración completa de la rúbrica."></i></div>
                 <div class="d-flex flex-wrap gap-2 justify-content-start">
+                    <button id="rubricExportConfigBtn" class="btn btn-outline-primary btn-sm"><i class="bi bi-file-earmark-arrow-down"></i> Exportar JSON</button>
                     <button id="rubricImportConfigBtn" class="btn btn-outline-secondary btn-sm"><i class="bi bi-file-earmark-arrow-up"></i> Importar JSON</button>
                     <input type="file" id="rubricImportConfigFile" accept=".json" hidden>
-                    <button class="btn btn-outline-warning btn-sm fb-app-load-btn" data-app="rubricas" title="Cargar desde la nube (requiere sesión)"><i class="bi bi-cloud-arrow-down"></i> Cargar nube</button>
-                    <button id="rubricExportConfigBtn" class="btn btn-outline-primary btn-sm"><i class="bi bi-file-earmark-arrow-down"></i> Exportar JSON</button>
                     <button class="btn btn-outline-warning btn-sm fb-app-save-btn" data-app="rubricas" title="Guardar en la nube (requiere sesión)"><i class="bi bi-cloud-arrow-up"></i> Guardar en la nube</button>
+                    <button class="btn btn-outline-warning btn-sm fb-app-load-btn" data-app="rubricas" title="Cargar desde la nube (requiere sesión)"><i class="bi bi-cloud-arrow-down"></i> Cargar nube</button>
                     <button id="rubricResetAllBtn" class="btn btn-outline-danger btn-sm"><i class="bi bi-eraser"></i> Reiniciar todo</button>
                 </div>
             </div>
@@ -3182,20 +3242,11 @@
 
             <div id="rubricSetupWarning" class="validation-warning" style="display:none;"></div>
             <div class="d-flex justify-content-end mt-3">
-                <button id="rubricBtnGoEval" class="btn btn-danger btn-lg"><i class="bi bi-arrow-right"></i> Ir a Evaluación</button>
             </div>
         </div>
 
         <!-- PANTALLA EVALUACIÓN -->
         <div id="rubricScreenEval" class="screen">
-            <div class="d-flex flex-wrap gap-2 justify-content-end mb-3">
-                <button id="rubricImportDataBtn" class="btn btn-outline-secondary btn-sm"><i class="bi bi-upload"></i> Importar datos</button>
-                <input type="file" id="rubricImportDataFile" accept=".json" hidden>
-                <button class="btn btn-outline-warning btn-sm fb-scores-load-btn" data-app="rubricas" title="Cargar calificaciones desde la nube (requiere sesión)"><i class="bi bi-cloud-arrow-down"></i> Cargar calif. de la nube</button>
-                <button id="rubricExportDataBtn" class="btn btn-outline-primary btn-sm"><i class="bi bi-download"></i> Exportar datos</button>
-                <button class="btn btn-outline-warning btn-sm fb-scores-save-btn" data-app="rubricas" title="Guardar calificaciones en la nube (requiere sesión)"><i class="bi bi-cloud-arrow-up"></i> Guardar calif. en la nube</button>
-                <button id="rubricClearDataBtn" class="btn btn-outline-danger btn-sm"><i class="bi bi-trash3"></i> Limpiar datos</button>
-            </div>
             <div class="section-card">
                 <div class="section-title"><i class="bi bi-person-fill"></i> Evaluación del profesor <span class="badge bg-danger ms-2"><span id="rubricTeacherPercentEval">75</span>% de la nota</span><i class="bi bi-question-circle help-icon" data-bs-toggle="tooltip" title="Selecciona el nivel de logro de cada alumno en cada aspecto."></i></div>
                 <div class="rubric-bulk-bar d-flex flex-wrap align-items-center gap-2">
@@ -3224,8 +3275,15 @@
             </div>
 
             <div class="d-flex flex-wrap justify-content-between gap-2 mt-3">
-                <button id="rubricBtnBackSetup" class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i> Volver a Configuración</button>
-                <button id="rubricBtnCalc" class="btn btn-danger btn-lg"><i class="bi bi-calculator"></i> Calcular notas</button>
+                <div class="d-flex flex-wrap gap-2">
+                    <button class="btn btn-outline-warning fb-scores-save-btn" data-app="rubricas" title="Guardar calificaciones en la nube (requiere sesión)"><i class="bi bi-cloud-arrow-up"></i> Guardar calif. en la nube</button>
+                    <button class="btn btn-outline-warning fb-scores-load-btn" data-app="rubricas" title="Cargar calificaciones desde la nube (requiere sesión)"><i class="bi bi-cloud-arrow-down"></i> Cargar calif. de la nube</button>
+                    <button id="rubricExportDataBtn" class="btn btn-outline-primary"><i class="bi bi-download"></i> Exportar datos</button>
+                    <button id="rubricImportDataBtn" class="btn btn-outline-secondary"><i class="bi bi-upload"></i> Importar datos</button>
+                    <input type="file" id="rubricImportDataFile" accept=".json" hidden>
+                    <button id="rubricClearDataBtn" class="btn btn-outline-danger"><i class="bi bi-trash3"></i> Limpiar datos</button>
+                    <button id="rubricBtnCalc" class="btn btn-danger btn-lg"><i class="bi bi-calculator"></i> Calcular notas</button>
+                </div>
             </div>
         </div>
 
@@ -3243,11 +3301,10 @@
                 <div class="d-flex flex-wrap gap-2 justify-content-end mt-3">
                     <button id="rubricExportResultsBtn" class="btn btn-outline-success"><i class="bi bi-file-earmark-excel"></i> Exportar Excel</button>
                     <button id="rubricExportPdfBtn" class="btn btn-outline-danger"><i class="bi bi-file-pdf"></i> Exportar PDF</button>
-                    <button id="rubricExportJsonResultsBtn" class="btn btn-outline-dark"><i class="bi bi-filetype-json"></i> Exportar resultados JSON</button>
+                    <button id="rubricExportJsonResultsBtn" class="btn btn-outline-dark"><i class="bi bi-filetype-json"></i> Exportar JSON</button>
                 </div>
             </div>
             <div class="d-flex justify-content-start mt-3">
-                <button id="rubricBtnBackEval" class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i> Volver a Evaluación</button>
             </div>
         </div>
     </div>
@@ -4832,19 +4889,9 @@ function validateExamCriteria() {
 
 function updateExamConfigWarning() {
     const warn = document.getElementById('examConfigWarning'); if (!warn) return;
-    const missing = [];
-    if (!examState.examName.trim()) missing.push('<strong>el nombre del examen</strong>');
-    if (!examState.course.trim()) missing.push('<strong>el curso</strong>');
-    if (!examState.students.length) missing.push('<strong>al menos un alumno/a en la lista</strong>');
-    if (!examState.globalCriteria.length) {
-        missing.push('<strong>criterios TEC.4.X.Y.</strong>');
-    } else {
-        const assigned = new Set(examState.questions.flatMap(q => q.criteriaCodes));
-        const unassigned = examState.globalCriteria.filter(c => !assigned.has(c));
-        if (unassigned.length) missing.push(`<strong>asignar los criterios a las preguntas</strong> (${unassigned.map(c=>c+'.').join(', ')})`);
-    }
+    const missing = getMissingConfigItems('exam');
     if (missing.length) {
-        warn.innerHTML = '<i class="bi bi-exclamation-triangle-fill me-2"></i> Para pasar a Calificación, completa:'
+        warn.innerHTML = '<i class="bi bi-exclamation-triangle-fill me-2"></i> Para pasar a Calificación/Resultados, completa:'
             + '<ul style="margin:4px 0 0;padding-left:1.4em;list-style:none;">'
             + missing.map(m => '<li>— ' + m + '</li>').join('')
             + '</ul>';
@@ -4852,7 +4899,6 @@ function updateExamConfigWarning() {
     } else {
         warn.style.display = 'none';
     }
-    updateActivityBadge('exam');
 }
 
 function reorderExamQuestionIds() { examState.questions.forEach((q,i) => q.id = i+1); }
@@ -5216,13 +5262,9 @@ function validateGenericCriteria() {
 
 function updateTestConfigWarning() {
     const warn = document.getElementById('testConfigWarning'); if (!warn) return;
-    const missing = [];
-    if (!testState.examName.trim()) missing.push('<strong>el nombre del examen</strong>');
-    if (!testState.course.trim()) missing.push('<strong>el curso</strong>');
-    if (!testState.students.length) missing.push('<strong>al menos un alumno/a en la lista</strong>');
-    if (!testState.globalCriteria.length) missing.push('<strong>criterios TEC.4.X.Y.</strong>');
+    const missing = getMissingConfigItems('test');
     if (missing.length) {
-        warn.innerHTML = '<i class="bi bi-exclamation-triangle-fill me-2"></i> Para pasar a Calificación, completa:'
+        warn.innerHTML = '<i class="bi bi-exclamation-triangle-fill me-2"></i> Para pasar a Calificación/Resultados, completa:'
             + '<ul style="margin:4px 0 0;padding-left:1.4em;list-style:none;">'
             + missing.map(m => '<li>— ' + m + '</li>').join('')
             + '</ul>';
@@ -5230,18 +5272,13 @@ function updateTestConfigWarning() {
     } else {
         warn.style.display = 'none';
     }
-    updateActivityBadge('test');
 }
 
 function updateGenericConfigWarning() {
     const warn = document.getElementById('genericConfigWarning'); if (!warn) return;
-    const missing = [];
-    if (!genericState.examName.trim()) missing.push('<strong>el nombre de la actividad</strong>');
-    if (!genericState.course.trim()) missing.push('<strong>el curso</strong>');
-    if (!genericState.students.length) missing.push('<strong>al menos un alumno/a en la lista</strong>');
-    if (!genericState.globalCriteria.length) missing.push('<strong>criterios TEC.4.X.Y.</strong>');
+    const missing = getMissingConfigItems('generic');
     if (missing.length) {
-        warn.innerHTML = '<i class="bi bi-exclamation-triangle-fill me-2"></i> Para pasar a Calificación, completa:'
+        warn.innerHTML = '<i class="bi bi-exclamation-triangle-fill me-2"></i> Para pasar a Calificación/Resultados, completa:'
             + '<ul style="margin:4px 0 0;padding-left:1.4em;list-style:none;">'
             + missing.map(m => '<li>— ' + m + '</li>').join('')
             + '</ul>';
@@ -5249,7 +5286,6 @@ function updateGenericConfigWarning() {
     } else {
         warn.style.display = 'none';
     }
-    updateActivityBadge('generic');
 }
 function renderGenericGradeTable() { renderSimpleGradeTable(genericState, 'genericGradeTable', 'genericGradeTbody', (c)=>getAppCriterionDesc(c,'generic'), 'generic'); }
 function renderGenericStudentTags() {
@@ -5332,19 +5368,13 @@ function inst_canGoToRelacion() {
     return instrumentState.actividad.trim()!=='' && instrumentState.clase.trim()!=='' && instrumentState.students.length>0 && instrumentState.instruments.length>0;
 }
 function inst_updateConfigButtonState() {
-    const irBtn = document.getElementById('inst_irRelacionBtn');
     const cfgWarn = document.getElementById('inst_configWarning');
-    if (!irBtn) return;
+    if (!cfgWarn) return;
     // NO ocultar inst_pesosWarning aquí — lo gestiona inst_syncPesosBadge según suma real
     const canGo = inst_canGoToRelacion();
-    irBtn.disabled = !canGo;
     if (cfgWarn) {
-        if (!canGo) {
-            const missing = [];
-            if (!instrumentState.actividad.trim()) missing.push('<strong>el nombre de la actividad</strong>');
-            if (!instrumentState.clase.trim()) missing.push('<strong>el curso</strong>');
-            if (!instrumentState.students.length) missing.push('<strong>al menos un alumno/a en la lista</strong>');
-            if (!instrumentState.instruments.length) missing.push('<strong>al menos un instrumento</strong>');
+        const missing = getMissingConfigItems('instrumentos');
+        if (missing.length) {
             cfgWarn.innerHTML = '<i class="bi bi-exclamation-triangle-fill me-2"></i> Para continuar, completa:'
                 + '<ul style="margin:4px 0 0;padding-left:1.4em;list-style:none;">'
                 + missing.map(m => '<li>— ' + m + '</li>').join('')
@@ -5444,9 +5474,8 @@ function inst_getUsedCriteria() {
     return instrumentCriteria.filter((_,cIdx)=>instrumentState.matrix.some(row=>row[cIdx]));
 }
 function inst_updateIrEvalButton() {
-    const btn  = document.getElementById('inst_irEvalBtn');
     const warn = document.getElementById('inst_noCriteriaWarning');
-    if (!btn || !warn) return;
+    if (!warn) return;
 
     // Instrumentos sin ningún criterio asignado
     const uncovered = instrumentState.instruments
@@ -5461,10 +5490,8 @@ function inst_updateIrEvalButton() {
             + uncovered.map(({ name }) => `<li>— <strong>${escapeHtml(name)}</strong></li>`).join('')
             + '</ul>';
         warn.style.display = 'block';
-        btn.disabled = true;
     } else {
         warn.style.display = 'none';
-        btn.disabled = false;
     }
 }
 
@@ -5525,7 +5552,7 @@ function inst_renderEvaluation() {
     document.getElementById('inst_evalThead').innerHTML='<tr><th style="min-width:180px;">ALUMNADO</th>'+instrumentState.instruments.map((inst,i)=>{
         const hasDesc = inst.description && inst.description.trim();
         const copyBtn = `<button class="copy-col-btn" data-instr="${i}" title="Copiar nota del primer alumno a todos"><i class="bi bi-arrow-down-short"></i></button>`;
-        return `<th class="inst-header-clickable" data-instr-idx="${i}" title="${escapeHtml(hasDesc ? inst.description + '\n\n' : '')}Clic para editar nombre y descripción" style="white-space:nowrap;min-width:110px;text-align:center;vertical-align:middle;padding:8px;">`+
+        return `<th class="inst-header-clickable" data-instr-idx="${i}" title="${escapeHtml(hasDesc ? inst.description + '\n\n' : '')}Clic para editar nombre y descripción" style="min-width:110px;text-align:center;vertical-align:middle;padding:8px;">`+
             `${copyBtn}<span style="display:block;font-size:0.85rem;font-weight:700;color:#0b4b6b;">${escapeHtml(inst.name)}</span>`+
             `<span class="inst-desc-indicator">${hasDesc ? '📝' : '✎'}</span></th>`;
     }).join('')+usedCriteria.map(c=>{
@@ -6239,14 +6266,9 @@ function pond_updateWeightBadge() {
 }
 
 function pond_updateGoResultsBtn() {
-    const btn = document.getElementById('pond_btnGoResults');
-    if (!btn) return;
-    const allLoaded = ponderacionState.actividades.every(a => a.loaded);
-    const weightOk = Math.abs(pond_getWeightSum() - 100) < 0.51;
-    btn.disabled = !(allLoaded && weightOk);
-
     const warn = document.getElementById('pond_importWarning');
     if (!warn) return;
+    const weightOk = Math.abs(pond_getWeightSum() - 100) < 0.51;
     const issues = [];
     const notLoaded = ponderacionState.actividades.filter(a => !a.loaded).length;
     if (notLoaded) issues.push(`<strong>${notLoaded} actividad(es)</strong> sin archivo importado`);
@@ -6994,57 +7016,66 @@ function rubric_scaleScore(score) {
 // Comprueba si la actividad de la subapp indicada está completamente configurada.
 // Devuelve true si todos los elementos de la pantalla de configuración están rellenos.
 function isActivityConfigured(app) {
+    return getMissingConfigItems(app).length === 0;
+}
+
+// Devuelve un array de strings con los elementos de configuración que faltan
+function getMissingConfigItems(app) {
+    const missing = [];
     switch (app) {
         case 'exam':
-            // Nombre, curso, alumnado, criterios y asignación de criterios a preguntas
-            if (!examState.examName.trim()) return false;
-            if (!examState.course.trim()) return false;
-            if (!examState.students.length) return false;
-            if (!examState.globalCriteria.length) return false;
-            // Todos los criterios deben estar asignados a alguna pregunta
-            {
+            if (!examState.examName.trim()) missing.push('el nombre del examen');
+            if (!examState.course.trim()) missing.push('el grupo');
+            if (!examState.students.length) missing.push('al menos un alumno/a');
+            if (!examState.globalCriteria.length) missing.push('criterios TEC.4.X.Y.');
+            if (examState.globalCriteria.length) {
                 const assigned = new Set(examState.questions.flatMap(q => q.criteriaCodes || []));
-                if (examState.globalCriteria.some(c => !assigned.has(c))) return false;
+                const unassigned = examState.globalCriteria.filter(c => !assigned.has(c));
+                if (unassigned.length) missing.push('asignar todos los criterios a preguntas');
             }
-            return true;
+            break;
         case 'test':
-            // Nombre, curso, alumnado y criterios
-            if (!testState.examName.trim()) return false;
-            if (!testState.course.trim()) return false;
-            if (!testState.students.length) return false;
-            if (!testState.globalCriteria.length) return false;
-            return true;
+            if (!testState.examName.trim()) missing.push('el nombre del examen');
+            if (!testState.course.trim()) missing.push('el grupo');
+            if (!testState.students.length) missing.push('al menos un alumno/a');
+            if (!testState.globalCriteria.length) missing.push('criterios TEC.4.X.Y.');
+            break;
         case 'generic':
-            // Nombre, curso, alumnado y criterios
-            if (!genericState.examName.trim()) return false;
-            if (!genericState.course.trim()) return false;
-            if (!genericState.students.length) return false;
-            if (!genericState.globalCriteria.length) return false;
-            return true;
+            if (!genericState.examName.trim()) missing.push('el nombre de la actividad');
+            if (!genericState.course.trim()) missing.push('el grupo');
+            if (!genericState.students.length) missing.push('al menos un alumno/a');
+            if (!genericState.globalCriteria.length) missing.push('criterios TEC.4.X.Y.');
+            break;
         case 'instrumentos':
-            // Nombre, curso, alumnado e instrumentos
-            if (!instrumentState.actividad.trim()) return false;
-            if (!instrumentState.clase.trim()) return false;
-            if (!instrumentState.students.length) return false;
-            if (!instrumentState.instruments.length) return false;
-            return true;
+            if (!instrumentState.actividad.trim()) missing.push('el nombre de la actividad');
+            if (!instrumentState.clase.trim()) missing.push('el grupo');
+            if (!instrumentState.students.length) missing.push('al menos un alumno/a');
+            if (!instrumentState.instruments.length) missing.push('al menos un instrumento');
+            break;
         case 'ponderacion':
-            // Nombre y curso
-            if (!ponderacionState.nombre.trim()) return false;
-            if (!ponderacionState.curso.trim()) return false;
-            return true;
+            if (!ponderacionState.nombre.trim()) missing.push('el nombre');
+            if (!ponderacionState.curso.trim()) missing.push('el grupo');
+            break;
         case 'rubricas':
-            // Título, grupo, alumnado, aspectos, valores y criterios
-            if (!rubricState.evalName.trim()) return false;
-            if (!rubricState.groupName.trim()) return false;
-            if (!rubricState.students.length) return false;
-            if (!rubricState.aspects.length) return false;
-            if (rubricState.values.filter(v => v !== 'NE').length === 0) return false;
-            if (!rubricState.globalCriteria.length) return false;
-            return true;
-        default:
-            return false;
+            if (!rubricState.evalName.trim()) missing.push('el título de la evaluación');
+            if (!rubricState.groupName.trim()) missing.push('el grupo');
+            if (!rubricState.students.length) missing.push('al menos un alumno/a');
+            if (!rubricState.aspects.length) missing.push('al menos un aspecto');
+            if (rubricState.values.filter(v => v !== 'NE').length === 0) missing.push('al menos un nivel de logro');
+            if (!rubricState.globalCriteria.length) missing.push('criterios TEC.4.X.Y.');
+            break;
     }
+    return missing;
+}
+
+// Muestra un alert con los elementos de configuración pendientes
+function showConfigAlert(app) {
+    const missing = getMissingConfigItems(app);
+    if (missing.length === 0) return true;
+    const label = FB_APP_LABELS[app] || app;
+    alert(`⚠️ Completa la configuración de ${label}:\n\n` +
+          missing.map(m => '• ' + m).join('\n'));
+    return false;
 }
 
 // Actualiza el badge de la subapp indicada con el formato "Nombre - Grupo"
@@ -7524,6 +7555,20 @@ function rubric_refreshAllUI() {
     rubric_renderAspects();
     rubric_renderValues();
     renderGlobalBadges('rubric');
+    // Actualizar warning de configuración
+    const rubricWarn = document.getElementById('rubricSetupWarning');
+    if (rubricWarn) {
+        const missing = getMissingConfigItems('rubricas');
+        if (missing.length) {
+            rubricWarn.innerHTML = '<i class="bi bi-exclamation-triangle-fill me-2"></i> Para pasar a Evaluación, completa:'
+                + '<ul style="margin:4px 0 0;padding-left:1.4em;list-style:none;">'
+                + missing.map(m => '<li>— ' + m + '</li>').join('')
+                + '</ul>';
+            rubricWarn.style.display = 'block';
+        } else {
+            rubricWarn.style.display = 'none';
+        }
+    }
     // Re-renderizar pantallas activas (fix 15-C-2: stale UI tras load/import/apply)
     if (document.getElementById('rubricScreenEval')?.classList.contains('active')) {
         if (typeof rubric_renderBulkBar === 'function') rubric_renderBulkBar();
@@ -8376,10 +8421,10 @@ function fb_loadCurrentUserProfile(user) {
     });
 }
 
-// Callback de cambio de auth
 // Flag para forzar logout al arrancar la app (incluso si Firebase tiene sesión persistida)
 let _fbForceLogoutOnStart = true;
 
+// Callback de cambio de auth
 function fb_onAuthStateChanged(user) {
     // Si tenemos el flag de forzar logout y hay un usuario, cerrar sesión inmediatamente
     if (user && _fbForceLogoutOnStart) {
@@ -10358,11 +10403,6 @@ function fb_applyAppState(app, data) {
             sortStudents(testState, 'studentScores');
             renderGlobalBadges('test');
             renderTestStudentTags();
-            document.getElementById('testExamTitleInput').value = testState.examName;
-            document.getElementById('testCourseInput').value = testState.course;
-            document.getElementById('testTotalQuestions').value = testState.totalQuestions;
-            document.querySelectorAll('input[name="penalty"]').forEach(r=>{ if(parseFloat(r.value)===testState.penaltyFactor) r.checked=true; });
-            document.querySelectorAll('.penalty-option').forEach(o=>o.classList.toggle('selected',o.querySelector('input')?.checked));
             updateTestConfigWarning();
             updateActivityBadge('test');
             saveAppToLocal('test', true);
@@ -10419,7 +10459,6 @@ function fb_applyAppState(app, data) {
             renderInstrumentosStudentTags();
             document.getElementById('inst_actividadInput').value = instrumentState.actividad;
             document.getElementById('inst_claseInput').value = instrumentState.clase;
-            document.getElementById('inst_numInstrumentos').value = instrumentState.instruments.length;
             updateActivityBadge('instrumentos');
             inst_updateConfigButtonState();
             // Re-renderizar pantallas activas (Relación/Evaluación) para evitar UI rancia
@@ -11407,12 +11446,13 @@ window.onload = function() {
     // ========== EXAMEN ==========
     document.getElementById('examNavConfig').addEventListener('click', ()=>showAppScreen('exam','config'));
     document.getElementById('examNavGrade').addEventListener('click', function() {
-        if(!examState.students.length){ alert('No hay alumnos.'); return; }
-        if(validateExamCriteria()) showAppScreen('exam','grade'); else alert('Complete la asignación de criterios.');
+        if(!showConfigAlert('exam')) return;
+        showAppScreen('exam','grade');
     });
     document.getElementById('examNavResults').addEventListener('click', function() {
-        if(!examState.students.length){ alert('No hay alumnos.'); return; }
-        if(!validateExamCriteria()){ alert('Criterios no asignados correctamente.'); return; }
+        if(!showConfigAlert('exam')) return;
+        const hasScores = examState.scores.some(row => row && row.some(v => v > 0));
+        if (!hasScores) { alert('⚠️ Primero introduce las calificaciones en la pantalla de Calificación.'); return; }
         showAppScreen('exam','results');
     });
     document.getElementById('examNameInput').addEventListener('input', e=>{ examState.examName=e.target.value; updateExamConfigWarning(); updateActivityBadge('exam'); autoSaveApp('exam'); });
@@ -11444,21 +11484,26 @@ window.onload = function() {
     document.getElementById('examExportConfigBtn').addEventListener('click', ()=>exportAppConfig('exam'));
     fileDelegate('examImportConfigBtn','examImportConfigFile');
     document.getElementById('examImportConfigFile').addEventListener('change', function() { if(this.files.length) importAppConfig(this.files[0],'exam'); this.value=''; });
+    document.getElementById('examBtnSaveScores').addEventListener('click', ()=>saveScoresLocal('exam'));
     document.getElementById('examExportScoresBtn').addEventListener('click', ()=>exportAppScores('exam'));
     fileDelegate('examImportScoresBtn','examImportScoresFile');
     document.getElementById('examImportScoresFile').addEventListener('change', function() { if(this.files.length) importAppScores(this.files[0],'exam'); this.value=''; });
+    document.getElementById('examRecoverScoresBtn').addEventListener('click', ()=>recoverScores('exam_scores_backup',
+        data=>{ if(!data.students||!data.questions||!data.scores) throw new Error('Formato no válido.'); examState.scores=data.scores; normalizeExamScores(); },
+        ()=>{ renderExamGradeTable(); autoSaveApp('exam'); autoSaveScores('exam'); }, 'examGradeMessage'));
     document.getElementById('examResetAllBtn').addEventListener('click', ()=>resetAppState('exam'));
     document.getElementById('examShowGlobalGrade').addEventListener('change', ()=>renderResultsTable('exam'));
 
     // ========== TEST ==========
     document.getElementById('testNavConfig').addEventListener('click', ()=>showAppScreen('test','config'));
     document.getElementById('testNavGrade').addEventListener('click', function() {
-        if(!testState.students.length){ alert('No hay alumnos.'); return; }
-        if(!testState.globalCriteria.length) alert('Selecciona al menos un criterio.'); else showAppScreen('test','grade');
+        if(!showConfigAlert('test')) return;
+        showAppScreen('test','grade');
     });
     document.getElementById('testNavResults').addEventListener('click', function() {
-        if(!testState.students.length){ alert('No hay alumnos.'); return; }
-        if(!testState.globalCriteria.length){ alert('Selecciona al menos un criterio.'); return; }
+        if(!showConfigAlert('test')) return;
+        const hasScores = testState.studentScores.some(ss => ss.correct > 0 || ss.wrong > 0);
+        if (!hasScores) { alert('⚠️ Primero introduce las calificaciones en la pantalla de Calificación.'); return; }
         showAppScreen('test','results');
     });
     document.getElementById('testExamTitleInput').addEventListener('input', e=>{ testState.examName=e.target.value; updateTestConfigWarning(); updateActivityBadge('test'); autoSaveApp('test'); });
@@ -11498,21 +11543,37 @@ window.onload = function() {
     document.getElementById('testExportConfigBtn').addEventListener('click', ()=>exportAppConfig('test'));
     fileDelegate('testImportConfigBtn','testImportConfigFile');
     document.getElementById('testImportConfigFile').addEventListener('change', function() { if(this.files.length) importAppConfig(this.files[0],'test'); this.value=''; });
+    document.getElementById('testBtnSaveScores').addEventListener('click', ()=>saveScoresLocal('test'));
     document.getElementById('testExportScoresBtn').addEventListener('click', ()=>exportAppScores('test'));
     fileDelegate('testImportScoresBtn','testImportScoresFile');
     document.getElementById('testImportScoresFile').addEventListener('change', function() { if(this.files.length) importAppScores(this.files[0],'test'); this.value=''; });
+    document.getElementById('testRecoverScoresBtn').addEventListener('click', ()=>recoverScores('test_scores_backup',
+        data=>{
+            if (!data || !Array.isArray(data.studentScores)) throw new Error('Formato no válido.');
+            testState.studentScores = data.studentScores.map(ss => {
+                if (!ss || typeof ss !== 'object') return {correct:0,wrong:0,unanswered:testState.totalQuestions};
+                const c = Math.min(Number(ss.correct)||0, testState.totalQuestions);
+                const w = Math.min(Number(ss.wrong)||0, testState.totalQuestions - c);
+                return { correct: c, wrong: w, unanswered: Math.max(0, testState.totalQuestions - c - w) };
+            });
+            // Truncar/padear a longitud de students
+            while (testState.studentScores.length < testState.students.length) testState.studentScores.push({correct:0,wrong:0,unanswered:testState.totalQuestions});
+            testState.studentScores = testState.studentScores.slice(0, testState.students.length);
+        },
+        ()=>{ renderTestGradeTable(); autoSaveApp('test'); autoSaveScores('test'); }, 'testGradeMessage'));
     document.getElementById('testResetAllBtn2').addEventListener('click', ()=>resetAppState('test'));
     document.getElementById('testShowGlobalGrade').addEventListener('change', ()=>renderResultsTable('test'));
 
     // ========== GENÉRICA ==========
     document.getElementById('genericNavConfig').addEventListener('click', ()=>showAppScreen('generic','config'));
     document.getElementById('genericNavGrade').addEventListener('click', function() {
-        if(!genericState.students.length){ alert('No hay alumnos.'); return; }
-        if(validateGenericCriteria()) showAppScreen('generic','grade'); else alert('Selecciona al menos un criterio.');
+        if(!showConfigAlert('generic')) return;
+        showAppScreen('generic','grade');
     });
     document.getElementById('genericNavResults').addEventListener('click', function() {
-        if(!genericState.students.length){ alert('No hay alumnos.'); return; }
-        if(!validateGenericCriteria()){ alert('Selecciona al menos un criterio.'); return; }
+        if(!showConfigAlert('generic')) return;
+        const hasScores = genericState.scores.some(row => row && row.some(v => v > 0));
+        if (!hasScores) { alert('⚠️ Primero introduce las calificaciones en la pantalla de Calificación.'); return; }
         showAppScreen('generic','results');
     });
     document.getElementById('genericExamNameInput').addEventListener('input', e=>{ genericState.examName=e.target.value; updateGenericConfigWarning(); updateActivityBadge('generic'); autoSaveApp('generic'); });
@@ -11533,9 +11594,13 @@ window.onload = function() {
     document.getElementById('genericExportConfigBtn').addEventListener('click', ()=>exportAppConfig('generic'));
     fileDelegate('genericImportConfigBtn','genericImportConfigFile');
     document.getElementById('genericImportConfigFile').addEventListener('change', function() { if(this.files.length) importAppConfig(this.files[0],'generic'); this.value=''; });
+    document.getElementById('genericBtnSaveScores').addEventListener('click', ()=>saveScoresLocal('generic'));
     document.getElementById('genericExportScoresBtn').addEventListener('click', ()=>exportAppScores('generic'));
     fileDelegate('genericImportScoresBtn','genericImportScoresFile');
     document.getElementById('genericImportScoresFile').addEventListener('change', function() { if(this.files.length) importAppScores(this.files[0],'generic'); this.value=''; });
+    document.getElementById('genericRecoverScoresBtn').addEventListener('click', ()=>recoverScores('generic_scores_backup',
+        data=>{ if(!data.students||!data.scores||!data.criteria) throw new Error('Formato no válido.'); genericState.scores=data.scores; normalizeGenericScores(); },
+        ()=>{ renderGenericGradeTable(); autoSaveApp('generic'); autoSaveScores('generic'); }, 'genericGradeMessage'));
     document.getElementById('genericResetAllBtn').addEventListener('click', ()=>resetAppState('generic'));
     document.getElementById('genericShowGlobalGrade').addEventListener('change', ()=>renderResultsTable('generic'));
 
@@ -11567,8 +11632,12 @@ window.onload = function() {
 
     // ========== INSTRUMENTOS ==========
     document.getElementById('inst_config-tab').addEventListener('click', ()=>showInstrumentosScreen('inst_config'));
-    document.getElementById('inst_relacion-tab').addEventListener('click', ()=>showInstrumentosScreen('inst_relacion'));
+    document.getElementById('inst_relacion-tab').addEventListener('click', ()=>{
+        if(!showConfigAlert('instrumentos')) return;
+        showInstrumentosScreen('inst_relacion');
+    });
     document.getElementById('inst_eval-tab').addEventListener('click', ()=>{
+        if(!showConfigAlert('instrumentos')) return;
         const uncovered = instrumentState.instruments
             .map((inst, i) => ({ name: inst.name || `Instrumento ${i + 1}`, idx: i }))
             .filter(({ idx }) => !instrumentState.matrix[idx] || !instrumentState.matrix[idx].some(v => v));
@@ -11630,26 +11699,6 @@ window.onload = function() {
     document.getElementById('inst_importExcel').addEventListener('change', function() {
         if(this.files.length) importStudentsFromFile(this.files[0], instrumentState, 'evalScores', ()=>{ renderInstrumentosStudentTags(); inst_updateConfigButtonState(); if(document.getElementById('inst_eval').classList.contains('active')) inst_renderEvaluation(); inst_saveConfigLocalSilent(); inst_saveEvalLocalSilent(); });
         this.value='';
-    });
-    document.getElementById('inst_irRelacionBtn').addEventListener('click', function() {
-        if(this.disabled){ alert('Completa todos los campos obligatorios.'); return; }
-        inst_renderMatrix(); showInstrumentosScreen('inst_relacion');
-    });
-    document.getElementById('inst_irEvalBtn').addEventListener('click', function() {
-        if(this.disabled){ alert('Asigna al menos un criterio a cada instrumento antes de continuar.'); return; }
-        instrumentState.evalWeights=instrumentState.instruments.map(i=>i.weight);
-        // Non-destructive resize: preserve existing scores, only fill missing rows / pad columns
-        while (instrumentState.evalScores.length < instrumentState.students.length)
-            instrumentState.evalScores.push(new Array(instrumentState.instruments.length).fill(0));
-        while (instrumentState.evalScores.length > instrumentState.students.length)
-            instrumentState.evalScores.pop();
-        instrumentState.evalScores = instrumentState.evalScores.map(row => {
-            const r = Array.isArray(row) ? row : [];
-            while (r.length < instrumentState.instruments.length) r.push(0);
-            return r.slice(0, instrumentState.instruments.length);
-        });
-        inst_renderEvaluation(); showInstrumentosScreen('inst_eval');
-        inst_saveEvalLocalSilent();
     });
     document.getElementById('inst_hideUnusedCriteria').addEventListener('change', inst_renderMatrix);
     document.getElementById('inst_showGradeColumn').addEventListener('change', inst_renderEvaluation);
@@ -11747,14 +11796,15 @@ window.onload = function() {
         ponderacionState.nombre = document.getElementById('pond_nombreInput')?.value.trim() || ponderacionState.nombre;
         ponderacionState.curso  = document.getElementById('pond_cursoInput')?.value.trim()  || ponderacionState.curso;
         ponderacionState.numActividades = parseInt(document.getElementById('pond_numActividadesInput')?.value) || 2;
-        if (!pond_validateConfig()) return;
+        if (!showConfigAlert('ponderacion')) return;
         pond_saveConfigLocalSilent();
         pond_saveImportLocalSilent();
         pond_showScreen('Import');
     });
     document.getElementById('pond_tabResults')?.addEventListener('click', () => {
+        if(!showConfigAlert('ponderacion')) return;
         const { rows } = pond_computeResults();
-        if (!rows.length) { alert('Importa al menos una actividad con datos para ver resultados.'); return; }
+        if (!rows.length) { alert('⚠️ Primero importa archivos de resultados en la pantalla de Importar.'); return; }
         pond_showScreen('Results');
     });
 
@@ -11778,18 +11828,7 @@ window.onload = function() {
     document.getElementById('pond_resetAllBtn')?.addEventListener('click', pond_resetAll);
 
     // Config → Importar
-    document.getElementById('pond_btnGoImport')?.addEventListener('click', () => {
-        ponderacionState.nombre = document.getElementById('pond_nombreInput').value.trim();
-        ponderacionState.curso  = document.getElementById('pond_cursoInput').value.trim();
-        ponderacionState.numActividades = parseInt(document.getElementById('pond_numActividadesInput').value) || 2;
-        if (!pond_validateConfig()) return;
-        pond_saveConfigLocalSilent();
-        pond_saveImportLocalSilent();
-        pond_showScreen('Import');
-    });
-
-    // Importar → atrás
-    document.getElementById('pond_btnBackConfig')?.addEventListener('click', () => pond_showScreen('Config'));
+    // (navegación via pond_tabImport que ya tiene showConfigAlert)
 
     // Import management buttons
     document.getElementById('pond_exportImportBtn')?.addEventListener('click', pond_exportImport);
@@ -11797,10 +11836,7 @@ window.onload = function() {
     document.getElementById('pond_importImportFile')?.addEventListener('change', function() { if (this.files.length) pond_importImport(this.files[0]); this.value = ''; });
 
     // Importar → Resultados
-    document.getElementById('pond_btnGoResults')?.addEventListener('click', () => pond_showScreen('Results'));
-
-    // Resultados → atrás
-    document.getElementById('pond_btnBackImport')?.addEventListener('click', () => pond_showScreen('Import'));
+    // (navegación via pond_tabResults / pond_btnGoResults que ya tienen showConfigAlert)
 
     // Toggle re-render
     document.getElementById('pond_showGradeColumn')?.addEventListener('change', () => {
@@ -11819,16 +11855,17 @@ window.onload = function() {
     // ========== RÚBRICAS (APP 6) ==========
     document.getElementById('rubricNavSetup')?.addEventListener('click', () => rubric_showScreen('Setup'));
     document.getElementById('rubricNavEval')?.addEventListener('click', () => {
-        if (!isActivityConfigured('rubricas')) { alert('⚠️ Completa primero todos los elementos de la configuración:\n\n• Título de la evaluación\n• Grupo\n• Alumnado\n• Aspectos\n• Valores de logro\n• Criterios TEC.4.X.Y.'); return; }
+        if (!showConfigAlert('rubricas')) return;
         rubric_showScreen('Eval');
     });
-    document.getElementById('rubricNavResults')?.addEventListener('click', () => rubric_showScreen('Results'));
-    document.getElementById('rubricBtnGoEval')?.addEventListener('click', () => {
-        if (!isActivityConfigured('rubricas')) { alert('⚠️ Completa primero todos los elementos de la configuración:\n\n• Título de la evaluación\n• Grupo\n• Alumnado\n• Aspectos\n• Valores de logro\n• Criterios TEC.4.X.Y.'); return; }
-        rubric_showScreen('Eval');
+    document.getElementById('rubricNavResults')?.addEventListener('click', () => {
+        if (!showConfigAlert('rubricas')) return;
+        if (!rubricState.results) {
+            alert('⚠️ Primero debes calcular las notas.\n\nPulsa "Calcular notas" al final de la pantalla de "Evaluación".');
+            return;
+        }
+        rubric_showScreen('Results');
     });
-    document.getElementById('rubricBtnBackSetup')?.addEventListener('click', () => rubric_showScreen('Setup'));
-    document.getElementById('rubricBtnBackEval')?.addEventListener('click', () => rubric_showScreen('Eval'));
     document.getElementById('rubricBtnCalc')?.addEventListener('click', rubric_calculate);
 
     // Config: nombre y grupo
@@ -12089,7 +12126,11 @@ window.onload = function() {
 
     // ========== FIREBASE: INIT + LISTENERS ==========
     fb_setup();
-    // El forzar logout se maneja vía _fbForceLogoutOnStart en fb_onAuthStateChanged
+    // Forzar logout al arrancar: si había sesión persistida por Firebase Auth, cerrarla
+    // para que la app siempre arranque en modo logout
+    if (typeof fbAuth !== 'undefined' && fbAuth && fbAuth.currentUser) {
+        fbAuth.signOut().catch(()=>{});
+    }
 
     // Botones de guardar/cargar en la nube desde cada subaplicación (CONFIGURACIÓN)
     document.querySelectorAll('.fb-app-save-btn').forEach(btn => {
