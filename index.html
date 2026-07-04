@@ -582,6 +582,8 @@
             border-radius: var(--border-radius-sm);
             background-color: white; 
             font-size: 1rem;
+            text-align: center;
+            text-align-last: center;
             transition: var(--transition);
         }
         
@@ -2625,17 +2627,15 @@
         <div id="examScreenGrade" class="screen">
             <div class="section-card">
                 <div class="section-title"><i class="bi bi-pencil-square"></i> Calificaciones por pregunta <i class="bi bi-question-circle help-icon" data-bs-toggle="tooltip" title="Introduce la nota de cada alumno en cada pregunta (0-10)."></i></div>
-                <div id="examGradeTableWrapper" class="table-responsive" style="max-height:500px; overflow-y:auto;"><table class="table table-bordered table-striped" id="examGradeTable"><thead class="sticky-top bg-white"></thead><tbody id="examGradeTbody"></tbody></table></div>
-                <div class="mt-3 d-flex flex-wrap gap-2 justify-content-end">
-                    <button id="examClearScoresBtn" class="btn btn-outline-danger"><i class="bi bi-trash3"></i> Borrar calificaciones</button>
-                    <button id="examExportScoresBtn" class="btn btn-outline-dark"><i class="bi bi-download"></i> Exportar calif.</button>
+                <div class="d-flex flex-wrap gap-2 justify-content-end mb-3">
                     <button id="examImportScoresBtn" class="btn btn-outline-secondary"><i class="bi bi-upload"></i> Importar calif.</button>
                     <input type="file" id="examImportScoresFile" accept=".json" hidden>
-                    <button id="examBtnSaveScores" class="btn btn-primary"><i class="bi bi-save"></i> Guardar calif.</button>
-                    <button id="examRecoverScoresBtn" class="btn btn-outline-info"><i class="bi bi-arrow-repeat"></i> Recuperar calif.</button>
-                    <button class="btn btn-outline-warning fb-scores-save-btn" data-app="exam" title="Guardar calificaciones en la nube (requiere sesión)"><i class="bi bi-cloud-arrow-up"></i> Guardar calif. en la nube</button>
                     <button class="btn btn-outline-warning fb-scores-load-btn" data-app="exam" title="Cargar calificaciones desde la nube (requiere sesión)"><i class="bi bi-cloud-arrow-down"></i> Cargar calif. de la nube</button>
+                    <button id="examExportScoresBtn" class="btn btn-outline-dark"><i class="bi bi-download"></i> Exportar calif.</button>
+                    <button class="btn btn-outline-warning fb-scores-save-btn" data-app="exam" title="Guardar calificaciones en la nube (requiere sesión)"><i class="bi bi-cloud-arrow-up"></i> Guardar calif. en la nube</button>
+                    <button id="examClearScoresBtn" class="btn btn-outline-danger"><i class="bi bi-trash3"></i> Borrar calificaciones</button>
                 </div>
+                <div id="examGradeTableWrapper" class="table-responsive" style="max-height:500px; overflow-y:auto;"><table class="table table-bordered table-striped" id="examGradeTable"><thead class="sticky-top bg-white"></thead><tbody id="examGradeTbody"></tbody></table></div>
                 <div class="alert alert-info mt-3 small" id="examGradeMessage"></div>
             </div>
         </div>
@@ -2728,17 +2728,15 @@
         <div id="testScreenGrade" class="screen">
             <div class="section-card">
                 <div class="section-title"><i class="fas fa-pencil-alt"></i> Calificaciones por alumno <i class="bi bi-question-circle help-icon" data-bs-toggle="tooltip" title="Selecciona aciertos y fallos. NS/NC se calcula automáticamente."></i></div>
-                <div id="testGradeTableWrapper" class="table-responsive" style="max-height:600px;"><table class="table table-bordered table-striped" id="testGradeTable"><thead class="table-secondary sticky-top"></thead><tbody id="testGradeTbody"></tbody></table></div>
-                <div class="mt-3 d-flex flex-wrap gap-2 justify-content-end">
-                    <button id="testClearScoresBtn" class="btn btn-outline-danger"><i class="bi bi-trash3"></i> Borrar calificaciones</button>
-                    <button id="testExportScoresBtn" class="btn btn-outline-dark"><i class="bi bi-download"></i> Exportar calif.</button>
+                <div class="d-flex flex-wrap gap-2 justify-content-end mb-3">
                     <button id="testImportScoresBtn" class="btn btn-outline-secondary"><i class="bi bi-upload"></i> Importar calif.</button>
                     <input type="file" id="testImportScoresFile" accept=".json" hidden>
-                    <button id="testBtnSaveScores" class="btn btn-primary"><i class="fas fa-save"></i> Guardar calif.</button>
-                    <button id="testRecoverScoresBtn" class="btn btn-outline-info"><i class="bi bi-arrow-repeat"></i> Recuperar calif.</button>
-                    <button class="btn btn-outline-warning fb-scores-save-btn" data-app="test" title="Guardar calificaciones en la nube (requiere sesión)"><i class="bi bi-cloud-arrow-up"></i> Guardar calif. en la nube</button>
                     <button class="btn btn-outline-warning fb-scores-load-btn" data-app="test" title="Cargar calificaciones desde la nube (requiere sesión)"><i class="bi bi-cloud-arrow-down"></i> Cargar calif. de la nube</button>
+                    <button id="testExportScoresBtn" class="btn btn-outline-dark"><i class="bi bi-download"></i> Exportar calif.</button>
+                    <button class="btn btn-outline-warning fb-scores-save-btn" data-app="test" title="Guardar calificaciones en la nube (requiere sesión)"><i class="bi bi-cloud-arrow-up"></i> Guardar calif. en la nube</button>
+                    <button id="testClearScoresBtn" class="btn btn-outline-danger"><i class="bi bi-trash3"></i> Borrar calificaciones</button>
                 </div>
+                <div id="testGradeTableWrapper" class="table-responsive" style="max-height:600px;"><table class="table table-bordered table-striped" id="testGradeTable"><thead class="table-secondary sticky-top"></thead><tbody id="testGradeTbody"></tbody></table></div>
                 <div class="alert alert-info mt-3 small" id="testGradeMessage"></div>
             </div>
         </div>
@@ -2816,17 +2814,15 @@
         <div id="genericScreenGrade" class="screen">
             <div class="section-card">
                 <div class="section-title"><i class="bi bi-pencil-square"></i> Calificaciones por criterio <i class="bi bi-question-circle help-icon" data-bs-toggle="tooltip" title="Introduce una nota (0-10) para cada alumno en cada criterio."></i></div>
-                <div id="genericGradeTableWrapper" class="table-responsive" style="max-height:500px;"><table class="table table-bordered table-striped" id="genericGradeTable"><thead class="sticky-top bg-white"></thead><tbody id="genericGradeTbody"></tbody></table></div>
-                <div class="mt-3 d-flex flex-wrap gap-2 justify-content-end">
-                    <button id="genericClearScoresBtn" class="btn btn-outline-danger"><i class="bi bi-trash3"></i> Borrar calificaciones</button>
-                    <button id="genericExportScoresBtn" class="btn btn-outline-dark"><i class="bi bi-download"></i> Exportar calif.</button>
+                <div class="d-flex flex-wrap gap-2 justify-content-end mb-3">
                     <button id="genericImportScoresBtn" class="btn btn-outline-secondary"><i class="bi bi-upload"></i> Importar calif.</button>
                     <input type="file" id="genericImportScoresFile" accept=".json" hidden>
-                    <button id="genericBtnSaveScores" class="btn btn-primary"><i class="bi bi-save"></i> Guardar calif.</button>
-                    <button id="genericRecoverScoresBtn" class="btn btn-outline-info"><i class="bi bi-arrow-repeat"></i> Recuperar calif.</button>
-                    <button class="btn btn-outline-warning fb-scores-save-btn" data-app="generic" title="Guardar calificaciones en la nube (requiere sesión)"><i class="bi bi-cloud-arrow-up"></i> Guardar calif. en la nube</button>
                     <button class="btn btn-outline-warning fb-scores-load-btn" data-app="generic" title="Cargar calificaciones desde la nube (requiere sesión)"><i class="bi bi-cloud-arrow-down"></i> Cargar calif. de la nube</button>
+                    <button id="genericExportScoresBtn" class="btn btn-outline-dark"><i class="bi bi-download"></i> Exportar calif.</button>
+                    <button class="btn btn-outline-warning fb-scores-save-btn" data-app="generic" title="Guardar calificaciones en la nube (requiere sesión)"><i class="bi bi-cloud-arrow-up"></i> Guardar calif. en la nube</button>
+                    <button id="genericClearScoresBtn" class="btn btn-outline-danger"><i class="bi bi-trash3"></i> Borrar calificaciones</button>
                 </div>
+                <div id="genericGradeTableWrapper" class="table-responsive" style="max-height:500px;"><table class="table table-bordered table-striped" id="genericGradeTable"><thead class="sticky-top bg-white"></thead><tbody id="genericGradeTbody"></tbody></table></div>
                 <div class="alert alert-info mt-3 small" id="genericGradeMessage"></div>
             </div>
         </div>
@@ -2941,17 +2937,15 @@
                 <div class="section-card">
                     <div class="section-title"><i class="bi bi-table"></i> Calificaciones</div>
                     <div class="inst-switch-container"><div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="inst_showGradeColumn" checked><label class="form-check-label" for="inst_showGradeColumn">Mostrar columna Calificación</label></div></div>
-                    <div class="inst-btn-file-group mt-3 mb-3">
-                        <button id="inst_clearScoresBtn" class="btn btn-outline-danger btn-sm"><i class="bi bi-trash3"></i> Borrar calificaciones</button>
-                        <button id="inst_exportEvalJson" class="btn btn-outline-primary btn-sm"><i class="bi bi-file-earmark-arrow-down"></i> Exportar calif. JSON</button>
+                    <div class="d-flex flex-wrap gap-2 justify-content-end mt-3 mb-3">
                         <button id="inst_importEvalJsonBtn" class="btn btn-outline-secondary btn-sm"><i class="bi bi-file-earmark-arrow-up"></i> Importar calif. JSON</button>
                         <input type="file" id="inst_importEvalFile" accept=".json" hidden>
+                        <button class="btn btn-outline-warning btn-sm fb-scores-load-btn" data-app="instrumentos" title="Cargar calificaciones desde la nube (requiere sesión)"><i class="bi bi-cloud-arrow-down"></i> Cargar calif. de la nube</button>
+                        <button id="inst_exportEvalJson" class="btn btn-outline-primary btn-sm"><i class="bi bi-file-earmark-arrow-down"></i> Exportar calif. JSON</button>
+                        <button class="btn btn-outline-warning btn-sm fb-scores-save-btn" data-app="instrumentos" title="Guardar calificaciones en la nube (requiere sesión)"><i class="bi bi-cloud-arrow-up"></i> Guardar calif. en la nube</button>
+                        <button id="inst_clearScoresBtn" class="btn btn-outline-danger btn-sm"><i class="bi bi-trash3"></i> Borrar calificaciones</button>
                     </div>
                     <div class="table-responsive" style="max-height:500px;"><table class="table table-bordered table-striped" id="inst_evalTable"><thead class="inst-fixed-header" id="inst_evalThead"></thead><tbody id="inst_evalTbody"></tbody></table></div>
-                    <div class="d-flex flex-wrap gap-2 mt-3 justify-content-end">
-                        <button class="btn btn-outline-warning fb-scores-save-btn" data-app="instrumentos" title="Guardar calificaciones en la nube (requiere sesión)"><i class="bi bi-cloud-arrow-up"></i> Guardar calif. en la nube</button>
-                        <button class="btn btn-outline-warning fb-scores-load-btn" data-app="instrumentos" title="Cargar calificaciones desde la nube (requiere sesión)"><i class="bi bi-cloud-arrow-down"></i> Cargar calif. de la nube</button>
-                    </div>
                     <div class="d-flex flex-wrap gap-3 mt-4 justify-content-between">
                         <span class="fw-bold">Exportar resultados:</span>
                         <div>
@@ -3194,6 +3188,14 @@
 
         <!-- PANTALLA EVALUACIÓN -->
         <div id="rubricScreenEval" class="screen">
+            <div class="d-flex flex-wrap gap-2 justify-content-end mb-3">
+                <button id="rubricImportDataBtn" class="btn btn-outline-secondary btn-sm"><i class="bi bi-upload"></i> Importar datos</button>
+                <input type="file" id="rubricImportDataFile" accept=".json" hidden>
+                <button class="btn btn-outline-warning btn-sm fb-scores-load-btn" data-app="rubricas" title="Cargar calificaciones desde la nube (requiere sesión)"><i class="bi bi-cloud-arrow-down"></i> Cargar calif. de la nube</button>
+                <button id="rubricExportDataBtn" class="btn btn-outline-primary btn-sm"><i class="bi bi-download"></i> Exportar datos</button>
+                <button class="btn btn-outline-warning btn-sm fb-scores-save-btn" data-app="rubricas" title="Guardar calificaciones en la nube (requiere sesión)"><i class="bi bi-cloud-arrow-up"></i> Guardar calif. en la nube</button>
+                <button id="rubricClearDataBtn" class="btn btn-outline-danger btn-sm"><i class="bi bi-trash3"></i> Limpiar datos</button>
+            </div>
             <div class="section-card">
                 <div class="section-title"><i class="bi bi-person-fill"></i> Evaluación del profesor <span class="badge bg-danger ms-2"><span id="rubricTeacherPercentEval">75</span>% de la nota</span><i class="bi bi-question-circle help-icon" data-bs-toggle="tooltip" title="Selecciona el nivel de logro de cada alumno en cada aspecto."></i></div>
                 <div class="rubric-bulk-bar d-flex flex-wrap align-items-center gap-2">
@@ -3223,15 +3225,7 @@
 
             <div class="d-flex flex-wrap justify-content-between gap-2 mt-3">
                 <button id="rubricBtnBackSetup" class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i> Volver a Configuración</button>
-                <div class="d-flex flex-wrap gap-2">
-                    <button class="btn btn-outline-warning fb-scores-save-btn" data-app="rubricas" title="Guardar calificaciones en la nube (requiere sesión)"><i class="bi bi-cloud-arrow-up"></i> Guardar calif. en la nube</button>
-                    <button class="btn btn-outline-warning fb-scores-load-btn" data-app="rubricas" title="Cargar calificaciones desde la nube (requiere sesión)"><i class="bi bi-cloud-arrow-down"></i> Cargar calif. de la nube</button>
-                    <button id="rubricExportDataBtn" class="btn btn-outline-primary"><i class="bi bi-download"></i> Exportar datos</button>
-                    <button id="rubricImportDataBtn" class="btn btn-outline-secondary"><i class="bi bi-upload"></i> Importar datos</button>
-                    <input type="file" id="rubricImportDataFile" accept=".json" hidden>
-                    <button id="rubricClearDataBtn" class="btn btn-outline-danger"><i class="bi bi-trash3"></i> Limpiar datos</button>
-                    <button id="rubricBtnCalc" class="btn btn-danger btn-lg"><i class="bi bi-calculator"></i> Calcular notas</button>
-                </div>
+                <button id="rubricBtnCalc" class="btn btn-danger btn-lg"><i class="bi bi-calculator"></i> Calcular notas</button>
             </div>
         </div>
 
@@ -8190,6 +8184,11 @@ function fb_init() {
         fbApp = firebase.initializeApp(FB_CONFIG);
         fbDb = firebase.database();
         fbAuth = firebase.auth();
+        // Usar persistencia SESSION: la sesión NO sobrevive al cerrar el navegador.
+        // Esto garantiza que al reabrir la página, el usuario deba iniciar sesión de nuevo.
+        fbAuth.setPersistence(firebase.auth.Auth.Persistence.SESSION).catch(e => {
+            console.warn('No se pudo establecer persistencia SESSION:', e);
+        });
         // Escuchar cambios de auth
         fbAuth.onAuthStateChanged(fb_onAuthStateChanged);
     } catch(e) {
@@ -8378,7 +8377,17 @@ function fb_loadCurrentUserProfile(user) {
 }
 
 // Callback de cambio de auth
+// Flag para forzar logout al arrancar la app (incluso si Firebase tiene sesión persistida)
+let _fbForceLogoutOnStart = true;
+
 function fb_onAuthStateChanged(user) {
+    // Si tenemos el flag de forzar logout y hay un usuario, cerrar sesión inmediatamente
+    if (user && _fbForceLogoutOnStart) {
+        _fbForceLogoutOnStart = false; // solo una vez
+        try { fbAuth.signOut().catch(()=>{}); } catch(e) {}
+        return; // no procesar este usuario — se disparará onAuthStateChanged(null) tras el signOut
+    }
+    _fbForceLogoutOnStart = false; // ya procesamos el primer evento
     if (user) {
         fb_loadCurrentUserProfile(user).then((profile) => {
             // Si el usuario cerró sesión mientras se cargaba el perfil, no subscribir
@@ -10349,6 +10358,11 @@ function fb_applyAppState(app, data) {
             sortStudents(testState, 'studentScores');
             renderGlobalBadges('test');
             renderTestStudentTags();
+            document.getElementById('testExamTitleInput').value = testState.examName;
+            document.getElementById('testCourseInput').value = testState.course;
+            document.getElementById('testTotalQuestions').value = testState.totalQuestions;
+            document.querySelectorAll('input[name="penalty"]').forEach(r=>{ if(parseFloat(r.value)===testState.penaltyFactor) r.checked=true; });
+            document.querySelectorAll('.penalty-option').forEach(o=>o.classList.toggle('selected',o.querySelector('input')?.checked));
             updateTestConfigWarning();
             updateActivityBadge('test');
             saveAppToLocal('test', true);
@@ -10405,6 +10419,7 @@ function fb_applyAppState(app, data) {
             renderInstrumentosStudentTags();
             document.getElementById('inst_actividadInput').value = instrumentState.actividad;
             document.getElementById('inst_claseInput').value = instrumentState.clase;
+            document.getElementById('inst_numInstrumentos').value = instrumentState.instruments.length;
             updateActivityBadge('instrumentos');
             inst_updateConfigButtonState();
             // Re-renderizar pantallas activas (Relación/Evaluación) para evitar UI rancia
@@ -11429,13 +11444,9 @@ window.onload = function() {
     document.getElementById('examExportConfigBtn').addEventListener('click', ()=>exportAppConfig('exam'));
     fileDelegate('examImportConfigBtn','examImportConfigFile');
     document.getElementById('examImportConfigFile').addEventListener('change', function() { if(this.files.length) importAppConfig(this.files[0],'exam'); this.value=''; });
-    document.getElementById('examBtnSaveScores').addEventListener('click', ()=>saveScoresLocal('exam'));
     document.getElementById('examExportScoresBtn').addEventListener('click', ()=>exportAppScores('exam'));
     fileDelegate('examImportScoresBtn','examImportScoresFile');
     document.getElementById('examImportScoresFile').addEventListener('change', function() { if(this.files.length) importAppScores(this.files[0],'exam'); this.value=''; });
-    document.getElementById('examRecoverScoresBtn').addEventListener('click', ()=>recoverScores('exam_scores_backup',
-        data=>{ if(!data.students||!data.questions||!data.scores) throw new Error('Formato no válido.'); examState.scores=data.scores; normalizeExamScores(); },
-        ()=>{ renderExamGradeTable(); autoSaveApp('exam'); autoSaveScores('exam'); }, 'examGradeMessage'));
     document.getElementById('examResetAllBtn').addEventListener('click', ()=>resetAppState('exam'));
     document.getElementById('examShowGlobalGrade').addEventListener('change', ()=>renderResultsTable('exam'));
 
@@ -11487,24 +11498,9 @@ window.onload = function() {
     document.getElementById('testExportConfigBtn').addEventListener('click', ()=>exportAppConfig('test'));
     fileDelegate('testImportConfigBtn','testImportConfigFile');
     document.getElementById('testImportConfigFile').addEventListener('change', function() { if(this.files.length) importAppConfig(this.files[0],'test'); this.value=''; });
-    document.getElementById('testBtnSaveScores').addEventListener('click', ()=>saveScoresLocal('test'));
     document.getElementById('testExportScoresBtn').addEventListener('click', ()=>exportAppScores('test'));
     fileDelegate('testImportScoresBtn','testImportScoresFile');
     document.getElementById('testImportScoresFile').addEventListener('change', function() { if(this.files.length) importAppScores(this.files[0],'test'); this.value=''; });
-    document.getElementById('testRecoverScoresBtn').addEventListener('click', ()=>recoverScores('test_scores_backup',
-        data=>{
-            if (!data || !Array.isArray(data.studentScores)) throw new Error('Formato no válido.');
-            testState.studentScores = data.studentScores.map(ss => {
-                if (!ss || typeof ss !== 'object') return {correct:0,wrong:0,unanswered:testState.totalQuestions};
-                const c = Math.min(Number(ss.correct)||0, testState.totalQuestions);
-                const w = Math.min(Number(ss.wrong)||0, testState.totalQuestions - c);
-                return { correct: c, wrong: w, unanswered: Math.max(0, testState.totalQuestions - c - w) };
-            });
-            // Truncar/padear a longitud de students
-            while (testState.studentScores.length < testState.students.length) testState.studentScores.push({correct:0,wrong:0,unanswered:testState.totalQuestions});
-            testState.studentScores = testState.studentScores.slice(0, testState.students.length);
-        },
-        ()=>{ renderTestGradeTable(); autoSaveApp('test'); autoSaveScores('test'); }, 'testGradeMessage'));
     document.getElementById('testResetAllBtn2').addEventListener('click', ()=>resetAppState('test'));
     document.getElementById('testShowGlobalGrade').addEventListener('change', ()=>renderResultsTable('test'));
 
@@ -11537,13 +11533,9 @@ window.onload = function() {
     document.getElementById('genericExportConfigBtn').addEventListener('click', ()=>exportAppConfig('generic'));
     fileDelegate('genericImportConfigBtn','genericImportConfigFile');
     document.getElementById('genericImportConfigFile').addEventListener('change', function() { if(this.files.length) importAppConfig(this.files[0],'generic'); this.value=''; });
-    document.getElementById('genericBtnSaveScores').addEventListener('click', ()=>saveScoresLocal('generic'));
     document.getElementById('genericExportScoresBtn').addEventListener('click', ()=>exportAppScores('generic'));
     fileDelegate('genericImportScoresBtn','genericImportScoresFile');
     document.getElementById('genericImportScoresFile').addEventListener('change', function() { if(this.files.length) importAppScores(this.files[0],'generic'); this.value=''; });
-    document.getElementById('genericRecoverScoresBtn').addEventListener('click', ()=>recoverScores('generic_scores_backup',
-        data=>{ if(!data.students||!data.scores||!data.criteria) throw new Error('Formato no válido.'); genericState.scores=data.scores; normalizeGenericScores(); },
-        ()=>{ renderGenericGradeTable(); autoSaveApp('generic'); autoSaveScores('generic'); }, 'genericGradeMessage'));
     document.getElementById('genericResetAllBtn').addEventListener('click', ()=>resetAppState('generic'));
     document.getElementById('genericShowGlobalGrade').addEventListener('change', ()=>renderResultsTable('generic'));
 
@@ -12097,11 +12089,7 @@ window.onload = function() {
 
     // ========== FIREBASE: INIT + LISTENERS ==========
     fb_setup();
-    // Forzar logout al arrancar: si había sesión persistida por Firebase Auth, cerrarla
-    // para que la app siempre arranque en modo logout
-    if (typeof fbAuth !== 'undefined' && fbAuth && fbAuth.currentUser) {
-        fbAuth.signOut().catch(()=>{});
-    }
+    // El forzar logout se maneja vía _fbForceLogoutOnStart en fb_onAuthStateChanged
 
     // Botones de guardar/cargar en la nube desde cada subaplicación (CONFIGURACIÓN)
     document.querySelectorAll('.fb-app-save-btn').forEach(btn => {
