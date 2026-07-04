@@ -11261,14 +11261,14 @@ window.onload = function() {
         document.addEventListener('click', hideIntro, {once:true});
     }
 
-// Inicializar tooltips de Bootstrap (con guard por si el CDN falla — fix 16-A-1)
-if (typeof bootstrap !== 'undefined' && bootstrap.Tooltip) {
-    try {
-        [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]')).map(el => new bootstrap.Tooltip(el));
-    } catch(e) { console.warn('Tooltip init failed:', e); }
-} else {
-    console.warn('Bootstrap no cargó: tooltips deshabilitados.');
-}
+    // Inicializar tooltips de Bootstrap (con guard por si el CDN falla — fix 16-A-1)
+    if (typeof bootstrap !== 'undefined' && bootstrap.Tooltip) {
+        try {
+            [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]')).map(el => new bootstrap.Tooltip(el));
+        } catch(e) { console.warn('Tooltip init failed:', e); }
+    } else {
+        console.warn('Bootstrap no cargó: tooltips deshabilitados.');
+    }
 
     document.getElementById('examCourseInput').value    = examState.course;
     document.getElementById('testCourseInput').value    = testState.course;
@@ -12043,22 +12043,6 @@ if (typeof bootstrap !== 'undefined' && bootstrap.Tooltip) {
     // Inicialización de instrumentos: estado vacío (no cargar de localStorage)
     // (inst_loadConfigLocalSilent etc. no se llaman — fb_clearLocalData ya borró LS)
 
-    // Inicialización de ponderación: cargar de localStorage si existe (auto-load silencioso)
-    try { pond_loadConfigLocalSilent(); pond_loadImportLocalSilent(); } catch(e) { console.warn('Error cargando ponderación:', e); }
-
-    // Inicialización de exam/test/generic: cargar de localStorage si existe (auto-load silencioso)
-    // Cada app en su propio try/catch para que un fallo no afecte a las demás (fix 15-A-1/15-D-2)
-    try { loadAppFromLocal('exam', true); } catch(e) { console.warn('Error cargando exam:', e); }
-    try { loadAppFromLocal('test', true); } catch(e) { console.warn('Error cargando test:', e); }
-    try { loadAppFromLocal('generic', true); } catch(e) { console.warn('Error cargando generic:', e); }
-
-    // Inicialización de instrumentos: cargar config, luego matrix, luego eval (auto-load silencioso)
-    try {
-        inst_loadConfigLocalSilent();
-        inst_loadMatrixLocalSilent();
-        inst_loadEvalLocalSilent();
-    } catch(e) { console.warn('Error cargando instrumentos:', e); }
-
     // ========== MODAL ACTIVIDADES PREDEFINIDAS (GENERIC) ==========
     document.getElementById('genericPredefinedApplyBtn')?.addEventListener('click', generic_applyPredefinedTask);
     document.getElementById('genericPredefinedSearch')?.addEventListener('input', e => generic_renderPredefinedTasks(e.target.value));
@@ -12135,12 +12119,26 @@ if (typeof bootstrap !== 'undefined' && bootstrap.Tooltip) {
         btn.addEventListener('click', () => fb_openScoresLoadModal(btn.dataset.app));
     });
 
-    // Botón de cuenta en cabecera: si hay sesión abre gestión de usuarios; si no, no hace nada.
+    // Botón de cuenta en cabecera: si hay sesión abre gestión de usuarios; si no, abre el modal de login.
     document.getElementById('btnFbAccount')?.addEventListener('click', () => {
-        if (!fbCurrentUser) return;
+        if (typeof bootstrap === 'undefined') { alert('Bootstrap no cargó. Recarga la página.'); return; }
+        if (!fbCurrentUser) {
+            // Sin sesión: abrir el modal de autenticación
+            const authModal = document.getElementById('fbAuthModal');
+            if (authModal) {
+                try { bootstrap.Modal.getOrCreateInstance(authModal).show(); }
+                catch(e) { console.error('Error abriendo modal auth:', e); }
+            } else {
+                console.error('No se encontró fbAuthModal');
+            }
+            return;
+        }
         // Con sesión: abrir gestión de usuarios
         const modalEl = document.getElementById('fbUsersModal');
-        bootstrap.Modal.getOrCreateInstance(modalEl).show();
+        if (modalEl) {
+            try { bootstrap.Modal.getOrCreateInstance(modalEl).show(); }
+            catch(e) { console.error('Error abriendo modal usuarios:', e); }
+        }
         if (!fbUsersUnsub) fb_subscribeUsers();
     });
 
@@ -12260,32 +12258,32 @@ if (typeof bootstrap !== 'undefined' && bootstrap.Tooltip) {
             'appExamContainer','appTestContainer','appGenericContainer',
             'appInstrumentosContainer','appPonderacionContainer','appRubricasContainer'
         ];
-// Mapa: id del contenedor → selector específico del menú superior (header)
-// Necesario porque algunas subapps (rúbricas) tienen muchos .btn-group;
-// el del header es el PRIMERO que es hijo directo del .d-flex del header.
-const headerMenuSelectors = {
-    'appExamContainer':         '.d-flex.justify-content-between > .btn-group',
-    'appTestContainer':         '.d-flex.justify-content-between > .btn-group',
-    'appGenericContainer':      '.d-flex.justify-content-between > .btn-group',
-    'appInstrumentosContainer': '.d-flex.justify-content-between > .btn-group',
-    'appPonderacionContainer':  '.d-flex.justify-content-between > .btn-group',
-    'appRubricasContainer':     '.d-flex.justify-content-between > .btn-group'
-};
-containerIds.forEach(containerId => {
-    const container = document.getElementById(containerId);
-    if (!container) return;
-    // Localizar el .btn-group del header (menú superior) — selector específico
-    const originalGroup = container.querySelector(headerMenuSelectors[containerId]);
+        // Mapa: id del contenedor → selector específico del menú superior (header)
+        // Necesario porque algunas subapps (rúbricas) tienen muchos .btn-group;
+        // el del header es el PRIMERO que es hijo directo del .d-flex del header.
+        const headerMenuSelectors = {
+            'appExamContainer':         '.d-flex.justify-content-between > .btn-group',
+            'appTestContainer':         '.d-flex.justify-content-between > .btn-group',
+            'appGenericContainer':      '.d-flex.justify-content-between > .btn-group',
+            'appInstrumentosContainer': '.d-flex.justify-content-between > .btn-group',
+            'appPonderacionContainer':  '.d-flex.justify-content-between > .btn-group',
+            'appRubricasContainer':     '.d-flex.justify-content-between > .btn-group'
+        };
+        containerIds.forEach(containerId => {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            // Localizar el .btn-group del header (menú superior) — selector específico
+            const originalGroup = container.querySelector(headerMenuSelectors[containerId]);
             if (!originalGroup) return;
             // Evitar duplicar si ya existe
             if (container.querySelector('.subapp-bottom-nav')) return;
             // Clonar el grupo de botones
             const clone = originalGroup.cloneNode(true);
             clone.classList.add('subapp-bottom-nav');
-// El clon mantiene btn-group (heredado de cloneNode + este add) para que
-// showAppScreen/showInstrumentosScreen/pond_showScreen/rubric_showScreen
-// lo incluyan al resetear .active. syncBottomNavActive filtra con
-// :not(.subapp-bottom-nav) al sincronizar desde el menú superior.
+            // El clon mantiene btn-group (heredado de cloneNode + este add) para que
+            // showAppScreen/showInstrumentosScreen/pond_showScreen/rubric_showScreen
+            // lo incluyan al resetear .active. syncBottomNavActive filtra con
+            // :not(.subapp-bottom-nav) al sincronizar desde el menú superior.
             clone.classList.add('btn-group');
             // A cada botón clonado: quitar su id (evitar duplicados) y redirigir click
             clone.querySelectorAll('button').forEach(btn => {
@@ -12318,7 +12316,7 @@ containerIds.forEach(containerId => {
                                 .then(function(r) { return r.text(); })
                                 .then(function(text) {
                                     var m = text.match(/CACHE_VERSION\s*=\s*['"]v([\d.]+)/);
-                                    if (!m) m = text.match(/CACHE_NAME\s*=\s*['"][^'\"]*v([\d.]+)/);
+                                    if (!m) m = text.match(/CACHE_NAME\s*=\s*['"][^'"]*v([\d.]+)/);
                                     showAppVersion(m ? m[1] : null);
                                 });
                         }
