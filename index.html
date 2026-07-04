@@ -1339,6 +1339,11 @@
             padding: 0.35em 0.8em;
             border-radius: 50px;
         }
+        /* Fix: bg-purple no existe en Bootstrap 5.3 — definirlo para que el badge de Instrumentos sea visible */
+        .bg-purple {
+            background-color: #6f42c1 !important;
+            color: #fff !important;
+        }
 
         /* ===== CARD HOVER EFFECTS ===== */
         .card {
@@ -2573,6 +2578,17 @@
         </div>
         <div id="examScreenConfig" class="screen active">
             <div class="section-card">
+                <div class="section-title"><i class="bi bi-gear-wide-connected"></i> Gestión de información <i class="bi bi-question-circle help-icon" data-bs-toggle="tooltip" title="Importar, exportar o guardar la configuración actual."></i></div>
+                <div class="d-flex flex-wrap gap-2 justify-content-start">
+                    <button id="examExportConfigBtn" class="btn btn-outline-primary btn-sm"><i class="bi bi-file-earmark-arrow-down"></i> Exportar JSON</button>
+                    <button id="examImportConfigBtn" class="btn btn-outline-secondary btn-sm"><i class="bi bi-file-earmark-arrow-up"></i> Importar JSON</button>
+                    <input type="file" id="examImportConfigFile" accept=".json" hidden>
+                    <button id="examResetAllBtn" class="btn btn-outline-danger btn-sm"><i class="bi bi-eraser"></i> Reiniciar todo</button>
+                    <button class="btn btn-outline-warning btn-sm fb-app-save-btn" data-app="exam" title="Guardar en la nube (requiere sesión)"><i class="bi bi-cloud-arrow-up"></i> Guardar en la nube</button>
+                    <button class="btn btn-outline-warning btn-sm fb-app-load-btn" data-app="exam" title="Cargar desde la nube (requiere sesión)"><i class="bi bi-cloud-arrow-down"></i> Cargar nube</button>
+                </div>
+            </div>
+            <div class="section-card">
                 <div class="section-title"><i class="bi bi-pencil-square"></i> Configuración del examen <i class="bi bi-question-circle help-icon" data-bs-toggle="tooltip" title="Nombre del examen y grupo de alumnado."></i></div>
                 <div class="row g-3 align-items-end">
                     <div class="col-md-4"><label for="examNameInput" class="form-label fw-semibold">📌 Nombre del examen</label><input type="text" id="examNameInput" class="form-control" placeholder="Introduce un nombre"></div>
@@ -2603,19 +2619,6 @@
                 <div class="table-responsive mt-3"><table class="table table-bordered align-middle table-custom" id="examQuestionsTable"><thead><tr><th>Pregunta</th><th>Descripción</th><th>Calificación máxima</th><th>Criterios</th><th>Acciones</th></tr></thead><tbody id="examQuestionsTbody"></tbody></table></div>
                 <div id="examScoreTotalsContainer" class="mt-3 p-3 border border-info rounded" style="background:rgba(13,110,253,0.05);"></div>
                 <div class="d-flex justify-content-end mt-2"><button id="examAppendQuestionBtn" class="btn btn-success btn-sm"><i class="bi bi-plus-circle"></i> Añadir pregunta</button></div>
-            </div>
-            <div class="section-card">
-                <div class="section-title"><i class="bi bi-gear-wide-connected"></i> Gestión de información <i class="bi bi-question-circle help-icon" data-bs-toggle="tooltip" title="Importar, exportar o guardar la configuración actual."></i></div>
-                <div class="d-flex flex-wrap gap-2 justify-content-start">
-                    <button id="examExportConfigBtn" class="btn btn-outline-primary btn-sm"><i class="bi bi-file-earmark-arrow-down"></i> Exportar JSON</button>
-                    <button id="examImportConfigBtn" class="btn btn-outline-secondary btn-sm"><i class="bi bi-file-earmark-arrow-up"></i> Importar JSON</button>
-                    <input type="file" id="examImportConfigFile" accept=".json" hidden>
-                    <button id="examSaveToLocalBtn" class="btn btn-outline-success btn-sm"><i class="bi bi-save"></i> Guardar local</button>
-                    <button id="examLoadFromLocalBtn" class="btn btn-outline-info btn-sm"><i class="bi bi-folder-symlink"></i> Cargar local</button>
-                    <button id="examResetAllBtn" class="btn btn-outline-danger btn-sm"><i class="bi bi-eraser"></i> Reiniciar todo</button>
-                    <button class="btn btn-outline-warning btn-sm fb-app-save-btn" data-app="exam" title="Guardar en la nube (requiere sesión)"><i class="bi bi-cloud-arrow-up"></i> Guardar en la nube</button>
-                    <button class="btn btn-outline-warning btn-sm fb-app-load-btn" data-app="exam" title="Cargar desde la nube (requiere sesión)"><i class="bi bi-cloud-arrow-down"></i> Cargar nube</button>
-                </div>
             </div>
             <div id="examConfigWarning" class="validation-warning" style="display:none;"></div>
         </div>
@@ -2668,6 +2671,17 @@
         </div>
         <div id="testScreenConfig" class="screen active">
             <div class="section-card">
+                <div class="section-title"><i class="bi bi-gear-wide-connected"></i> Gestión de información <i class="bi bi-question-circle help-icon" data-bs-toggle="tooltip" title="Importar, exportar o guardar la configuración actual."></i></div>
+                <div class="d-flex flex-wrap justify-content-start gap-2 mt-2">
+                    <button id="testExportConfigBtn" class="btn btn-outline-primary btn-sm"><i class="fas fa-download"></i> Exportar JSON</button>
+                    <button id="testImportConfigBtn" class="btn btn-outline-secondary btn-sm"><i class="fas fa-upload"></i> Importar JSON</button>
+                    <input type="file" id="testImportConfigFile" accept=".json" hidden>
+                    <button id="testResetAllBtn2" class="btn btn-outline-danger btn-sm"><i class="bi bi-eraser"></i> Reiniciar todo</button>
+                    <button class="btn btn-outline-warning btn-sm fb-app-save-btn" data-app="test" title="Guardar en la nube (requiere sesión)"><i class="bi bi-cloud-arrow-up"></i> Guardar en la nube</button>
+                    <button class="btn btn-outline-warning btn-sm fb-app-load-btn" data-app="test" title="Cargar desde la nube (requiere sesión)"><i class="bi bi-cloud-arrow-down"></i> Cargar nube</button>
+                </div>
+            </div>
+            <div class="section-card">
                 <div class="section-title"><i class="fas fa-clipboard-list"></i> Configuración del test <i class="bi bi-question-circle help-icon" data-bs-toggle="tooltip" title="Título del test y grupo de alumnado."></i></div>
                 <div class="row g-4">
                     <div class="col-md-6"><label for="testExamTitleInput" class="form-label fw-semibold">📌 Nombre del examen</label><input type="text" id="testExamTitleInput" class="form-control" placeholder="Introduce un nombre"></div>
@@ -2709,19 +2723,6 @@
                 </div>
             </div>
 
-            <div class="section-card">
-                <div class="section-title"><i class="bi bi-gear-wide-connected"></i> Gestión de información <i class="bi bi-question-circle help-icon" data-bs-toggle="tooltip" title="Importar, exportar o guardar la configuración actual."></i></div>
-                <div class="d-flex flex-wrap justify-content-start gap-2 mt-2">
-                    <button id="testExportConfigBtn" class="btn btn-outline-primary btn-sm"><i class="fas fa-download"></i> Exportar JSON</button>
-                    <button id="testImportConfigBtn" class="btn btn-outline-secondary btn-sm"><i class="fas fa-upload"></i> Importar JSON</button>
-                    <input type="file" id="testImportConfigFile" accept=".json" hidden>
-                    <button id="testSaveToLocalBtn" class="btn btn-outline-success btn-sm"><i class="fas fa-save"></i> Guardar local</button>
-                    <button id="testLoadFromLocalBtn" class="btn btn-outline-info btn-sm"><i class="fas fa-folder-open"></i> Cargar local</button>
-                    <button id="testResetAllBtn2" class="btn btn-outline-danger btn-sm"><i class="bi bi-eraser"></i> Reiniciar todo</button>
-                    <button class="btn btn-outline-warning btn-sm fb-app-save-btn" data-app="test" title="Guardar en la nube (requiere sesión)"><i class="bi bi-cloud-arrow-up"></i> Guardar en la nube</button>
-                    <button class="btn btn-outline-warning btn-sm fb-app-load-btn" data-app="test" title="Cargar desde la nube (requiere sesión)"><i class="bi bi-cloud-arrow-down"></i> Cargar nube</button>
-                </div>
-            </div>
             <div id="testConfigWarning" class="validation-warning" style="display:none;"></div>
         </div>
         <div id="testScreenGrade" class="screen">
@@ -2773,6 +2774,17 @@
         </div>
         <div id="genericScreenConfig" class="screen active">
             <div class="section-card">
+                <div class="section-title"><i class="bi bi-gear-wide-connected"></i> Gestión de información <i class="bi bi-question-circle help-icon" data-bs-toggle="tooltip" title="Importar, exportar o guardar la configuración actual."></i></div>
+                <div class="d-flex flex-wrap gap-2 justify-content-start">
+                    <button id="genericExportConfigBtn" class="btn btn-outline-primary btn-sm"><i class="bi bi-file-earmark-arrow-down"></i> Exportar JSON</button>
+                    <button id="genericImportConfigBtn" class="btn btn-outline-secondary btn-sm"><i class="bi bi-file-earmark-arrow-up"></i> Importar JSON</button>
+                    <input type="file" id="genericImportConfigFile" accept=".json" hidden>
+                    <button id="genericResetAllBtn" class="btn btn-outline-danger btn-sm"><i class="bi bi-eraser"></i> Reiniciar todo</button>
+                    <button class="btn btn-outline-warning btn-sm fb-app-save-btn" data-app="generic" title="Guardar en la nube (requiere sesión)"><i class="bi bi-cloud-arrow-up"></i> Guardar en la nube</button>
+                    <button class="btn btn-outline-warning btn-sm fb-app-load-btn" data-app="generic" title="Cargar desde la nube (requiere sesión)"><i class="bi bi-cloud-arrow-down"></i> Cargar nube</button>
+                </div>
+            </div>
+            <div class="section-card">
                 <div class="section-title"><i class="bi bi-pencil-square"></i> Configuración de la actividad <i class="bi bi-question-circle help-icon" data-bs-toggle="tooltip" title="Nombre de la actividad y grupo de alumnado."></i></div>
                 <div class="row g-3 align-items-end">
                     <div class="col-md-4"><label for="genericExamNameInput" class="form-label fw-semibold">📌 Nombre de la actividad</label><input type="text" id="genericExamNameInput" class="form-control" placeholder="Introduce un nombre"></div>
@@ -2798,19 +2810,6 @@
                 </div>
                 <div class="form-text mt-2"><i class="bi bi-info-circle"></i> <strong>Actividades predefinidas</strong> permite cargar de una vez los criterios típicos de una actividad (Exposición oral, Memoria final, Maqueta, etc.). Podrás editar o añadir criterios después.</div>
                 <div id="genericOrphanedCriteriaWarning" class="validation-warning mt-3" style="display:none;"><span id="genericOrphanedCriteriaMessage"></span></div>
-            </div>
-            <div class="section-card">
-                <div class="section-title"><i class="bi bi-gear-wide-connected"></i> Gestión de información <i class="bi bi-question-circle help-icon" data-bs-toggle="tooltip" title="Importar, exportar o guardar la configuración actual."></i></div>
-                <div class="d-flex flex-wrap gap-2 justify-content-start">
-                    <button id="genericExportConfigBtn" class="btn btn-outline-primary btn-sm"><i class="bi bi-file-earmark-arrow-down"></i> Exportar JSON</button>
-                    <button id="genericImportConfigBtn" class="btn btn-outline-secondary btn-sm"><i class="bi bi-file-earmark-arrow-up"></i> Importar JSON</button>
-                    <input type="file" id="genericImportConfigFile" accept=".json" hidden>
-                    <button id="genericSaveToLocalBtn" class="btn btn-outline-success btn-sm"><i class="bi bi-save"></i> Guardar local</button>
-                    <button id="genericLoadFromLocalBtn" class="btn btn-outline-info btn-sm"><i class="bi bi-folder-symlink"></i> Cargar local</button>
-                    <button id="genericResetAllBtn" class="btn btn-outline-danger btn-sm"><i class="bi bi-eraser"></i> Reiniciar todo</button>
-                    <button class="btn btn-outline-warning btn-sm fb-app-save-btn" data-app="generic" title="Guardar en la nube (requiere sesión)"><i class="bi bi-cloud-arrow-up"></i> Guardar en la nube</button>
-                    <button class="btn btn-outline-warning btn-sm fb-app-load-btn" data-app="generic" title="Cargar desde la nube (requiere sesión)"><i class="bi bi-cloud-arrow-down"></i> Cargar nube</button>
-                </div>
             </div>
             <div id="genericConfigWarning" class="validation-warning" style="display:none;"></div>
         </div>
@@ -2865,6 +2864,17 @@
             <!-- CONFIG -->
             <div class="tab-pane fade show active" id="inst_config" role="tabpanel">
                 <div class="section-card">
+                    <div class="section-title"><i class="bi bi-gear-wide-connected"></i> Gestión de información <i class="bi bi-question-circle help-icon" data-bs-toggle="tooltip" title="Importar, exportar o guardar la configuración actual."></i></div>
+                    <div class="d-flex flex-wrap gap-2 justify-content-start">
+                        <button id="inst_exportConfigJson" class="btn btn-outline-primary btn-sm"><i class="bi bi-file-earmark-arrow-down"></i> Exportar JSON</button>
+                        <button id="inst_importConfigJsonBtn" class="btn btn-outline-secondary btn-sm"><i class="bi bi-file-earmark-arrow-up"></i> Importar JSON</button>
+                        <input type="file" id="inst_importConfigFile" accept=".json" hidden>
+                        <button id="inst_resetAllBtn" class="btn btn-outline-danger btn-sm"><i class="bi bi-eraser"></i> Reiniciar todo</button>
+                        <button class="btn btn-outline-warning btn-sm fb-app-save-btn" data-app="instrumentos" title="Guardar en la nube (requiere sesión)"><i class="bi bi-cloud-arrow-up"></i> Guardar en la nube</button>
+                        <button class="btn btn-outline-warning btn-sm fb-app-load-btn" data-app="instrumentos" title="Cargar desde la nube (requiere sesión)"><i class="bi bi-cloud-arrow-down"></i> Cargar nube</button>
+                    </div>
+                </div>
+                <div class="section-card">
                     <div class="section-title"><i class="bi bi-pencil-square"></i> Configuración de la actividad</div>
                     <div class="row g-3">
                         <div class="col-md-6"><label class="form-label fw-semibold">📌 Nombre de la actividad <span class="text-danger">*</span></label><input type="text" id="inst_actividadInput" class="form-control" placeholder="Introduce un nombre"></div>
@@ -2890,19 +2900,6 @@
                     <table class="table table-sm table-bordered" id="inst_instrumentsTable"><thead><tr><th>#</th><th>Instrumentos</th><th>Descripción</th><th>Peso (%)</th></tr></thead><tbody id="inst_instrumentsBody"></tbody></table>
                     <p class="text-muted small">El último instrumento se calcula automáticamente para que la suma sea siempre 100%.</p>
                 </div>
-                <div class="section-card">
-                    <div class="section-title"><i class="bi bi-gear-wide-connected"></i> Gestión de información <i class="bi bi-question-circle help-icon" data-bs-toggle="tooltip" title="Importar, exportar o guardar la configuración actual."></i></div>
-                    <div class="d-flex flex-wrap gap-2 justify-content-start">
-                        <button id="inst_exportConfigJson" class="btn btn-outline-primary btn-sm"><i class="bi bi-file-earmark-arrow-down"></i> Exportar JSON</button>
-                        <button id="inst_importConfigJsonBtn" class="btn btn-outline-secondary btn-sm"><i class="bi bi-file-earmark-arrow-up"></i> Importar JSON</button>
-                        <input type="file" id="inst_importConfigFile" accept=".json" hidden>
-                        <button id="inst_saveConfigLocal" class="btn btn-outline-success btn-sm"><i class="bi bi-save"></i> Guardar local</button>
-                        <button id="inst_loadConfigLocal" class="btn btn-outline-info btn-sm"><i class="bi bi-folder-symlink"></i> Cargar local</button>
-                        <button id="inst_resetAllBtn" class="btn btn-outline-danger btn-sm"><i class="bi bi-eraser"></i> Reiniciar todo</button>
-                        <button class="btn btn-outline-warning btn-sm fb-app-save-btn" data-app="instrumentos" title="Guardar en la nube (requiere sesión)"><i class="bi bi-cloud-arrow-up"></i> Guardar en la nube</button>
-                        <button class="btn btn-outline-warning btn-sm fb-app-load-btn" data-app="instrumentos" title="Cargar desde la nube (requiere sesión)"><i class="bi bi-cloud-arrow-down"></i> Cargar nube</button>
-                    </div>
-                </div>
                 <div id="inst_configWarning" class="validation-warning" style="display:none;"></div>
                 <div class="d-flex justify-content-end"><button id="inst_irRelacionBtn" class="btn btn-primary btn-lg" disabled><i class="bi bi-arrow-right"></i> Ir a Relación</button></div>
             </div>
@@ -2916,12 +2913,8 @@
                     <div class="btn-group mb-3">
                         <button id="inst_exportMatrixJson" class="btn btn-outline-success btn-sm"><i class="bi bi-download"></i> Exportar matriz</button>
                         <button id="inst_importMatrixJsonBtn" class="btn btn-outline-warning btn-sm"><i class="bi bi-upload"></i> Importar matriz</button>
-                        <button id="inst_saveMatrixLocal" class="btn btn-outline-info btn-sm"><i class="bi bi-save"></i> Guardar local</button>
-                        <button id="inst_loadMatrixLocal" class="btn btn-outline-secondary btn-sm"><i class="bi bi-folder-symlink"></i> Recuperar local</button>
-                    </div>
-                    <div class="d-flex flex-wrap gap-2 mb-3">
-                        <button id="inst_saveMatrixCloud" class="btn btn-outline-warning btn-sm" title="Guardar la matriz de relación en la nube (requiere sesión)"><i class="bi bi-cloud-arrow-up"></i> Guardar nube</button>
-                        <button id="inst_loadMatrixCloud" class="btn btn-outline-warning btn-sm" title="Cargar la matriz de relación desde la nube (requiere sesión)"><i class="bi bi-cloud-arrow-down"></i> Cargar nube</button>
+                        <button id="inst_saveMatrixCloud" class="btn btn-outline-primary btn-sm"><i class="bi bi-cloud-arrow-up"></i> Guardar matriz en la nube</button>
+                        <button id="inst_loadMatrixCloud" class="btn btn-outline-info btn-sm"><i class="bi bi-cloud-arrow-down"></i> Cargar matriz de la nube</button>
                     </div>
                     <input type="file" id="inst_importMatrixFile" accept=".json" hidden>
                     <div class="d-flex justify-content-end"><button id="inst_irEvalBtn" class="btn btn-primary btn-lg" disabled><i class="bi bi-arrow-right"></i> Ir a Evaluación</button></div>
@@ -2952,8 +2945,7 @@
                         <button id="inst_clearScoresBtn" class="btn btn-outline-danger btn-sm"><i class="bi bi-trash3"></i> Borrar calificaciones</button>
                         <button id="inst_exportEvalJson" class="btn btn-outline-primary btn-sm"><i class="bi bi-file-earmark-arrow-down"></i> Exportar JSON</button>
                         <button id="inst_importEvalJsonBtn" class="btn btn-outline-secondary btn-sm"><i class="bi bi-file-earmark-arrow-up"></i> Importar JSON</button>
-                        <input type="file" id="inst_importEvalFile" accept=".json" hidden><button id="inst_saveEvalLocal" class="btn btn-outline-success btn-sm"><i class="bi bi-save"></i> Guardar calificaciones</button>
-                        <button id="inst_loadEvalLocal" class="btn btn-outline-info btn-sm"><i class="bi bi-folder-symlink"></i> Recuperar calificaciones</button>
+                        <input type="file" id="inst_importEvalFile" accept=".json" hidden>
                     </div>
                     <div class="table-responsive" style="max-height:500px;"><table class="table table-bordered table-striped" id="inst_evalTable"><thead class="inst-fixed-header" id="inst_evalThead"></thead><tbody id="inst_evalTbody"></tbody></table></div>
                     <div class="d-flex flex-wrap gap-2 mt-3 justify-content-end">
@@ -2990,6 +2982,15 @@
         <!-- CONFIG -->
         <div id="pond_screenConfig" class="screen active">
             <div class="section-card">
+                <div class="section-title"><i class="bi bi-gear-wide-connected"></i> Gestión de información</div>
+                <div class="d-flex flex-wrap gap-2 justify-content-start">
+                    <button id="pond_exportConfigBtn" class="btn btn-outline-primary btn-sm"><i class="bi bi-file-earmark-arrow-down"></i> Exportar configuración</button>
+                    <button id="pond_importConfigBtn" class="btn btn-outline-secondary btn-sm"><i class="bi bi-file-earmark-arrow-up"></i> Importar configuración</button>
+                    <input type="file" id="pond_importConfigFile" accept=".json" hidden>
+                    <button id="pond_resetAllBtn" class="btn btn-outline-danger btn-sm"><i class="bi bi-eraser"></i> Reiniciar todo</button>
+                </div>
+            </div>
+            <div class="section-card">
                 <div class="section-title"><i class="bi bi-pencil-square"></i> Configuración de la ponderación</div>
                 <div class="row g-3">
                     <div class="col-md-6">
@@ -3017,17 +3018,6 @@
                 </div>
             </div>
             <div id="pond_configWarning" class="validation-warning" style="display:none;"></div>
-            <div class="section-card">
-                <div class="section-title"><i class="bi bi-gear-wide-connected"></i> Gestión de información</div>
-                <div class="d-flex flex-wrap gap-2 justify-content-start">
-                    <button id="pond_exportConfigBtn" class="btn btn-outline-primary btn-sm"><i class="bi bi-file-earmark-arrow-down"></i> Exportar configuración</button>
-                    <button id="pond_importConfigBtn" class="btn btn-outline-secondary btn-sm"><i class="bi bi-file-earmark-arrow-up"></i> Importar configuración</button>
-                    <input type="file" id="pond_importConfigFile" accept=".json" hidden>
-                    <button id="pond_saveConfigLocal" class="btn btn-outline-success btn-sm"><i class="bi bi-save"></i> Guardar local</button>
-                    <button id="pond_loadConfigLocal" class="btn btn-outline-info btn-sm"><i class="bi bi-folder-symlink"></i> Cargar local</button>
-                    <button id="pond_resetAllBtn" class="btn btn-outline-danger btn-sm"><i class="bi bi-eraser"></i> Reiniciar todo</button>
-                </div>
-            </div>
             <div class="d-flex justify-content-end">
                 <button id="pond_btnGoImport" class="btn btn-info btn-lg text-white"><i class="bi bi-arrow-right"></i> Ir a Importar</button>
             </div>
@@ -3055,8 +3045,6 @@
                     <button id="pond_exportImportBtn" class="btn btn-outline-primary btn-sm"><i class="bi bi-file-earmark-arrow-down"></i> Exportar importación</button>
                     <button id="pond_importImportBtn" class="btn btn-outline-secondary btn-sm"><i class="bi bi-file-earmark-arrow-up"></i> Importar importación</button>
                     <input type="file" id="pond_importImportFile" accept=".json" hidden>
-                    <button id="pond_saveImportLocal" class="btn btn-outline-success btn-sm"><i class="bi bi-save"></i> Guardar local</button>
-                    <button id="pond_loadImportLocal" class="btn btn-outline-info btn-sm"><i class="bi bi-folder-symlink"></i> Cargar local</button>
                 </div>
                 <div id="pond_importMgmtMessage" class="small mt-2"></div>
             </div>
@@ -3122,6 +3110,17 @@
         <!-- PANTALLA CONFIGURACIÓN -->
         <div id="rubricScreenSetup" class="screen active">
             <div class="section-card">
+                <div class="section-title"><i class="bi bi-gear-wide-connected"></i> Gestión de información <i class="bi bi-question-circle help-icon" data-bs-toggle="tooltip" title="Exporta, importa o guarda localmente la configuración completa de la rúbrica."></i></div>
+                <div class="d-flex flex-wrap gap-2 justify-content-start">
+                    <button id="rubricExportConfigBtn" class="btn btn-outline-primary btn-sm"><i class="bi bi-file-earmark-arrow-down"></i> Exportar JSON</button>
+                    <button id="rubricImportConfigBtn" class="btn btn-outline-secondary btn-sm"><i class="bi bi-file-earmark-arrow-up"></i> Importar JSON</button>
+                    <input type="file" id="rubricImportConfigFile" accept=".json" hidden>
+                    <button id="rubricResetAllBtn" class="btn btn-outline-danger btn-sm"><i class="bi bi-eraser"></i> Reiniciar todo</button>
+                    <button class="btn btn-outline-warning btn-sm fb-app-save-btn" data-app="rubricas" title="Guardar en la nube (requiere sesión)"><i class="bi bi-cloud-arrow-up"></i> Guardar en la nube</button>
+                    <button class="btn btn-outline-warning btn-sm fb-app-load-btn" data-app="rubricas" title="Cargar desde la nube (requiere sesión)"><i class="bi bi-cloud-arrow-down"></i> Cargar nube</button>
+                </div>
+            </div>
+            <div class="section-card">
                 <div class="section-title"><i class="bi bi-pencil-square"></i> Configuración de la evaluación <i class="bi bi-question-circle help-icon" data-bs-toggle="tooltip" title="Título de la evaluación y grupo de alumnado."></i></div>
                 <div class="row g-3 align-items-end">
                     <div class="col-md-5"><label for="rubricEvalNameInput" class="form-label fw-semibold">📌 Título de la evaluación</label><input type="text" id="rubricEvalNameInput" class="form-control" placeholder="Ej: Exposición, Proyecto..."></div>
@@ -3183,20 +3182,6 @@
                     <span id="rubricSelectedCriteriaBadges" class="d-flex flex-wrap gap-1"></span>
                 </div>
                 <div class="form-text mt-2"><i class="bi bi-info-circle"></i> Estos criterios se usarán para exportar las <strong>notas por criterio</strong> en los resultados. La nota final del alumno se asignará a cada criterio seleccionado.</div>
-            </div>
-
-            <div class="section-card">
-                <div class="section-title"><i class="bi bi-gear-wide-connected"></i> Gestión de información <i class="bi bi-question-circle help-icon" data-bs-toggle="tooltip" title="Exporta, importa o guarda localmente la configuración completa de la rúbrica."></i></div>
-                <div class="d-flex flex-wrap gap-2 justify-content-start">
-                    <button id="rubricExportConfigBtn" class="btn btn-outline-primary btn-sm"><i class="bi bi-file-earmark-arrow-down"></i> Exportar JSON</button>
-                    <button id="rubricImportConfigBtn" class="btn btn-outline-secondary btn-sm"><i class="bi bi-file-earmark-arrow-up"></i> Importar JSON</button>
-                    <input type="file" id="rubricImportConfigFile" accept=".json" hidden>
-                    <button id="rubricSaveToLocalBtn" class="btn btn-outline-success btn-sm"><i class="bi bi-save"></i> Guardar local</button>
-                    <button id="rubricLoadFromLocalBtn" class="btn btn-outline-info btn-sm"><i class="bi bi-folder-symlink"></i> Cargar local</button>
-                    <button id="rubricResetAllBtn" class="btn btn-outline-danger btn-sm"><i class="bi bi-eraser"></i> Reiniciar todo</button>
-                    <button class="btn btn-outline-warning btn-sm fb-app-save-btn" data-app="rubricas" title="Guardar en la nube (requiere sesión)"><i class="bi bi-cloud-arrow-up"></i> Guardar en la nube</button>
-                    <button class="btn btn-outline-warning btn-sm fb-app-load-btn" data-app="rubricas" title="Cargar desde la nube (requiere sesión)"><i class="bi bi-cloud-arrow-down"></i> Cargar nube</button>
-                </div>
             </div>
 
             <div id="rubricSetupWarning" class="validation-warning" style="display:none;"></div>
@@ -11396,8 +11381,6 @@ window.onload = function() {
     document.getElementById('examExportConfigBtn').addEventListener('click', ()=>exportAppConfig('exam'));
     fileDelegate('examImportConfigBtn','examImportConfigFile');
     document.getElementById('examImportConfigFile').addEventListener('change', function() { if(this.files.length) importAppConfig(this.files[0],'exam'); this.value=''; });
-    document.getElementById('examSaveToLocalBtn').addEventListener('click', ()=>saveAppToLocal('exam'));
-    document.getElementById('examLoadFromLocalBtn').addEventListener('click', ()=>loadAppFromLocal('exam'));
     document.getElementById('examBtnSaveScores').addEventListener('click', ()=>saveScoresLocal('exam'));
     document.getElementById('examExportScoresBtn').addEventListener('click', ()=>exportAppScores('exam'));
     fileDelegate('examImportScoresBtn','examImportScoresFile');
@@ -11456,8 +11439,6 @@ window.onload = function() {
     document.getElementById('testExportConfigBtn').addEventListener('click', ()=>exportAppConfig('test'));
     fileDelegate('testImportConfigBtn','testImportConfigFile');
     document.getElementById('testImportConfigFile').addEventListener('change', function() { if(this.files.length) importAppConfig(this.files[0],'test'); this.value=''; });
-    document.getElementById('testSaveToLocalBtn').addEventListener('click', ()=>saveAppToLocal('test'));
-    document.getElementById('testLoadFromLocalBtn').addEventListener('click', ()=>loadAppFromLocal('test'));
     document.getElementById('testBtnSaveScores').addEventListener('click', ()=>saveScoresLocal('test'));
     document.getElementById('testExportScoresBtn').addEventListener('click', ()=>exportAppScores('test'));
     fileDelegate('testImportScoresBtn','testImportScoresFile');
@@ -11508,8 +11489,6 @@ window.onload = function() {
     document.getElementById('genericExportConfigBtn').addEventListener('click', ()=>exportAppConfig('generic'));
     fileDelegate('genericImportConfigBtn','genericImportConfigFile');
     document.getElementById('genericImportConfigFile').addEventListener('change', function() { if(this.files.length) importAppConfig(this.files[0],'generic'); this.value=''; });
-    document.getElementById('genericSaveToLocalBtn').addEventListener('click', ()=>saveAppToLocal('generic'));
-    document.getElementById('genericLoadFromLocalBtn').addEventListener('click', ()=>loadAppFromLocal('generic'));
     document.getElementById('genericBtnSaveScores').addEventListener('click', ()=>saveScoresLocal('generic'));
     document.getElementById('genericExportScoresBtn').addEventListener('click', ()=>exportAppScores('generic'));
     fileDelegate('genericImportScoresBtn','genericImportScoresFile');
@@ -11637,18 +11616,12 @@ window.onload = function() {
     document.getElementById('inst_exportConfigJson').addEventListener('click', inst_exportConfig);
     fileDelegate('inst_importConfigJsonBtn','inst_importConfigFile');
     document.getElementById('inst_importConfigFile').addEventListener('change', function() { if(this.files.length) inst_importConfig(this.files[0]); this.value=''; });
-    document.getElementById('inst_saveConfigLocal').addEventListener('click', inst_saveConfigLocal);
-    document.getElementById('inst_loadConfigLocal').addEventListener('click', inst_loadConfigLocal);
-    document.getElementById('inst_saveEvalLocal').addEventListener('click', inst_saveEvalLocal);
-    document.getElementById('inst_loadEvalLocal').addEventListener('click', inst_loadEvalLocal);
     document.getElementById('inst_exportEvalJson').addEventListener('click', inst_exportEvalJson);
     fileDelegate('inst_importEvalJsonBtn','inst_importEvalFile');
     document.getElementById('inst_importEvalFile').addEventListener('change', function() { if(this.files.length) inst_importEvalJson(this.files[0]); this.value=''; });
     document.getElementById('inst_exportMatrixJson').addEventListener('click', inst_exportMatrix);
     fileDelegate('inst_importMatrixJsonBtn','inst_importMatrixFile');
     document.getElementById('inst_importMatrixFile').addEventListener('change', function() { if(this.files.length) inst_importMatrix(this.files[0]); this.value=''; });
-    document.getElementById('inst_saveMatrixLocal').addEventListener('click', inst_saveMatrixLocal);
-    document.getElementById('inst_loadMatrixLocal').addEventListener('click', inst_loadMatrixLocal);
     document.getElementById('inst_saveMatrixCloud')?.addEventListener('click', inst_saveMatrixCloud);
     document.getElementById('inst_loadMatrixCloud')?.addEventListener('click', inst_loadMatrixCloud);
     document.getElementById('inst_resetAllBtn').addEventListener('click', resetInstrumentosState);
@@ -11762,8 +11735,6 @@ window.onload = function() {
     document.getElementById('pond_exportConfigBtn')?.addEventListener('click', pond_exportConfig);
     document.getElementById('pond_importConfigBtn')?.addEventListener('click', () => document.getElementById('pond_importConfigFile').click());
     document.getElementById('pond_importConfigFile')?.addEventListener('change', function() { if (this.files.length) pond_importConfig(this.files[0]); this.value = ''; });
-    document.getElementById('pond_saveConfigLocal')?.addEventListener('click', pond_saveConfigLocal);
-    document.getElementById('pond_loadConfigLocal')?.addEventListener('click', pond_loadConfigLocal);
     document.getElementById('pond_resetAllBtn')?.addEventListener('click', pond_resetAll);
 
     // Config → Importar
@@ -11784,8 +11755,6 @@ window.onload = function() {
     document.getElementById('pond_exportImportBtn')?.addEventListener('click', pond_exportImport);
     document.getElementById('pond_importImportBtn')?.addEventListener('click', () => document.getElementById('pond_importImportFile').click());
     document.getElementById('pond_importImportFile')?.addEventListener('change', function() { if (this.files.length) pond_importImport(this.files[0]); this.value = ''; });
-    document.getElementById('pond_saveImportLocal')?.addEventListener('click', pond_saveImportLocal);
-    document.getElementById('pond_loadImportLocal')?.addEventListener('click', pond_loadImportLocal);
 
     // Importar → Resultados
     document.getElementById('pond_btnGoResults')?.addEventListener('click', () => pond_showScreen('Results'));
@@ -11966,8 +11935,6 @@ window.onload = function() {
     document.getElementById('rubricExportConfigBtn')?.addEventListener('click', rubric_exportConfig);
     document.getElementById('rubricImportConfigBtn')?.addEventListener('click', () => document.getElementById('rubricImportConfigFile').click());
     document.getElementById('rubricImportConfigFile')?.addEventListener('change', function() { if (this.files.length) rubric_importConfig(this.files[0]); this.value = ''; });
-    document.getElementById('rubricSaveToLocalBtn')?.addEventListener('click', () => { rubric_saveLocal(); alert('✅ Guardado localmente.'); });
-    document.getElementById('rubricLoadFromLocalBtn')?.addEventListener('click', () => rubric_loadLocal(false));
     document.getElementById('rubricResetAllBtn')?.addEventListener('click', rubric_reset);
 
     // Evaluación: acciones masivas y datos
@@ -12008,30 +11975,25 @@ window.onload = function() {
     document.getElementById('rubricExportJsonResultsBtn')?.addEventListener('click', () => rubric_openExportOptions('json'));
     document.getElementById('rubricExpOptConfirm')?.addEventListener('click', rubric_confirmExport);
 
-    // Inicialización de rúbricas: cargar de localStorage si existe
-    if (!rubric_loadLocal(true)) {
-        rubric_updateHeader();
-        rubric_updateWeightDisplay();
-        rubric_renderStudentTags();
-        rubric_renderAspects();
-        rubric_renderValues();
-    }
+    // FORZAR ESTADO VIRGEN al arrancar: logout + limpiar localStorage + resetear estado en memoria
+    // Esto garantiza que la app siempre arranque con campos vacíos y sin sesión, vengamos de donde vengamos
+    try { fb_clearLocalData(); } catch(e) { console.warn('Error limpiando datos al arrancar:', e); }
 
-    // Inicialización de ponderación: cargar de localStorage si existe (auto-load silencioso)
-    try { pond_loadConfigLocalSilent(); pond_loadImportLocalSilent(); } catch(e) { console.warn('Error cargando ponderación:', e); }
+    // Inicialización de rúbricas: renderizar estado vacío (no cargar de localStorage)
+    rubric_updateHeader();
+    rubric_updateWeightDisplay();
+    rubric_renderStudentTags();
+    rubric_renderAspects();
+    rubric_renderValues();
 
-    // Inicialización de exam/test/generic: cargar de localStorage si existe (auto-load silencioso)
-    // Cada app en su propio try/catch para que un fallo no afecte a las demás (fix 15-A-1/15-D-2)
-    try { loadAppFromLocal('exam', true); } catch(e) { console.warn('Error cargando exam:', e); }
-    try { loadAppFromLocal('test', true); } catch(e) { console.warn('Error cargando test:', e); }
-    try { loadAppFromLocal('generic', true); } catch(e) { console.warn('Error cargando generic:', e); }
+    // Inicialización de ponderación: estado vacío (no cargar de localStorage)
+    // (pond_loadConfigLocalSilent y pond_loadImportLocalSilent no se llaman — fb_clearLocalData ya borró LS)
 
-    // Inicialización de instrumentos: cargar config, luego matrix, luego eval (auto-load silencioso)
-    try {
-        inst_loadConfigLocalSilent();
-        inst_loadMatrixLocalSilent();
-        inst_loadEvalLocalSilent();
-    } catch(e) { console.warn('Error cargando instrumentos:', e); }
+    // Inicialización de exam/test/generic: estado vacío (no cargar de localStorage)
+    // (loadAppFromLocal no se llama — fb_clearLocalData ya borró LS)
+
+    // Inicialización de instrumentos: estado vacío (no cargar de localStorage)
+    // (inst_loadConfigLocalSilent etc. no se llaman — fb_clearLocalData ya borró LS)
 
     // ========== MODAL ACTIVIDADES PREDEFINIDAS (GENERIC) ==========
     document.getElementById('genericPredefinedApplyBtn')?.addEventListener('click', generic_applyPredefinedTask);
@@ -12087,6 +12049,11 @@ window.onload = function() {
 
     // ========== FIREBASE: INIT + LISTENERS ==========
     fb_setup();
+    // Forzar logout al arrancar: si había sesión persistida por Firebase Auth, cerrarla
+    // para que la app siempre arranque en modo logout
+    if (typeof fbAuth !== 'undefined' && fbAuth && fbAuth.currentUser) {
+        fbAuth.signOut().catch(()=>{});
+    }
 
     // Botones de guardar/cargar en la nube desde cada subaplicación (CONFIGURACIÓN)
     document.querySelectorAll('.fb-app-save-btn').forEach(btn => {
