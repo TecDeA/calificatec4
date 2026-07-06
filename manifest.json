@@ -1,5 +1,5 @@
 {
-    "name": "Eval TEC4 (Online)",
+    "name": "Eval TEC4 V2",
     "short_name": "EvalTEC4",
     "description": "Sistema de evaluación criterial para Tecnología 4º ESO (LOMLOE). Permite evaluar mediante exámenes, actividades por criterios, rúbricas e instrumentos, con guardado en la nube y gestión de cursos y grupos de alumnado.",
     "start_url": "./index.html",
