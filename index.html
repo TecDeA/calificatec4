@@ -509,14 +509,6 @@
             font-size: 0.85em;
             opacity: 0.9;
         }
-        /* Variante dentro del intro-overlay (fondo morado del splash) */
-        #intro-overlay .sw-version-chip {
-            background: rgba(255, 255, 255, 0.16);
-            border: 1px solid rgba(255, 255, 255, 0.5);
-            text-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
-            font-size: 0.78rem;
-            letter-spacing: 0.12em;
-        }
         
         .intro-subtitle { 
             font-size: clamp(1rem, 3.5vw, 2rem); 
@@ -2606,7 +2598,7 @@
 <body>
 <div id="intro-overlay">
     <div class="intro-title">EVALUACIÓN <br> CRITERIAL <br>TEC4</div>
-    <div class="intro-version"><i class="bi bi-cloud-fill"></i> VERSIÓN ONLINE<span id="swVersionChipIntro" class="sw-version-chip" style="display:none;" title="Versión de la caché del Service Worker (sw.js)"><i class="bi bi-tag-fill"></i><span class="sw-version-text"></span></span></div>
+    <div class="intro-version"><i class="bi bi-cloud-fill"></i> VERSIÓN ONLINE</div>
     <div class="intro-subtitle">by @angelmicelti</div>
 </div>
 
@@ -12284,33 +12276,21 @@ window.onload = function() {
 
     // === VERSIÓN DESDE sw.js ===
     function showAppVersion(version) {
+        // El footer ya no muestra la versión ni el indicador SW (solo la firma).
         var footer = document.getElementById('homeVersionFooter');
-        if (!footer) return;
-        var html = '';
-        if (version) {
-            html += '<span class="me-1">App <strong>v' + version + '</strong></span>';
-            if (navigator.serviceWorker && navigator.serviceWorker.controller) {
-                html += '<span class="me-1"><i class="bi bi-broadcast-pin" style="color:#198754;"></i> SW</span>';
-            }
-        } else if ('serviceWorker' in navigator) {
-            html += '<span class="me-1" style="color:#94a3b8;">SW sin caché</span>';
-        }
-        html += '<span>· by @angelmicelti</span>';
-        footer.innerHTML = html;
-        // Chip dinámico de versión (a la derecha de "VERSIÓN ONLINE" en splash e inicio)
+        if (footer) footer.innerHTML = '<span>by @angelmicelti</span>';
+        // Chip dinámico de versión (solo en la pantalla de inicio, nunca en el splash).
         // Se rellena con el valor de CACHE_VERSION leído de sw.js.
-        ['swVersionChipIntro', 'swVersionChipHome'].forEach(function(id) {
-            var chip = document.getElementById(id);
-            if (!chip) return;
-            var txt = chip.querySelector('.sw-version-text');
-            if (version && txt) {
-                txt.textContent = 'v' + version;
-                chip.style.display = 'inline-flex';
-            } else {
-                // Sin versión disponible: ocultar el chip para no mostrarlo vacío
-                chip.style.display = 'none';
-            }
-        });
+        var chip = document.getElementById('swVersionChipHome');
+        if (!chip) return;
+        var txt = chip.querySelector('.sw-version-text');
+        if (version && txt) {
+            txt.textContent = 'v' + version;
+            chip.style.display = 'inline-flex';
+        } else {
+            // Sin versión disponible: ocultar el chip para no mostrarlo vacío
+            chip.style.display = 'none';
+        }
     }
 
     // Lee sw.js y extrae la versión (de CACHE_VERSION o CACHE_NAME)
