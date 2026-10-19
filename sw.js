@@ -2,7 +2,7 @@
 // Cacheo de recursos para funcionamiento offline.
 // Hosting: https://angelmicelti.github.io/AppCalificaActividadesTEC4V2/
 
-const CACHE_VERSION = 'v1.8.3';
+const CACHE_VERSION = 'v1.8.5';
 const CACHE_NAME = `evaltec4-online-${CACHE_VERSION}`;
 const BASE_PATH = './';
 
@@ -67,7 +67,10 @@ self.addEventListener('activate', event => {
             .then(keyList => {
                 return Promise.all(
                     keyList.map(key => {
-                        if (key !== CACHE_NAME) {
+                        // Filtrar por prefijo propio: caches.keys() es global
+                        // al origen y sin este filtro se borraban las cachés
+                        // del portal y demás apps.
+                        if (key.startsWith('evaltec4-online-') && key !== CACHE_NAME) {
                             console.log('[SW] Eliminando caché antigua:', key);
                             return caches.delete(key);
                         }
